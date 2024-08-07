@@ -1,0 +1,21 @@
+- name: Update repositories cache
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install common packages
+  ansible.builtin.apt:
+    pkg:
+      - ufw
+      - htop
+      - acl
+
+- name: Allow SSH inbound trafic
+  community.general.ufw:
+    rule: limit
+    port: ssh
+    proto: tcp
+
+- name: Set logging
+  community.general.ufw:
+    state: enabled
+    logging: 'on'

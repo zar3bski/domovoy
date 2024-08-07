@@ -1,0 +1,6 @@
+- name: Nym servers
+  hosts: nym-servers
+  become: true
+  roles:
+    - common
+    - nym-node
