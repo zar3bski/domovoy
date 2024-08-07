@@ -1,0 +1,85 @@
+- name: Create a nym user
+  ansible.builtin.user:
+    name: nym
+    create_home: true
+    shell: /bin/rbash  # Restricted shell
+
+- name: Download nym binary from official source
+  ansible.builtin.get_url:
+    dest: /home/nym/nym-node
+    mode: '0755'
+    owner: nym
+    group: nym
+    url: https://github.com/nymtech/nym/releases/download/nym-binaries-v2024.9-topdeck/nym-node
+  when: ansible_architecture == "x86_64"
+
+- name: Download nym binary from unofficial source
+  ansible.builtin.get_url:
+    dest: /home/nym/nym-node
+    mode: '0755'
+    owner: nym
+    group: nym
+    url: https://github.com/zar3bski/blobs/raw/main/binaries/aarch64/nym-node/1.1.5/nym-node
+  when: ansible_architecture == "aarch64"
+
+- name: Allow Nym trafic to this host
+  community.general.ufw:
+    rule: allow
+    proto: any
+    port: '{{ item }}'
+  loop:
+    - 1789
+    - 1790
+    - 8080
+    - 9000
+    - 9001
+
+- name: Init conf file if does not exist
+  block:
+    - name: Check if conf file exists
+      ansible.builtin.stat:
+        path: /home/nym/.nym/nym-nodes/default-nym-node/config/config.toml
+      register: config
+
+    - name: Gather public IPV4 # noqa: command-instead-of-shell noqa: command-instead-of-module
+      ansible.builtin.shell: curl https://api.ipify.org
+      register: ipv4
+      changed_when: not config.stat.exists
+
+    - name: Gather public IPV6 # noqa: command-instead-of-shell noqa: command-instead-of-module
+      ansible.builtin.shell: curl https://api64.ipify.org
+      register: ipv6
+      changed_when: not config.stat.exists
+
+    - name: Init nym node
+      ansible.builtin.command:
+        argv:
+          - /home/nym/nym-node
+          - run
+          - --accept-operator-terms-and-conditions
+          - --init-only
+          - --public-ips
+          - "{{ ipv4.stdout }},{{ ipv6.stdout }}"
+          - "--expose-system-info"
+          - "false"
+          - --expose-system-hardware
+          - "false"
+          - --expose-crypto-hardware
+          - "false"
+      become: true
+      become_user: nym
+      changed_when: not config.stat.exists
+
+- name: Create nym-node service
+  block:
+    - name: Create systemd conf file
+      ansible.builtin.template:
+        src: templates/nym-node.service.j2
+        dest: /etc/systemd/system/nym-node.service
+        mode: '0755'
+    - name: Enable and start service
+      ansible.builtin.systemd_service:
+        state: started
+        daemon_reload: true
+        enabled: true
+        name: nym-node
