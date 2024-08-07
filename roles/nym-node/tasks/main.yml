@@ -6,7 +6,7 @@
 
 - name: Download nym binary from official source
   ansible.builtin.get_url:
-    dest: /home/nym/nym-node
+    dest: /usr/bin/nym-node
     mode: '0755'
     owner: nym
     group: nym
@@ -15,7 +15,7 @@
 
 - name: Download nym binary from unofficial source
   ansible.builtin.get_url:
-    dest: /home/nym/nym-node
+    dest: /usr/bin/nym-node
     mode: '0755'
     owner: nym
     group: nym
@@ -54,7 +54,7 @@
     - name: Init nym node
       ansible.builtin.command:
         argv:
-          - /home/nym/nym-node
+          - /usr/bin/nym-node
           - run
           - --accept-operator-terms-and-conditions
           - --init-only

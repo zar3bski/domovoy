@@ -6,7 +6,7 @@ StartLimitBurst=10
 [Service]
 User=nym
 LimitNOFILE=65536
-ExecStart=/home/nym/nym-node run --accept-operator-terms-and-conditions
+ExecStart=/usr/bin/nym-node run --accept-operator-terms-and-conditions
 KillSignal=SIGINT
 Restart=on-failure
 RestartSec=30
