@@ -35,6 +35,16 @@
         src: templates/knockd.conf.j2
         dest: /etc/knockd.conf
         mode: '0755'
+    - name: Enable START_KNOCKD
+      ansible.builtin.replace:
+        path: /etc/default/knockd
+        regexp: '^START_KNOCKD=\d$'
+        replace: START_KNOCKD=1
+    - name: Set Interface
+      ansible.builtin.replace:
+        path: /etc/default/knockd
+        regexp: '^#KNOCKD_OPTS="-i \w+"$'
+        replace: KNOCKD_OPTS="-i {{ ansible_default_ipv4.interface }}"
     - name: Enable and start service
       ansible.builtin.systemd_service:
         state: started
