@@ -1,0 +1,11 @@
+- name: Port knocking
+  ansible.builtin.wait_for:
+    port: "{{ item }}"
+    delay: 0
+    connect_timeout: 1
+    state: stopped
+    host: "{{ inventory_hostname }}"
+  delegate_to: 127.0.0.1
+  become: false
+  with_items: "{{ knock_ports }}"
+  when: knock_ports is defined

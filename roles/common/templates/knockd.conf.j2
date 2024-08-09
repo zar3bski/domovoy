@@ -1,0 +1,10 @@
+[options]
+      logfile = /var/log/knockd.log
+
+[SSH]
+      sequence    = {{ knock_ports|join(',') }}
+      seq_timeout = 5
+      command     = /sbin/iptables -I INPUT -s %IP% -p tcp --dport 22 -j ACCEPT
+      tcpflags    = syn
+      cmd_timeout   = 10
+      stop_command  = /sbin/iptables -D INPUT -s %IP% -p tcp --dport 22 -j ACCEPT

@@ -1,6 +1,13 @@
+- name: Gathering facts
+  ansible.builtin.setup:
+
 - name: Update repositories cache
   ansible.builtin.apt:
     update_cache: true
+
+- name: Upgrade packages
+  ansible.builtin.apt:
+    upgrade: safe
 
 - name: Install common packages
   ansible.builtin.apt:
@@ -14,6 +21,26 @@
     rule: limit
     port: ssh
     proto: tcp
+  when: knock_ports is not defined
+
+- name: Set port knocking for SSH inbound trafic
+  when: knock_ports is defined
+  block:
+    - name: Install knockd
+      ansible.builtin.apt:
+        pkg:
+          - knockd
+    - name: Edit conf file
+      ansible.builtin.template:
+        src: templates/knockd.conf.j2
+        dest: /etc/knockd.conf
+        mode: '0755'
+    - name: Enable and start service
+      ansible.builtin.systemd_service:
+        state: started
+        daemon_reload: true
+        enabled: true
+        name: knockd.service
 
 - name: Set logging
   community.general.ufw:
