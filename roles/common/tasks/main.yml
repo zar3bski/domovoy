@@ -52,6 +52,13 @@
         enabled: true
         name: knockd.service
 
+- name: Set additional SSH keys
+  when: ssh_keys is defined
+  ansible.builtin.lineinfile:
+    path: "/home/{{ ansible_env.SUDO_USER }}/.ssh/authorized_keys"
+    line: '{{ item }}'
+  loop: "{{ ssh_keys | list }}"
+
 - name: Set logging
   community.general.ufw:
     state: enabled
