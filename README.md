@@ -20,6 +20,17 @@ ansible-playbook -i inventory.yml site.yml
 - Debian based servers
 - rely on [UFW](https://github.com/jbq/ufw)
 
+## Inventory Data Model
+
+```yaml
+<Role name>:
+  hosts:
+    <host name>:
+      knock_ports: opt. list[int] # port sequence to set port knocking 
+      ssh_keys: opt. list[str] # additional ssh keys to be happened to sudoer's authorized_keys
+```
+
+
 ## Services
 
 ### Nym node
