@@ -46,6 +46,20 @@ all:
 
 ## Services
 
+> all technical users running the various services are limited to a restricted shell (a.k.a. `/bin/rbash`)
+
+### Prometheus + Grafana
+
+> These services can only live on the same node
+
+```yaml
+  hosts:
+    some.host.com:
+      grafana_admin: <some_password>  # admin password
+      dashboards: # dashboard to be installed
+        - https://grafana.com/api/dashboards/1860/revisions/37/download
+```
+
 ### Nym node
 
 See [this doc](https://nymtech.net/) for details
