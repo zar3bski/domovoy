@@ -58,6 +58,27 @@
     group: prometheus
     mode: "0755"
 
+- name: Create a prometheus conf folder
+  ansible.builtin.file:
+    path: /home/prometheus/conf
+    state: directory
+    owner: prometheus
+    group: prometheus
+    mode: "0750"
+
+- name: Main conf templating
+  ansible.builtin.template:
+    src: templates/prometheus.yml.j2
+    dest: /home/prometheus/conf/prometheus.yml
+    mode: '0750'
+
+#- name: Populate /etc/hosts with targets ips
+#  ansible.builtin.lineinfile:
+#    path: /etc/hosts
+#    line: '{{ hostvars[item].ansible_default_ipv4.address }} {{ hostvars[item].inventory_hostname_short }}'
+#  loop: "{{ groups['all'] }}"
+
+
 - name: Create prometheus service
   block:
     - name: Create systemd conf file
@@ -67,7 +88,7 @@
         mode: '0755'
     - name: Enable and start service
       ansible.builtin.systemd_service:
-        state: started
+        state: restarted
         daemon_reload: true
         enabled: true
         name: prometheus
