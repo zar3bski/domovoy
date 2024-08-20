@@ -3,6 +3,12 @@ Ansible playbooks
 
 ## Usage
 
+Install dependencies
+
+```py
+pip3 install -r requirements.txt
+```
+
 Create your **inventory.yml** according to `site.yml` , for example
 
 ```yaml
@@ -23,6 +29,11 @@ ansible-playbook -i inventory.yml site.yml
 ## Inventory Data Model
 
 ```yaml
+all:
+  vars:
+    prometheus_fetch_passwd: str
+  prometheus-servers:
+  nym-servers:
 <Role name>:
   hosts:
     <host name>:

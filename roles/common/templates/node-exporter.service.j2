@@ -1,0 +1,14 @@
+[Unit]
+Description=Node Exporter
+StartLimitInterval=350
+StartLimitBurst=10
+
+[Service]
+User=metrics
+ExecStart=/usr/bin/node_exporter --web.config.file=/home/metrics/node-exporter.web.config
+KillSignal=SIGINT
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
