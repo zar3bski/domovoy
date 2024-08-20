@@ -8,3 +8,14 @@
   roles:
     - common
     - nym-node
+
+- name: Prometheus servers
+  hosts: prometheus-servers
+  become: true
+  gather_facts: false
+  pre_tasks:
+    - name: Import pre_tasks
+      ansible.builtin.import_tasks: 'roles/common/knocking.yml'
+  roles:
+    - common
+    - prometheus

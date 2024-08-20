@@ -1,0 +1,25 @@
+[Unit]
+Description=Grafana
+Requires=docker.service
+Requires=prometheus.service
+After=prometheus.service
+
+[Service]
+
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker exec %n stop
+ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=/usr/bin/docker pull grafana/grafana:{{grafana_image_tag}}
+ExecStart=/usr/bin/docker run --rm --name %n \
+    --network=observability \
+    --user 1002 \
+    -v /home/grafana/provisioning:/etc/grafana/provisioning \
+    -v /home/grafana/data:/var/lib/grafana \
+    -e GF_SECURITY_ADMIN_USER=admin \
+    -e GF_SECURITY_ADMIN_PASSWORD={{grafana_admin}} \
+    -p 3000:3000 \
+    grafana/grafana:{{grafana_image_tag}}
+
+[Install]
+WantedBy=default.target

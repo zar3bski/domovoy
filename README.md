@@ -1,7 +1,15 @@
+![Ansible](https://img.shields.io/badge/ansible-%231A1918.svg?style=for-the-badge&logo=ansible&logoColor=white)
+
 # playbooks
 Ansible playbooks
 
 ## Usage
+
+Install dependencies
+
+```py
+pip3 install -r requirements.txt
+```
 
 Create your **inventory.yml** according to `site.yml` , for example
 
@@ -23,6 +31,11 @@ ansible-playbook -i inventory.yml site.yml
 ## Inventory Data Model
 
 ```yaml
+all:
+  vars:
+    prometheus_fetch_passwd: str
+  prometheus-servers:
+  nym-servers:
 <Role name>:
   hosts:
     <host name>:
@@ -32,6 +45,20 @@ ansible-playbook -i inventory.yml site.yml
 
 
 ## Services
+
+> all technical users running the various services are limited to a restricted shell (a.k.a. `/bin/rbash`)
+
+### Prometheus + Grafana
+
+> These services can only live on the same node
+
+```yaml
+  hosts:
+    some.host.com:
+      grafana_admin: <some_password>  # admin password
+      dashboards: # dashboard to be installed
+        - https://grafana.com/api/dashboards/1860/revisions/37/download
+```
 
 ### Nym node
 

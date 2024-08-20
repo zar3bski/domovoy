@@ -1,0 +1,67 @@
+- name: Create a grafana user
+  ansible.builtin.user:
+    name: grafana
+    uid: 1002
+    create_home: true
+    shell: /bin/rbash # Restricted shell
+    groups:
+      - docker
+
+- name: Create a provisioning datasources folder
+  ansible.builtin.file:
+    path: /home/grafana/provisioning/datasources
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: "0755"
+
+- name: Create a provisioning dashboards folder
+  ansible.builtin.file:
+    path: /home/grafana/provisioning/dashboards
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: "0755"
+
+- name: Create a data folder
+  ansible.builtin.file:
+    path: /home/grafana/data
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: "0755"
+
+- name: Data source templating
+  ansible.builtin.template:
+    src: templates/datasources.yml.j2
+    dest: /home/grafana/provisioning/datasources/datasources.yml
+    mode: "0750"
+
+- name: Dashboard templating
+  ansible.builtin.template:
+    src: templates/dashboards.yml.j2
+    dest: /home/grafana/provisioning/dashboards/dashboards.yml
+    mode: "0750"
+
+- name: Download dashboards
+  ansible.builtin.get_url:
+    dest: /home/grafana/provisioning/dashboards/
+    mode: "0755"
+    owner: grafana
+    group: grafana
+    url: "{{ item }}"
+  loop: "{{ dashboards | list }}"
+
+- name: Create grafana service
+  block:
+    - name: Create systemd conf file
+      ansible.builtin.template:
+        src: templates/grafana.service.j2
+        dest: /etc/systemd/system/grafana.service
+        mode: "0750"
+    - name: Enable and start service
+      ansible.builtin.systemd_service:
+        state: restarted
+        daemon_reload: true
+        enabled: true
+        name: grafana
