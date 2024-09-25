@@ -28,6 +28,16 @@ ansible-playbook -i inventory.yml site.yml
 - Debian based servers
 - rely on [UFW](https://github.com/jbq/ufw)
 
+## Users accros the infra
+
+|  PID | name       | Description                                 |
+| ---: | :--------- | :------------------------------------------ |
+| 1001 | metrics    | account used for every prometheus exporters |
+| 1002 | grafana    |                                             |
+| 1003 | prometheus |                                             |
+| 1004 | nym        | runs all Nym service                        |
+
+
 ## Inventory Data Model
 
 ```yaml
