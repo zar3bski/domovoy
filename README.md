@@ -28,6 +28,16 @@ ansible-playbook -i inventory.yml site.yml
 - Debian based servers
 - rely on [UFW](https://github.com/jbq/ufw)
 
+## Users accros the infra
+
+|  PID | name       | Description                                 |
+| ---: | :--------- | :------------------------------------------ |
+| 1001 | metrics    | account used for every prometheus exporters |
+| 1002 | grafana    |                                             |
+| 1003 | prometheus |                                             |
+| 1004 | nym        | runs all Nym service                        |
+
+
 ## Inventory Data Model
 
 ```yaml
@@ -47,6 +57,24 @@ all:
 ## Services
 
 > all technical users running the various services are limited to a restricted shell (a.k.a. `/bin/rbash`)
+
+### Wireguard
+
+Use an existing key pair or generate one following the [documentation](https://www.wireguard.com/quickstart/). You can add `peers` directly in the inventory. 
+
+```yaml
+  hosts:
+    magellan:
+      PublicKey: <key>
+      PrivateKey: <key>
+      WG_PORT: 4119
+      peers: 
+        - name: some_client
+          PublicKey: <key>
+          AllowedIPs: 10.10.10.2/32
+```
+
+This set up forwards packets from `eth0` `wg0` both ways and relies on **MASQUERADE**. See `roles/wireguard/templates/add-nat-routing.sh.j2` and `roles/wireguard/templates/remote-nat-routing.sh.j2` for details. 
 
 ### Prometheus + Grafana
 

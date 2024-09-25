@@ -1,0 +1,22 @@
+[Unit]
+Description=Prometheus WireGuard Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=metrics
+Group=metrics
+Type=simple
+Restart=on-failure
+ExecStart=/home/metrics/prometheus_wireguard_exporter
+PrivateTmp=yes
+ProtectHome=yes
+ProtectControlGroups=yes
+UMask=077
+RemoveIPC=yes
+BindReadOnlyPaths=/dev/log /run/systemd/journal/socket /run/systemd/journal/stdout
+ProtectSystem=strict
+ProtectProc=noaccess
+
+[Install]
+WantedBy=multi-user.target

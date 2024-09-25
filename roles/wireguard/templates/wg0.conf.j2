@@ -1,0 +1,23 @@
+## Set Up WireGuard VPN on Ubuntu By Editing/Creating wg0.conf File ##
+[Interface]
+## My VPN server private IP address ##
+Address = 10.10.10.1/24
+ 
+## My VPN server port ##
+ListenPort = {{ WG_PORT }}
+ 
+## VPN server's private key i.e. /etc/wireguard/privatekey ##
+PrivateKey = {{ PrivateKey }}
+
+PostUp = /etc/wireguard/helper/add-nat-routing.sh
+PostDown = /etc/wireguard/helper/remove-nat-routing.sh
+
+{% for peer in peers %}
+
+[Peer]
+# friendly_name = {{ peer.name }}
+PublicKey = {{ peer.PublicKey }}
+ 
+## client VPN IP address (note  the /32 subnet) ##
+AllowedIPs = {{ peer.AllowedIPs }}
+{% endfor %}
