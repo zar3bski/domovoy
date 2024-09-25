@@ -19,3 +19,14 @@
   roles:
     - common
     - prometheus
+
+- name: Wireguard servers
+  hosts: wireguard-servers
+  become: true
+  gather_facts: false
+  pre_tasks:
+    - name: Import pre_tasks
+      ansible.builtin.import_tasks: 'roles/common/knocking.yml'
+  roles:
+    - common
+    - wireguard
