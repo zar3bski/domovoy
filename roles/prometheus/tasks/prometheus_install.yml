@@ -3,7 +3,7 @@
     name: prometheus
     create_home: true
     shell: /bin/rbash # Restricted shell
-    uid: 1001
+    uid: 1003
     groups:
       - docker
 

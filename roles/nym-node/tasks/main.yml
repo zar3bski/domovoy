@@ -5,6 +5,7 @@
   ansible.builtin.user:
     name: nym
     create_home: true
+    uid: 1004
     shell: /bin/rbash  # Restricted shell
 
 - name: Download nym binary from official source
