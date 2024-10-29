@@ -71,6 +71,7 @@ Simply add
 technitium-servers:
   hosts:
     magellan:
+      admin_password: <your admin password>
 ```
 to your inventory
 
