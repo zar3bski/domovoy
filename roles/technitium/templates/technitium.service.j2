@@ -1,0 +1,24 @@
+[Unit]
+Description=Technitium
+After=docker.service
+Requires=docker.service
+
+[Service]
+
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker volume create technitium-config
+ExecStartPre=-/usr/bin/docker stop %n
+ExecStart=/usr/bin/docker run --rm --name %n \
+    --mount source=technitium-config,target=/etc/dns \
+    -p 5380:5380/tcp \
+    -p 53:53/udp \
+    -p 53:53/tcp \
+    -e DNS_SERVER_ADMIN_PASSWORD={{admin_password}} \
+    -e DNS_SERVER_DOMAIN={{inventory_hostname}} \
+    technitium/dns-server:{{technitium_image_tag}}
+ExecStop=-/usr/bin/docker stop %n
+
+
+[Install]
+WantedBy=default.target

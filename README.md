@@ -58,11 +58,30 @@ all:
 
 > all technical users running the various services are limited to a restricted shell (a.k.a. `/bin/rbash`)
 
+### Technitium
+
+#### ports
+
+- 5380
+- 53
+
+Simply add 
+
+```yaml
+technitium-servers:
+  hosts:
+    magellan:
+      admin_password: <your admin password>
+```
+to your inventory
+
+
 ### Wireguard
 
 Use an existing key pair or generate one following the [documentation](https://www.wireguard.com/quickstart/). You can add `peers` directly in the inventory. 
 
 ```yaml
+wireguard-servers:
   hosts:
     magellan:
       PublicKey: <key>
@@ -78,9 +97,14 @@ This set up forwards packets from `eth0` `wg0` both ways and relies on **MASQUER
 
 ### Prometheus + Grafana
 
+#### ports
+
+- 3000
+
 > These services can only live on the same node
 
 ```yaml
+prometheus-servers:
   hosts:
     some.host.com:
       grafana_admin: <some_password>  # admin password
@@ -97,6 +121,7 @@ See [this doc](https://nymtech.net/) for details
 This playbook allow the user to secure any host's sshd service using [knockd](https://github.com/jvinet/knock). To set a series of ports, simply add a `knock_ports` for this host in the **inventory.yml**
 
 ```yaml
+nym-servers:
   hosts:
     some.host.com:
       knock_ports: 
