@@ -41,11 +41,6 @@ ansible-playbook -i inventory.yml site.yml
 ## Inventory Data Model
 
 ```yaml
-all:
-  vars:
-    prometheus_fetch_passwd: str
-  prometheus-servers:
-  nym-servers:
 <Role name>:
   hosts:
     <host name>:

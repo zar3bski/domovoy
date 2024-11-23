@@ -1,5 +1,5 @@
-- name: Nym servers
-  hosts: nym-servers
+- name: DMZ servers
+  hosts: dmz-servers
   become: true
   gather_facts: false
   pre_tasks:
@@ -9,8 +9,8 @@
     - common
     - nym-node
 
-- name: Prometheus servers
-  hosts: prometheus-servers
+- name: Lan servers
+  hosts: lan-servers
   become: true
   gather_facts: false
   pre_tasks:
@@ -19,25 +19,5 @@
   roles:
     - common
     - prometheus
-
-- name: Wireguard servers
-  hosts: wireguard-servers
-  become: true
-  gather_facts: false
-  pre_tasks:
-    - name: Import pre_tasks
-      ansible.builtin.import_tasks: 'roles/common/knocking.yml'
-  roles:
-    - common
     - wireguard
-
-- name: Technitium servers
-  hosts: technitium-servers
-  become: true
-  gather_facts: false
-  pre_tasks:
-    - name: Import pre_tasks
-      ansible.builtin.import_tasks: 'roles/common/knocking.yml'
-  roles:
-    - common
     - technitium

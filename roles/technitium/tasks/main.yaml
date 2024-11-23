@@ -13,11 +13,6 @@
     enabled: false
     name: systemd-resolved
 
-- name: Add local server as DNS
-  ansible.builtin.lineinfile:
-    path: "/etc/resolv.conf"
-    line: 'nameserver 127.0.0.1'
-
 - name: Create systemd config file
   ansible.builtin.template:
     src: templates/technitium.service.j2
