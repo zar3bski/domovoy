@@ -41,7 +41,7 @@
     copy: false
 
 - name: Execute config script
-  ansible.builtin.shell: su - gh-runner -c "cd /home/gh-runner/actions-runner && ./config.sh --url {{gh_runner_url}} --token {{gh_runner_token}} --name {{inventory_hostname}} --labels {{gh_runner_labels}} --work _work --replace true --unattended"
+  ansible.builtin.shell: su - gh-runner -c "cd /home/gh-runner/actions-runner && ./config.sh --url {{gh_runner_url}} --token {{gh_runner_token}} --name {{inventory_hostname}} --labels {{gh_runner_labels}} --work _work --unattended"
 
 
 - name: Create gh-runner service
