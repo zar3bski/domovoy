@@ -1,0 +1,59 @@
+- name: Create a gh-runner user
+  ansible.builtin.user:
+    name: gh-runner
+    create_home: true
+    shell: /bin/bash
+    uid: 1005
+
+- name: Install build packages
+  ansible.builtin.apt:
+    pkg:
+      - build-essential
+
+- name: Identify material architecture # noqa: no-changed-when
+  ansible.builtin.command: "dpkg --print-architecture"
+  register: arch
+
+- name: Download runner binary from official source
+  ansible.builtin.get_url:
+    dest: /home/gh-runner
+    mode: '0755'
+    owner: gh-runner
+    group: gh-runner
+    url: https://github.com/actions/runner/releases/download/v{{action_runner_version}}/actions-runner-linux-{{arch.stdout}}-{{action_runner_version}}.tar.gz
+
+
+- name: Create dest folder
+  ansible.builtin.file:
+    path: /home/gh-runner/actions-runner
+    owner: gh-runner
+    group: gh-runner
+    state: directory
+    mode: '1755'
+    
+
+- name: Untar the archive
+  ansible.builtin.unarchive:
+    src: /home/gh-runner/actions-runner-linux-{{arch.stdout}}-{{action_runner_version}}.tar.gz
+    dest: /home/gh-runner/actions-runner
+    owner: gh-runner
+    group: gh-runner
+    copy: false
+
+- name: Execute config script
+  ansible.builtin.shell: su - gh-runner -c "cd /home/gh-runner/actions-runner && ./config.sh --url {{gh_runner_url}} --token {{gh_runner_token}} --name {{inventory_hostname}} --labels {{gh_runner_labels}} --work _work --replace true --unattended"
+
+
+- name: Create gh-runner service
+  block:
+    - name: Create systemd conf file
+      ansible.builtin.template:
+        src: templates/gh-runner.service.j2
+        dest: /etc/systemd/system/gh-runner.service
+        mode: '0755'
+    - name: Enable and start service
+      ansible.builtin.systemd_service:
+        state: started
+        daemon_reload: true
+        enabled: true
+        name: gh-runner
