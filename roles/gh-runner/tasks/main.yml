@@ -5,10 +5,20 @@
     shell: /bin/bash
     uid: 1005
 
-- name: Install build packages
-  ansible.builtin.apt:
-    pkg:
-      - build-essential
+- name: Install build dependencies
+  block:
+    - name: Install build packages
+      ansible.builtin.apt:
+        pkg:
+          - build-essential
+          - libssl-dev 
+          - pkg-config
+    - name: Install rust
+      ansible.builtin.shell: su - gh-runner -c "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y"
+    - name: Add cargo bin to PATH  
+      ansible.builtin.lineinfile:
+        path: /home/gh-runner/.bashrc
+        line: export PATH="$HOME/.cargo/bin:$PATH"
 
 - name: Identify material architecture # noqa: no-changed-when
   ansible.builtin.command: "dpkg --print-architecture"
@@ -40,9 +50,15 @@
     group: gh-runner
     copy: false
 
+- name: check if .runner file exists
+  stat: 
+    path: /home/gh-runner/actions-runner/.runner
+  register: runner_file
+
+# If a runner already exists, skip this step
 - name: Execute config script
   ansible.builtin.shell: su - gh-runner -c "cd /home/gh-runner/actions-runner && ./config.sh --url {{gh_runner_url}} --token {{gh_runner_token}} --name {{inventory_hostname}} --labels {{gh_runner_labels}} --work _work --unattended"
-
+  when: runner_file.stat.exists == false
 
 - name: Create gh-runner service
   block:
