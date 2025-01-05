@@ -36,6 +36,7 @@ ansible-playbook -i inventory.yml site.yml
 | 1002 | grafana    |                                             |
 | 1003 | prometheus |                                             |
 | 1004 | nym        | runs all Nym service                        |
+| 1005 | gh-runner  | Github runner service account               |
 
 
 ## Inventory Data Model
@@ -51,7 +52,18 @@ ansible-playbook -i inventory.yml site.yml
 
 ## Services
 
-> all technical users running the various services are limited to a restricted shell (a.k.a. `/bin/rbash`)
+> all technical users running the various services are limited to a restricted shell (a.k.a. `/bin/rbash`) exept for **gh-runner**
+
+### Github runner
+
+```yaml
+dmz-servers:
+  hosts:
+    cook:
+      gh_runner_url: https://github.com/<some_user_or_organisation>/<some_repo>
+      gh_runner_token: <token>
+      gh_runner_labels: AMR64,Linux,self-hosted
+```
 
 ### Technitium
 

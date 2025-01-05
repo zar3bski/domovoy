@@ -1,0 +1,11 @@
+[Unit]
+Description=GitHub action self hosted runner
+
+[Service]
+User=gh-runner
+TimeoutStartSec=0
+Restart=always
+ExecStart=/home/gh-runner/actions-runner/run.sh
+
+[Install]
+WantedBy=default.target
