@@ -8,7 +8,8 @@ User=metrics
 ExecStart=/usr/bin/node_exporter \
    --web.config.file=/home/metrics/node-exporter.web.config \
    --collector.systemd \
-   --collector.interrupts
+   --collector.interrupts \
+   --web.listen-address=:{{ node_exporter_port }}
 KillSignal=SIGINT
 Restart=on-failure
 RestartSec=30

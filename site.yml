@@ -2,6 +2,8 @@
   hosts: dmz-servers
   become: true
   gather_facts: false
+  vars:
+    node_exporter_port: 9101
   pre_tasks:
     - name: Import pre_tasks
       ansible.builtin.import_tasks: 'roles/common/knocking.yml'
@@ -14,6 +16,8 @@
   hosts: lan-servers
   become: true
   gather_facts: false
+  vars:
+    node_exporter_port: 9101
   pre_tasks:
     - name: Import pre_tasks
       ansible.builtin.import_tasks: 'roles/common/knocking.yml'

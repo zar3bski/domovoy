@@ -95,7 +95,7 @@
     - name: Allow inbound trafic to node_exporter
       community.general.ufw:
         rule: limit
-        port: 9100
+        port: "{{ node_exporter_port }}"
         proto: tcp
     - name: Enable and start service
       ansible.builtin.systemd_service:

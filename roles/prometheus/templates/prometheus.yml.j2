@@ -35,5 +35,5 @@ scrape_configs:
     static_configs:
       - targets:
     {% for node in groups["all"] %}
-    - "{{ hostvars[node].inventory_hostname_short }}:9100"
+    - "{{ hostvars[node].inventory_hostname_short }}:{{ node_exporter_port }}"
     {% endfor %}
