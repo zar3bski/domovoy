@@ -11,11 +11,11 @@
       ansible.builtin.apt:
         pkg:
           - build-essential
-          - libssl-dev 
+          - libssl-dev
           - pkg-config
-    - name: Install rust
+    - name: Install rust # noqa: risky-shell-pipe noqa: no-changed-when
       ansible.builtin.shell: su - gh-runner -c "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y"
-    - name: Add cargo bin to PATH  
+    - name: Add cargo bin to PATH
       ansible.builtin.lineinfile:
         path: /home/gh-runner/.bashrc
         line: export PATH="$HOME/.cargo/bin:$PATH"
@@ -40,18 +40,18 @@
     group: gh-runner
     state: directory
     mode: '1755'
-    
+
 
 - name: Untar the archive
   ansible.builtin.unarchive:
-    src: /home/gh-runner/actions-runner-linux-{{arch.stdout}}-{{action_runner_version}}.tar.gz
+    src: /home/gh-runner/actions-runner-linux-{{ arch.stdout }}-{{ action_runner_version }}.tar.gz
     dest: /home/gh-runner/actions-runner
     owner: gh-runner
     group: gh-runner
     copy: false
 
-- name: check if .runner file exists
-  stat: 
+- name: Check if .runner file exists
+  ansible.builtin.stat:
     path: /home/gh-runner/actions-runner/.runner
   register: runner_file
 

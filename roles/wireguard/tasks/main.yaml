@@ -5,48 +5,47 @@
 
 - name: Setup wireguard
   block:
-  - name: Create wireguard folder
-    ansible.builtin.file:
-      state: directory
-      path: /etc/wireguard
-      mode: "0600"
+    - name: Create wireguard folder
+      ansible.builtin.file:
+        state: directory
+        path: /etc/wireguard
+        mode: "0600"
 
-  - name: Create wireguard helper folder
-    ansible.builtin.file:
-      state: directory
-      path: /etc/wireguard/helper
-      mode: "0600"
+    - name: Create wireguard helper folder
+      ansible.builtin.file:
+        state: directory
+        path: /etc/wireguard/helper
+        mode: "0600"
 
-  - name: Copy private key
-    ansible.builtin.template:
-      src: templates/privatekey.j2
-      dest: /etc/wireguard/privatekey
-      mode: "0600"
+    - name: Copy private key
+      ansible.builtin.template:
+        src: templates/privatekey.j2
+        dest: /etc/wireguard/privatekey
+        mode: "0600"
 
-  - name: Copy public key
-    ansible.builtin.template:
-      src: templates/publickey.j2
-      dest: /etc/wireguard/publickey
-      mode: "0600"
+    - name: Copy public key
+      ansible.builtin.template:
+        src: templates/publickey.j2
+        dest: /etc/wireguard/publickey
+        mode: "0600"
 
-  - name: Copy public key
-    ansible.builtin.template:
-      src: templates/wg0.conf.j2
-      dest: /etc/wireguard/wg0.conf
-      mode: "0600"
+    - name: Copy public key
+      ansible.builtin.template:
+        src: templates/wg0.conf.j2
+        dest: /etc/wireguard/wg0.conf
+        mode: "0600"
 
+    - name: Copy helper file 1
+      ansible.builtin.template:
+        src: templates/add-nat-routing.sh.j2
+        dest: /etc/wireguard/helper/add-nat-routing.sh
+        mode: "0700"
 
-  - name: Copy helper file 1
-    ansible.builtin.template:
-      src: templates/add-nat-routing.sh.j2
-      dest: /etc/wireguard/helper/add-nat-routing.sh
-      mode: "0700"
-
-  - name: Copy helper file 2
-    ansible.builtin.template:
-      src: templates/remove-nat-routing.sh.j2
-      dest: /etc/wireguard/helper/remove-nat-routing.sh
-      mode: "0700"
+    - name: Copy helper file 2
+      ansible.builtin.template:
+        src: templates/remove-nat-routing.sh.j2
+        dest: /etc/wireguard/helper/remove-nat-routing.sh
+        mode: "0700"
 
 - name: Allow wireguard trafic to this host
   community.general.ufw:
@@ -62,7 +61,7 @@
     state: restarted
 
 # TODO: solve sudo rights dilemma
-#- name: Setup wireguard prometheus exporter
+# - name: Setup wireguard prometheus exporter
 #  block:
 #    - name: Download binary # noqa: yaml[line-length]
 #      ansible.builtin.get_url:
@@ -92,4 +91,3 @@
 #        service: prometheus-wireguard-exporter
 #        enabled: true
 #        state: restarted
-#    

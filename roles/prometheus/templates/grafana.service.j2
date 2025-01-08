@@ -10,7 +10,7 @@ TimeoutStartSec=0
 Restart=always
 ExecStartPre=-/usr/bin/docker exec %n stop
 ExecStartPre=-/usr/bin/docker rm %n
-ExecStartPre=/usr/bin/docker pull grafana/grafana:{{grafana_image_tag}}
+ExecStartPre=/usr/bin/docker pull grafana/grafana:{{prometheus_grafana_image_tag}}
 ExecStart=/usr/bin/docker run --rm --name %n \
     --network=observability \
     --user 1002 \
@@ -19,7 +19,7 @@ ExecStart=/usr/bin/docker run --rm --name %n \
     -e GF_SECURITY_ADMIN_USER=admin \
     -e GF_SECURITY_ADMIN_PASSWORD={{grafana_admin}} \
     -p 3000:3000 \
-    grafana/grafana:{{grafana_image_tag}}
+    grafana/grafana:{{prometheus_grafana_image_tag}}
 
 [Install]
 WantedBy=default.target

@@ -28,7 +28,8 @@
 
     - name: Add docker repository # noqa: yaml[line-length]
       ansible.builtin.apt_repository:
-        repo: "deb [arch={{ arch.stdout }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/{{ distro.stdout }} {{ version.stdout }} stable"
+        repo: "deb [arch={{ arch.stdout }} signed-by=/etc/apt/keyrings/docker.asc] \
+               https://download.docker.com/linux/{{ distro.stdout }} {{ version.stdout }} stable"
         state: present
         filename: docker
 

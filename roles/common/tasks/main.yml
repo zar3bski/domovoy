@@ -68,16 +68,17 @@
         mode: '0755'
         owner: metrics
         group: metrics
-        url: https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-{{ arch.stdout }}.tar.gz
+        url: "https://github.com/prometheus/node_exporter/releases/download/v{{ common_node_exporter_version }}\
+              /node_exporter-{{ common_node_exporter_version }}.linux-{{ arch.stdout }}.tar.gz"
     - name: Decompress archive
       ansible.builtin.unarchive:
-        src: /home/metrics/node_exporter-{{ node_exporter_version }}.linux-{{ arch.stdout }}.tar.gz
+        src: /home/metrics/node_exporter-{{ common_node_exporter_version }}.linux-{{ arch.stdout }}.tar.gz
         remote_src: true
         dest: /home/metrics/
     - name: Move binary
       ansible.builtin.copy:
         dest: /usr/bin/node_exporter
-        src: /home/metrics/node_exporter-{{ node_exporter_version }}.linux-{{ arch.stdout }}/node_exporter
+        src: /home/metrics/node_exporter-{{ common_node_exporter_version }}.linux-{{ arch.stdout }}/node_exporter
         remote_src: true
         mode: "0755"
     - name: Create systemd conf file
