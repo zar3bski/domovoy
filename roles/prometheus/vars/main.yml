@@ -1,2 +1,2 @@
-prometheus_image_tag: 2.54.0
+prometheus_image_tag: 2.55.1
 grafana_image_tag: 11.1.4
