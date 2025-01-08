@@ -99,7 +99,7 @@
         proto: tcp
     - name: Enable and start service
       ansible.builtin.systemd_service:
-        state: started
+        state: restarted
         daemon_reload: true
         enabled: true
         name: node-exporter

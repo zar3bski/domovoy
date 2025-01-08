@@ -5,7 +5,10 @@ StartLimitBurst=10
 
 [Service]
 User=metrics
-ExecStart=/usr/bin/node_exporter --web.config.file=/home/metrics/node-exporter.web.config
+ExecStart=/usr/bin/node_exporter \
+   --web.config.file=/home/metrics/node-exporter.web.config \
+   --collector.systemd \
+   --collector.interrupts
 KillSignal=SIGINT
 Restart=on-failure
 RestartSec=30
