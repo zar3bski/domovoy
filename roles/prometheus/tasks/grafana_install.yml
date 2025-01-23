@@ -13,7 +13,7 @@
     state: directory
     owner: grafana
     group: grafana
-    mode: "0755"
+    mode: "0750"
 
 - name: Create a provisioning dashboards folder
   ansible.builtin.file:
@@ -21,7 +21,7 @@
     state: directory
     owner: grafana
     group: grafana
-    mode: "0755"
+    mode: "0750"
 
 - name: Create a data folder
   ansible.builtin.file:
@@ -29,24 +29,28 @@
     state: directory
     owner: grafana
     group: grafana
-    mode: "0755"
+    mode: "0750"
 
 - name: Data source templating
   ansible.builtin.template:
     src: templates/datasources.yml.j2
     dest: /home/grafana/provisioning/datasources/datasources.yml
     mode: "0750"
+    owner: grafana
+    group: grafana
 
 - name: Dashboard templating
   ansible.builtin.template:
     src: templates/dashboards.yml.j2
     dest: /home/grafana/provisioning/dashboards/dashboards.yml
     mode: "0750"
+    owner: grafana
+    group: grafana
 
 - name: Download dashboards
   ansible.builtin.get_url:
     dest: /home/grafana/provisioning/dashboards/
-    mode: "0755"
+    mode: "0750"
     owner: grafana
     group: grafana
     url: "{{ item }}"
