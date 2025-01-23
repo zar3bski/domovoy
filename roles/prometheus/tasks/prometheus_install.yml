@@ -31,6 +31,14 @@
     owner: prometheus
     group: prometheus
 
+- name: Rules conf templating
+  ansible.builtin.copy:
+    src: files/rules.yml
+    dest: /home/prometheus/conf/rules.yml
+    mode: "0750"
+    owner: prometheus
+    group: prometheus
+
 - name: Create prometheus service
   block:
     - name: Create systemd conf file

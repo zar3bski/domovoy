@@ -30,13 +30,14 @@ ansible-playbook -i inventory.yml site.yml
 
 ## Users accros the infra
 
-|  PID | name       | Description                                 |
-| ---: | :--------- | :------------------------------------------ |
-| 1001 | metrics    | account used for every prometheus exporters |
-| 1002 | grafana    |                                             |
-| 1003 | prometheus |                                             |
-| 1004 | nym        | runs all Nym service                        |
-| 1005 | gh-runner  | Github runner service account               |
+|  PID | name         | Description                                 |
+| ---: | :----------- | :------------------------------------------ |
+| 1001 | metrics      | account used for every prometheus exporters |
+| 1002 | grafana      |                                             |
+| 1003 | prometheus   |                                             |
+| 1004 | nym          | runs all Nym service                        |
+| 1005 | gh-runner    | Github runner service account               |
+| 1006 | alertmanager | Prometheus altermanager                     |
 
 
 ## Inventory Data Model
@@ -102,7 +103,7 @@ wireguard-servers:
 
 This set up forwards packets from `eth0` `wg0` both ways and relies on **MASQUERADE**. See `roles/wireguard/templates/add-nat-routing.sh.j2` and `roles/wireguard/templates/remote-nat-routing.sh.j2` for details. 
 
-### Prometheus + Grafana
+### Prometheus + Grafana + Alertmanager
 
 #### ports
 
@@ -114,6 +115,7 @@ This set up forwards packets from `eth0` `wg0` both ways and relies on **MASQUER
 prometheus-servers:
   hosts:
     some.host.com:
+      alert_webhook_url: https://discordapp.com/ # Discord webhook
       grafana_admin: <some_password>  # admin password
       dashboards: # dashboard to be installed
         - https://grafana.com/api/dashboards/1860/revisions/37/download

@@ -49,3 +49,7 @@
 - name: Install Grafana
   ansible.builtin.include_tasks:
     file: grafana_install.yml
+
+- name: Install Grafana
+  ansible.builtin.include_tasks:
+    file: alertmanager_install.yml
