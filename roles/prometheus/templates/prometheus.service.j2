@@ -4,7 +4,6 @@ After=docker.service
 Requires=docker.service
 
 [Service]
-
 TimeoutStartSec=0
 Restart=always
 ExecStartPre=-/usr/bin/docker network create observability
