@@ -47,11 +47,12 @@
         dest: /etc/wireguard/helper/remove-nat-routing.sh
         mode: "0700"
 
-- name: Allow wireguard trafic to this host
+- name: Allow wireguard traffic to this host
   community.general.ufw:
     rule: allow
-    proto: udp
+    proto: any
     port: '{{ WG_PORT }}'
+    state: 'enabled'
 
 - name: Start or restart Interface
   ansible.builtin.systemd:
