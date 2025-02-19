@@ -25,7 +25,9 @@ and
 ansible-playbook -i inventory.yml site.yml
 ```
 
-- Debian based servers
+### Limitations
+
+- Designed for Debian based servers
 - rely on [UFW](https://github.com/jbq/ufw)
 
 ## Users accros the infra
@@ -68,58 +70,15 @@ dmz-servers:
 
 ### Technitium
 
-#### ports
-
-- 5380
-- 53
-
-Simply add 
-
-```yaml
-technitium-servers:
-  hosts:
-    magellan:
-      admin_password: <your admin password>
-```
-to your inventory
-
+see [roles/technitium/README.md](roles/technitium/README.md) for details
 
 ### Wireguard
 
-Use an existing key pair or generate one following the [documentation](https://www.wireguard.com/quickstart/). You can add `peers` directly in the inventory. 
-
-```yaml
-wireguard-servers:
-  hosts:
-    magellan:
-      PublicKey: <key>
-      PrivateKey: <key>
-      WG_PORT: 4119
-      peers: 
-        - name: some_client
-          PublicKey: <key>
-          AllowedIPs: 10.10.10.2/32
-```
-
-This set up forwards packets from `eth0` `wg0` both ways and relies on **MASQUERADE**. See `roles/wireguard/templates/add-nat-routing.sh.j2` and `roles/wireguard/templates/remote-nat-routing.sh.j2` for details. 
+see [roles/wireguard/README.md](roles/technitium/README.md) for details
 
 ### Prometheus + Grafana + Alertmanager
 
-#### ports
-
-- 3000
-
-> These services can only live on the same node
-
-```yaml
-prometheus-servers:
-  hosts:
-    some.host.com:
-      alert_webhook_url: https://discordapp.com/ # Discord webhook
-      grafana_admin: <some_password>  # admin password
-      dashboards: # dashboard to be installed
-        - https://grafana.com/api/dashboards/1860/revisions/37/download
-```
+see [roles/prometheus/README.md](roles/prometheus/README.md) for details
 
 ### Nym node
 
