@@ -1,0 +1,15 @@
+
+- name: Gathering facts
+  ansible.builtin.setup:
+- name: Check whether keyrings has already been imported
+  ansible.builtin.stat:
+    path: /usr/share/keyrings/openmediavault-archive-keyring.gpg
+  register: p
+- name: Install Openmediavault
+  ansible.builtin.include_tasks:
+    file: install.yml
+  when: p.stat.exists == False
+- name: Configure Openmediavault
+  ansible.builtin.include_tasks:
+    file: configure.yml
+

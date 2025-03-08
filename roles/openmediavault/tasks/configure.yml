@@ -1,56 +1,3 @@
-- name: Gathering facts
-  ansible.builtin.setup:
-
-- name: Update repositories cache
-  ansible.builtin.apt:
-    update_cache: true
-
-- name: Upgrade packages
-  ansible.builtin.apt:
-    upgrade: safe
-
-- name: Install common packages
-  ansible.builtin.apt:
-    pkg:
-      - ufw
-      - htop
-      - acl
-
-- name: Allow SSH inbound trafic
-  community.general.ufw:
-    rule: limit
-    port: ssh
-    proto: tcp
-  when: knock_ports is not defined
-
-- name: Set port knocking for SSH inbound trafic
-  when: knock_ports is defined
-  block:
-    - name: Install knockd
-      ansible.builtin.apt:
-        pkg:
-          - knockd
-    - name: Edit conf file
-      ansible.builtin.template:
-        src: templates/knockd.conf.j2
-        dest: /etc/knockd.conf
-        mode: '0755'
-    - name: Enable START_KNOCKD
-      ansible.builtin.replace:
-        path: /etc/default/knockd
-        regexp: '^START_KNOCKD=\d$'
-        replace: START_KNOCKD=1
-    - name: Set Interface
-      ansible.builtin.replace:
-        path: /etc/default/knockd
-        regexp: '^#KNOCKD_OPTS="-i \w+"$'
-        replace: KNOCKD_OPTS="-i {{ ansible_default_ipv4.interface }}"
-    - name: Enable and start service
-      ansible.builtin.systemd_service:
-        state: started
-        daemon_reload: true
-        enabled: true
-        name: knockd.service
 
 - name: Install node exporter
   block:
@@ -93,11 +40,6 @@
         mode: '0750'
         owner: metrics
         group: metrics
-    - name: Allow inbound trafic to node_exporter
-      community.general.ufw:
-        rule: limit
-        port: "{{ node_exporter_port }}"
-        proto: tcp
     - name: Enable and start service
       ansible.builtin.systemd_service:
         state: restarted
@@ -105,14 +47,24 @@
         enabled: true
         name: node-exporter
 
-- name: Set additional SSH keys
-  when: ssh_keys is defined
-  ansible.builtin.lineinfile:
-    path: "/home/{{ ansible_env.SUDO_USER }}/.ssh/authorized_keys"
-    line: '{{ item }}'
-  loop: "{{ ssh_keys | list }}"
+# TODO: allow node exporter port
 
-- name: Set logging
-  community.general.ufw:
-    state: enabled
-    logging: 'on'
+
+- name: Install Plugins
+  ansible.builtin.apt:
+    pkg:
+      - openmediavault-md
+      - openmediavault-k8s
+      - openmediavault-clamav
+      - openmediavault-filebrowser
+
+- name: Check if RAID 5 array already exists
+  ansible.builtin.command:
+    cmd: omv-sysinfo 30-mdadm
+  register: array
+
+- name: Create RAID 5 volume
+  ansible.builtin.command:
+    cmd: omv-mkraid /dev/md0 -l 5 -n 3 {{ raid5_devices | join(' ') }}
+  when: '"/dev/md0" not in array.stdout[0]'
+

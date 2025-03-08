@@ -1,0 +1,43 @@
+#
+# Installation on a bare Debian (not recommended)
+# This step could be skipped if using an OpenMediaVault distribution directly
+#
+#
+
+- name: Install gnupg
+  ansible.builtin.apt:
+    pkg:
+      - gnupg
+
+- name: Import openmediavault keyring
+  block:
+    - name: Download File
+      ansible.builtin.get_url:
+        dest: /tmp/archive.key
+        mode: a+r
+        url: https://packages.openmediavault.org/public/archive.key
+    - name: Check whether keyrings has already been imported
+      ansible.builtin.stat:
+        path: /usr/share/keyrings/openmediavault-archive-keyring.gpg
+      register: p
+    - name: Import key
+      ansible.builtin.command: "gpg --dearmor --yes --output '/usr/share/keyrings/openmediavault-archive-keyring.gpg' /tmp/archive.key"
+      when: p.stat.exists == False
+
+- name: Add openmediavault to APT source list
+  ansible.builtin.copy:
+    src: files/openmediavault.list
+    dest: /etc/apt/sources.list.d/openmediavault.list
+    mode: "0755"
+
+- name: Install openmediavault
+  ansible.builtin.apt:
+    update_cache: true
+    allow_downgrade: true
+    allow_change_held_packages: true
+    dpkg_options: "force-confdef,force-confold"
+    pkg:
+      - openmediavault
+
+- name: Populate Settings
+  ansible.builtin.shell: omv-confdbadm populate
