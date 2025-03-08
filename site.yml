@@ -12,6 +12,18 @@
     - gh-runner
     - nym-node
 
+- name: NAS servers
+  hosts: nas-servers
+  become: true
+  gather_facts: false
+  vars:
+    node_exporter_port: 9101
+  pre_tasks:
+    - name: Import pre_tasks
+      ansible.builtin.import_tasks: 'roles/common/knocking.yml'
+  roles:
+    - openmediavault
+
 - name: Lan servers
   hosts: lan-servers
   become: true

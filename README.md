@@ -68,6 +68,10 @@ dmz-servers:
       gh_runner_labels: AMR64,Linux,self-hosted
 ```
 
+### Open Media Vault
+
+see [roles/openmediavault/README.md](roles/openmediavault/README.md) for details
+
 ### Technitium
 
 see [roles/technitium/README.md](roles/technitium/README.md) for details
