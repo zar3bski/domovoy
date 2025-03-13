@@ -15,7 +15,7 @@ ExecStart=/usr/bin/docker run --rm --name %n \
     -p 53:53/udp \
     -p 53:53/tcp \
     -e DNS_SERVER_ADMIN_PASSWORD={{admin_password}} \
-    -e DNS_SERVER_DOMAIN={{inventory_hostname}} \
+    -e DNS_SERVER_DOMAIN=technitium.{{inventory_hostname}}.{{dns_zone}} \
     technitium/dns-server:{{technitium_image_tag}}
 ExecStop=-/usr/bin/docker stop %n
 

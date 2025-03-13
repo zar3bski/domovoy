@@ -1,0 +1,64 @@
+server {
+    listen      443 ssl;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_certificate /etc/ssl/certs/{{ inventory_hostname }}.{{ dns_zone }}.crt;
+    ssl_certificate_key /etc/ssl/private/{{ inventory_hostname }}.{{ dns_zone }}.key;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+    server_name grafana.{{ inventory_hostname }}.{{ dns_zone }};
+    location ~ {
+        proxy_buffering off;
+        proxy_pass_header Authorization;
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_read_timeout 36000s;
+        proxy_redirect off;
+    }
+}
+
+server {
+    listen      443 ssl;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_certificate /etc/ssl/certs/{{ inventory_hostname }}.{{ dns_zone }}.crt;
+    ssl_certificate_key /etc/ssl/private/{{ inventory_hostname }}.{{ dns_zone }}.key;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+    server_name technitium.{{ inventory_hostname }}.{{ dns_zone }};
+    location ~ {
+        proxy_buffering off;
+        proxy_pass_header Authorization;
+        proxy_pass http://localhost:5380;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_read_timeout 36000s;
+        proxy_redirect off;
+    }
+}
+
+server {
+    listen      443 ssl;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_certificate /etc/ssl/certs/{{ inventory_hostname }}.{{ dns_zone }}.crt;
+    ssl_certificate_key /etc/ssl/private/{{ inventory_hostname }}.{{ dns_zone }}.key;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+    server_name prometheus.{{ inventory_hostname }}.{{ dns_zone }};
+    location ~ {
+        proxy_buffering off;
+        proxy_pass_header Authorization;
+        proxy_pass http://localhost:9090;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_read_timeout 36000s;
+        proxy_redirect off;
+    }
+}
+

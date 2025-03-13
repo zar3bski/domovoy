@@ -5,13 +5,13 @@ Ansible playbooks
 
 ## Usage
 
-Install dependencies
+### Install dependencies
 
 ```py
 pip3 install -r requirements.txt
 ```
 
-Create your **inventory.yml** according to `site.yml` , for example
+### Create your **inventory.yml** according to `site.yml` , for example
 
 ```yaml
 nym-servers:
@@ -24,6 +24,14 @@ and
 ```shell
 ansible-playbook -i inventory.yml site.yml
 ```
+
+### Generate server's SSL cert based on a local CA
+
+```shell
+./scripts/generate_ssl_cert.sh some_domain.lan
+```
+
+certs and keys will appear in `.certs`
 
 ### Limitations
 
@@ -56,6 +64,10 @@ ansible-playbook -i inventory.yml site.yml
 ## Services
 
 > all technical users running the various services are limited to a restricted shell (a.k.a. `/bin/rbash`) exept for **gh-runner**
+
+### Nginx 
+
+see [roles/nginx/README.md](roles/nginx/README.md) for details
 
 ### Github runner
 
