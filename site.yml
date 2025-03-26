@@ -1,5 +1,5 @@
-- name: DMZ servers
-  hosts: dmz-servers
+- name: WAN servers
+  hosts: wan-servers
   become: true
   gather_facts: false
   vars:
@@ -9,8 +9,6 @@
       ansible.builtin.import_tasks: 'roles/common/knocking.yml'
   roles:
     - common
-    - gh-runner
-    - nym-node
 
 - name: NAS servers
   hosts: nas-servers
