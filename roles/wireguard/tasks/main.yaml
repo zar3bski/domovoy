@@ -3,36 +3,39 @@
     pkg:
       - wireguard
 
+- name: Create wireguard folder
+  ansible.builtin.file:
+    state: directory
+    path: /etc/wireguard
+    mode: "0600"
+
+- name: Create wireguard helper folder
+  ansible.builtin.file:
+    state: directory
+    path: /etc/wireguard/helper
+    mode: "0600"
+
 - name: Setup wireguard
   block:
-    - name: Create wireguard folder
-      ansible.builtin.file:
-        state: directory
-        path: /etc/wireguard
-        mode: "0600"
-
-    - name: Create wireguard helper folder
-      ansible.builtin.file:
-        state: directory
-        path: /etc/wireguard/helper
-        mode: "0600"
-
     - name: Copy private key
+      with_items: "{{ wireguard }}"
       ansible.builtin.template:
         src: templates/privatekey.j2
-        dest: /etc/wireguard/privatekey
+        dest: /etc/wireguard/{{ item.interface }}.privatekey
         mode: "0600"
 
     - name: Copy public key
+      with_items: "{{ wireguard }}"
       ansible.builtin.template:
         src: templates/publickey.j2
-        dest: /etc/wireguard/publickey
+        dest: /etc/wireguard/{{ item.interface }}.publickey
         mode: "0600"
 
     - name: Copy public key
+      with_items: "{{ wireguard }}"
       ansible.builtin.template:
-        src: templates/wg0.conf.j2
-        dest: /etc/wireguard/wg0.conf
+        src: templates/wg.conf.j2
+        dest: /etc/wireguard/{{ item.interface }}.conf
         mode: "0600"
 
     - name: Copy helper file 1
@@ -47,19 +50,22 @@
         dest: /etc/wireguard/helper/remove-nat-routing.sh
         mode: "0700"
 
-- name: Allow wireguard traffic to this host
-  community.general.ufw:
-    rule: allow
-    proto: any
-    port: '{{ WG_PORT }}'
-    state: 'enabled'
+    - name: Allow wireguard traffic to this host
+      with_items: "{{ wireguard }}"
+      community.general.ufw:
+        rule: allow
+        proto: any
+        port: '{{ item.WG_PORT }}'
+        state: 'enabled'
+      when: item.WG_PORT is defined
 
-- name: Start or restart Interface
-  ansible.builtin.systemd:
-    daemon_reload: true
-    service: wg-quick@wg0
-    enabled: true
-    state: restarted
+    - name: Start or restart Interface
+      with_items: "{{ wireguard }}"
+      ansible.builtin.systemd:
+        daemon_reload: true
+        service: wg-quick@{{ item.interface }}
+        enabled: true
+        state: restarted
 
 # TODO: solve sudo rights dilemma
 # - name: Setup wireguard prometheus exporter

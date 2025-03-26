@@ -9,6 +9,7 @@
       ansible.builtin.import_tasks: 'roles/common/knocking.yml'
   roles:
     - common
+    - wireguard
 
 - name: NAS servers
   hosts: nas-servers
