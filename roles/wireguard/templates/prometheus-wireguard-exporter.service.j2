@@ -8,7 +8,8 @@ User=metrics
 Group=metrics
 Type=simple
 Restart=on-failure
-ExecStart=/home/metrics/prometheus_wireguard_exporter
+ExecStart=/usr/bin/prometheus_wireguard_exporter -r true -s true -a true -d true -v true \
+-n {% for item in wireguard %} /usr/share/wireguard/{{ item.interface }}.peers {% endfor %} 
 PrivateTmp=yes
 ProtectHome=yes
 ProtectControlGroups=yes

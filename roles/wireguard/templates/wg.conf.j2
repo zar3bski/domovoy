@@ -14,16 +14,14 @@ PostDown = /etc/wireguard/helper/remove-nat-routing.sh {{ item.interface }} {{ i
 {% endif %}
 
 {% if item.peers is defined %} 
-    {% for peer in item.peers %}
+{% for peer in item.peers %}
 [Peer]
 # friendly_name = {{ peer.name }}
 PublicKey = {{ peer.PublicKey }}
- 
-## client VPN IP address (note  the /32 subnet) ##
 AllowedIPs = {{ peer.AllowedIPs }}
 
-        {% if peer.Endpoint is defined %}
+{% if peer.Endpoint is defined %}
 Endpoint = {{ peer.Endpoint }}
-        {% endif %}
-    {% endfor %}
+{% endif %}
+{% endfor %}
 {% endif %}

@@ -36,3 +36,12 @@ scrape_configs:
     {% for node in groups["all"] %}
     - "{{ hostvars[node].inventory_hostname_short }}:{{ node_exporter_port }}"
     {% endfor %}
+  
+  - job_name: "wireguard_monitoring"
+    static_configs:
+      - targets:
+    {% for node in groups["all"] %}
+{% if hostvars[node].wireguard is defined %}
+    - "{{ hostvars[node].inventory_hostname_short }}:9586"
+{% endif %}
+    {% endfor %}      

@@ -1,0 +1,9 @@
+## Peers for interface {{ item.interface }}
+{% if item.peers is defined %}
+{% for peer in item.peers %}
+[Peer]
+# friendly_name = {{ peer.name }}
+PublicKey = {{ peer.PublicKey }}
+AllowedIPs = {{ peer.AllowedIPs }}
+{% endfor %}
+{% endif %}
