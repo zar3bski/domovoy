@@ -25,6 +25,6 @@ wireguard-servers:
               Endpoint: 88.88.88.88:9149
 ```
 
-This role can set multiples interfaces up. Depending on the presence of `WG_PORT`, the configured interface will act as a server or a client. 
+This role can set multiples interfaces up. Depending on the presence of `WG_PORT`, the configured interface will act as a server or a client.  
 
 In server mode, packets forwarding is set between `eth0` and `wg?` both ways and relies on **MASQUERADE**. See `roles/wireguard/templates/add-nat-routing.sh.j2` and `roles/wireguard/templates/remote-nat-routing.sh.j2` for details. 
