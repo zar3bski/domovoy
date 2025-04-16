@@ -3,9 +3,9 @@ IPT="/sbin/iptables"
 IPT6="/sbin/ip6tables"
 
 IN_FACE="eth0"                   # NIC connected to the internet
-WG_FACE="wg0"                    # WG NIC
-SUB_NET="10.10.10.1/24"          # WG IPv4 sub/net aka CIDR
-WG_PORT="{{ WG_PORT }}"          # WG udp port
+WG_FACE=$1                       # WG NIC
+SUB_NET=$2                       # WG IPv4 sub/net aka CIDR
+WG_PORT=$3                       # WG udp port
 SUB_NET_6="fd42:42:42:42::/112"  # WG IPv6 sub/net
 
 ## IPv4 ##

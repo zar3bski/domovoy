@@ -56,6 +56,13 @@
     url: "{{ item }}"
   loop: "{{ dashboards | list }}"
 
+- name: Copy sourced dashboards
+  ansible.builtin.copy:
+    src: files/dashboards/
+    dest: /home/grafana/provisioning/dashboards
+    owner: grafana
+    group: grafana
+
 - name: Create grafana service
   block:
     - name: Create systemd conf file
