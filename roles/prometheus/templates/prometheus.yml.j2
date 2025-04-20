@@ -40,8 +40,8 @@ scrape_configs:
   - job_name: "wireguard_monitoring"
     static_configs:
       - targets:
-    {% for node in groups["all"] %}
+{% for node in groups["all"] %}
 {% if hostvars[node].wireguard is defined %}
-    - "{{ hostvars[node].inventory_hostname_short }}:9586"
+        - "{{ hostvars[node].inventory_hostname_short }}:9586"
 {% endif %}
-    {% endfor %}      
+{% endfor %}      
