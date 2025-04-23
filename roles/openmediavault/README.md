@@ -17,3 +17,15 @@ some_host:
     - /dev/vdd
 ```
 
+## Installation
+
+**first execution** (`./tasks/install.yml`) of the playbook will install openmediavault. The installation will override the existing users. For this reason, after the installation, you should log into OMV web interface and set 
+1. the ssh keys of your ansible user
+2. and link her to the `_ssh` group 
+
+before running the playbook again
+
+## Configuration
+
+On the **second execution** (`./tasks/configure.yml`) is executed
+
