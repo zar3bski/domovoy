@@ -45,6 +45,10 @@ else
     omv_config_update "${xpath}/comment" "${comment}"
 fi
 
+echo "Setting TLS for webadmin interface"
+omv_config_update "/config/webadmin/enablessl" 1
+omv_config_update "/config/webadmin/sslcertificateref" "${uuid}"
+
 echo "Updating certs and nginx..."
 omv-salt deploy run certificates nginx
 
