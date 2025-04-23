@@ -49,7 +49,6 @@
 
 # TODO: allow node exporter port
 
-
 - name: Install Plugins
   ansible.builtin.apt:
     pkg:
@@ -58,6 +57,7 @@
       - openmediavault-clamav
       - openmediavault-filebrowser
 
+# RAID confiuration
 - name: Check if RAID 5 array already exists
   ansible.builtin.command:
     cmd: omv-sysinfo 30-mdadm
@@ -66,5 +66,35 @@
 - name: Create RAID 5 volume
   ansible.builtin.command:
     cmd: omv-mkraid /dev/md0 -l 5 -n 3 {{ raid5_devices | join(' ') }}
-  when: '"/dev/md0" not in array.stdout[0]'
+  when: 'raid5_devices is defined and "/dev/md0" not in array.stdout[0]'
 
+
+# HTTPS configuration
+- name: SSL configuration
+  block:
+    - name: Copy SSL certificate
+      ansible.builtin.copy:
+        dest: /etc/ssl/certs/omv.crt²
+        content: "{{ ssl_cert }}"
+        owner: root
+        mode: '0644'
+
+    - name: Copy SSL key
+      ansible.builtin.copy:
+        dest: /etc/ssl/private/omv.key
+        content: "{{ ssl_key }}"
+        owner: root
+        mode: '0600'
+
+    - name: Copy update script
+      ansible.builtin.copy:
+        src: ./files/omv-ssl-update-certs.sh
+        dest: /usr/local/bin/omv-ssl-update-certs
+        owner: root
+        mode: '0755'
+  
+    - name: Update SSL certs
+      ansible.builtin.command:
+        argv:
+          - omv-ssl-update-certs
+          - 'CN={{ inventory_hostname }},signed'
