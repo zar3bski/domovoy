@@ -74,7 +74,7 @@
   block:
     - name: Copy SSL certificate
       ansible.builtin.copy:
-        dest: /etc/ssl/certs/omv.crt²
+        dest: /etc/ssl/certs/omv.crt
         content: "{{ ssl_cert }}"
         owner: root
         mode: '0644'
