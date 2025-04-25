@@ -1,10 +1,27 @@
-
 - name: Gathering facts
   ansible.builtin.setup:
 - name: Check whether keyrings has already been imported
   ansible.builtin.stat:
     path: /usr/share/keyrings/openmediavault-archive-keyring.gpg
   register: p
+- name: Identify motherboard
+  block:
+    - name: Install dependencies
+      ansible.builtin.apt:
+        package:
+          - lshw
+          - jq
+    - name: Get motherboard name
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          lshw -json -class system | jq '.[0].product'
+        executable: /bin/bash
+      register: motherboard
+- name: Radxa ROCK 5 ITX specific tuning
+  ansible.builtin.include_tasks:
+    file: rock-5-itx-specific.yml
+  when: motherboard.stdout == '"Radxa ROCK 5 ITX"'
 - name: Install Openmediavault
   ansible.builtin.include_tasks:
     file: install.yml

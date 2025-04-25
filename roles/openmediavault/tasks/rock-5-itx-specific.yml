@@ -1,0 +1,29 @@
+# Specific tasks for Radxa ROCK 5 ITX
+- name: Set cpufrequtils
+  block:
+    - name: Enable option
+      ansible.builtin.lineinfile:
+        path: /etc/default/cpufrequtils
+        search_string: "ENABLE"
+        line: 'ENABLE="true"'
+    - name: Set Governor
+      ansible.builtin.lineinfile:
+        path: /etc/default/cpufrequtils
+        search_string: "GOVERNOR"
+        line: 'GOVERNOR="schedutil"'
+    - name: Set min frequency
+      ansible.builtin.lineinfile:
+        path: /etc/default/cpufrequtils
+        search_string: "MIN_SPEED"
+        line: 'MIN_SPEED="408000"'
+    - name: Set max frequency
+      ansible.builtin.lineinfile:
+        path: /etc/default/cpufrequtils
+        search_string: "MAX_SPEED"
+        line: 'MAX_SPEED="2352000"'
+    - name: Restart service
+      ansible.builtin.systemd_service:
+        state: restarted
+        daemon_reload: true
+        enabled: true
+        name: cpufrequtils
