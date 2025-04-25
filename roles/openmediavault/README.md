@@ -3,7 +3,7 @@
 
 This is a two folds playbook. 
 
-The ****install** part installs Openmediavault on a bare Debian instance detecting if keyring has already been imported. This entire section, used in ARM context (to this day, OMV does not provide an .iso for ARM architectures) can be commented if using the [Dedicated Drive]{https://docs.openmediavault.org/en/stable/installation/via_iso.html} variant.
+The **install** part installs Openmediavault on a bare Debian (sandworm) instance detecting if keyring has already been imported. This entire section, used in ARM context (to this day, OMV does not provide an .iso for ARM architectures) can be commented if using the [Dedicated Drive]{https://docs.openmediavault.org/en/stable/installation/via_iso.html} variant.
 
 The **configure** part sets a RAID volume up, installs a few plugins and sets a node exporter. However, the settings of volumes, services and users should be performed through the interface.
 
@@ -11,11 +11,19 @@ The **configure** part sets a RAID volume up, installs a few plugins and sets a 
 
 ```yaml
 some_host:
+  CA_cert: |
+    -----BEGIN CERTIFICATE-----
+  ssl_key: |
+     -----BEGIN PRIVATE KEY-----
+  ssl_cert: |
+     -----BEGIN CERTIFICATE-----
   raid5_devices: 
     - /dev/vdb 
     - /dev/vdc 
     - /dev/vdd
 ```
+
+> NB: for Nginx to accept to use `ssl_cert`, the certificate must be signed by the one added to the trust store through `CA_cert`
 
 ## Installation
 

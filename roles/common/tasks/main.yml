@@ -23,6 +23,19 @@
     proto: tcp
   when: knock_ports is not defined
 
+- name: Trust CA certificate
+  block:
+    - name: Copy CA_cert (if any)
+      ansible.builtin.copy:
+        content: '{{ CA_cert }}'
+        dest: /usr/local/share/ca-certificates/Internal_CA.crt
+        owner: root
+        mode: '0700'
+      when: CA_cert is defined
+    - name: Update CA certs
+      ansible.builtin.command:
+        cmd: update-ca-certificates
+
 - name: Set port knocking for SSH inbound trafic
   when: knock_ports is defined
   block:
