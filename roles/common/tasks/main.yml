@@ -25,13 +25,13 @@
 
 - name: Trust CA certificate
   block:
-    - name: Copy CA_cert (if any)
+    - name: Copy ca_cert (if any)
       ansible.builtin.copy:
-        content: '{{ CA_cert }}'
+        content: '{{ ca_cert }}'
         dest: /usr/local/share/ca-certificates/Internal_CA.crt
         owner: root
         mode: '0700'
-      when: CA_cert is defined
+      when: ca_cert is defined
     - name: Update CA certs
       ansible.builtin.command:
         cmd: update-ca-certificates
