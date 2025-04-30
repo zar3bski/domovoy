@@ -72,19 +72,43 @@
 # HTTPS configuration
 - name: SSL configuration
   block:
-    - name: Copy SSL certificate
+    - name: Copy SSL intermediary certificate
       ansible.builtin.copy:
-        dest: /etc/ssl/certs/omv.crt
-        content: "{{ ssl_cert }}"
+        dest: /etc/ssl/certs/omv-intermediary.crt
+        content: "{{ ssl_intermediary_cert }}"
         owner: root
         mode: '0644'
 
-    - name: Copy SSL key
+    - name: Copy SSL intermediary key
       ansible.builtin.copy:
-        dest: /etc/ssl/private/omv.key
-        content: "{{ ssl_key }}"
+        dest: /etc/ssl/private/omv-intermediary.key
+        content: "{{ ssl_intermediary_key }}"
         owner: root
         mode: '0600'
+
+    - name: Copy leaf certs generation script
+      ansible.builtin.copy:
+        src: ./files/generate-leaf-from-intermediary.sh
+        dest: /usr/local/bin/generate-leaf-from-intermediary
+        owner: root
+        mode: '0755'
+
+    - name: Generate leaf certificate
+      ansible.builtin.command:
+        argv:
+          - generate-leaf-from-intermediary
+
+    - name: Get leaf cert content
+      ansible.builtin.slurp:
+        src: /etc/ssl/certs/omv.crt
+      register: leaf_cert_content
+
+    - name: Copy SSL certificate full chain
+      ansible.builtin.copy:
+        dest: /etc/ssl/certs/omv-chain.crt
+        content: "{{ leaf_cert_content.content | b64decode }}{{ ssl_intermediary_cert }}{{ ca_cert }}"
+        owner: root
+        mode: '0644'
 
     - name: Copy update script
       ansible.builtin.copy:
@@ -92,9 +116,16 @@
         dest: /usr/local/bin/omv-ssl-update-certs
         owner: root
         mode: '0755'
-  
+
     - name: Update SSL certs
       ansible.builtin.command:
         argv:
           - omv-ssl-update-certs
-          - 'CN={{ inventory_hostname }},signed'
+
+    - name: Generate kube CA secret manifest
+      ansible.builtin.template:
+        src: templates/ca-omv-cluster.yml.j2
+        dest: /etc/ssl/private/ca-omv-cluster.yml
+        mode: '0600'
+        owner: root
+        group: root

@@ -13,9 +13,9 @@ The **configure** part sets a RAID volume up, installs a few plugins and sets a 
 some_host:
   CA_cert: |
     -----BEGIN CERTIFICATE-----
-  ssl_key: |
+  ssl_intermediary_key: |
      -----BEGIN PRIVATE KEY-----
-  ssl_cert: |
+  ssl_intermediary_cert: |
      -----BEGIN CERTIFICATE-----
   raid5_devices: 
     - /dev/vdb 
@@ -23,7 +23,7 @@ some_host:
     - /dev/vdd
 ```
 
-> NB: for Nginx to accept to use `ssl_cert`, the certificate must be signed by the one added to the trust store through `CA_cert`
+> NB: for Nginx to accept to use the cert generated with`ssl_intermediary_key`, the certificate must be signed by the one added to the trust store through `ca_cert`
 
 ## Installation
 
