@@ -129,3 +129,26 @@
         mode: '0600'
         owner: root
         group: root
+
+- name: Redirect sub domains to k3s Load balancer
+  block:
+    - name: Copy Nginx conf to available sites
+      ansible.builtin.template:
+        src: templates/k3s-ingress-server.conf.j2
+        dest: /etc/nginx/sites-available/k3s-ingress-server.conf
+        mode: '0644'
+        owner: root
+        group: root
+    - name: Nginx enable site
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/k3s-ingress-server.conf
+        dest: /etc/nginx/sites-enabled/k3s-ingress-server.conf
+        state: link
+        owner: root
+        group: root
+    - name: Restart Nginx
+      ansible.builtin.systemd_service:
+        state: restarted
+        daemon_reload: true
+        enabled: true
+        name: nginx
