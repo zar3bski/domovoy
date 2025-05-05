@@ -7,8 +7,8 @@
 #
 #
 
-CA_KEY=/etc/ssl/private/sin-ca-key.pem
-CA_CERT=/etc/ssl/certs/sin-ca-cert.pem
+CA_KEY=/etc/ssl/private/ChaosComputerClan-RootCA.key
+CA_CERT=/etc/ssl/certs/ChaosComputerClan-RootCA.crt
 
 # Check that target server FQDN was provided
 
@@ -57,8 +57,8 @@ if [ $2 == "intermediate" ]; then
   rm ia.ext
   cat $1.crt $CA_CERT >$1-chain.crt
 else
-  echo "Generating leaf certificate (365j)"
+  echo "Generating leaf certificate (730j)"
   echo subjectAltName = DNS:$1,DNS:*.$1,DNS:$1:8080,DNS:*.$1:8080,DNS:$1:4443,DNS:*.$1:4443,DNS:$1:8443,DNS:*.$1:8443 >extfile.cnf
-  openssl x509 -req -in $1.csr -CA $CA_CERT -CAkey $CA_KEY -CAcreateserial -out $1.crt -days 365 -extfile extfile.cnf
+  openssl x509 -req -in $1.csr -CA $CA_CERT -CAkey $CA_KEY -CAcreateserial -out $1.crt -days 730 -extfile extfile.cnf
   cat $1.crt $CA_CERT >$1-chain.crt
 fi
