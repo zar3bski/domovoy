@@ -1,4 +1,9 @@
 # Specific tasks for Radxa ROCK 5 ITX
+- name: Install cpufrequtils
+  ansible.builtin.apt:
+    pkg:
+      - cpufrequtils
+
 - name: Set cpufrequtils
   block:
     - name: Enable option
