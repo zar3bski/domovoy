@@ -77,7 +77,8 @@ spec:
           command: ["/bin/bash", "-c"]
           args: # update cert and apply nonsensical rights required by seafile non-root mode
             - update-ca-certificates;
-              chown seafile:seafile /shared/seafile;
+              mkdir /shared/seafile;
+              chown 8000:8000 /shared/seafile;
               chmod -R 777 /shared/seafile;
           securityContext:
             runAsUser: 0
