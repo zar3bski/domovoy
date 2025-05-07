@@ -1,0 +1,42 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - cm-keycloak-main.yml
+  - deploy-keycloak.yml
+  - deploy-postgres.yml
+  - ingressroute-keycloak.yml
+  - ns-identity.yml
+  - pvc-postgres.yml
+  - svc-keycloak.yml
+  - svc-postgres.yml
+
+secretGenerator:
+  - name: postgres-secrets
+    namespace: identity
+    envs:
+      - .postgres-secrets.env
+  - name: keycloak-secrets
+    namespace: identity
+    envs:
+      - .keycloak-secrets.env
+
+configMapGenerator:
+  - name: cluster-variables
+    namespace: identity
+    envs:
+      - .env
+
+replacements:
+  - source:
+      kind: ConfigMap
+      version: v1
+      name: cluster-variables
+      namespace: identity
+      fieldPath: data.KEYCLOAK_MATCH
+    targets:
+      - select:
+          kind: IngressRoute
+          name: keycloak
+        fieldPaths:
+          - spec.routes.0.match

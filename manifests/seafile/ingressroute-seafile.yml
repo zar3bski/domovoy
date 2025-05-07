@@ -1,0 +1,15 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: seafile
+  namespace: seafile
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: <SEAFILE_MATCH>
+      services:
+        - name: seafile
+          namespace: seafile
+          port: 80

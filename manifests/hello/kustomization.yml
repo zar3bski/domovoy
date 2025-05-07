@@ -1,0 +1,41 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ns-hello.yml
+  - deploy-helloworld.yml
+  - svc-helloworld.yml
+  - certificate-helloworld.yml
+  - ingressroute-helloworld.yml
+
+configMapGenerator:
+  - name: cluster-variables
+    envs: [./.env]
+    behavior: create
+    namespace: hello
+
+replacements:
+  - source:
+      kind: ConfigMap
+      version: v1
+      name: cluster-variables
+      namespace: hello
+      fieldPath: data.HELLO_DOMAIN
+    targets:
+      - select:
+          kind: Certificate
+          name: helloworld
+        fieldPaths:
+          - spec.dnsNames.0
+  - source:
+      kind: ConfigMap
+      version: v1
+      name: cluster-variables
+      namespace: hello
+      fieldPath: data.HELLO_MATCH
+    targets:
+      - select:
+          kind: IngressRoute
+          name: helloworld
+        fieldPaths:
+          - spec.routes.0.match

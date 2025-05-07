@@ -1,0 +1,15 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: keycloak
+  namespace: identity
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: <KEYCLOAK_MATCH>
+      services:
+        - name: keycloak
+          namespace: identity
+          port: 8080

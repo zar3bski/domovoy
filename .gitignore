@@ -2,3 +2,5 @@ inventory.yml
 .ansible
 .vscode
 .certs
+.build
+*.env

@@ -1,0 +1,11 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: stripprefix
+  namespace: seafile
+spec:
+  stripPrefix:
+    prefixes:
+      - /seafhttp
+# Strip prefix /seafhttp to expose seafile 8082
+# directly and bypass the pod's Nginx reverse proxy

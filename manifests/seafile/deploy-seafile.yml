@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seafile
+  namespace: seafile
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: seafile
+  template:
+    metadata:
+      labels:
+        app: seafile
+    spec:
+      containers:
+        - name: seafile
+          image: seafileltd/seafile-mc:12.0.11
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 2000m
+              memory: 2Gi
+          env:
+            - name: NON_ROOT # TODO
+              value: "true"
+            - name: SEAFILE_ENABLE_OAUTH
+              value: "True"
+            - name: SEAFILE_SERVER_HOSTNAME
+              value: <SEAFILE_DOMAIN> #hostname
+            - name: SEAFILE_SERVER_PROTOCOL
+              value: https
+            - name: DB_HOST
+              value: "mariadb"
+            - name: JWT_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: seafile-secrets
+                  key: JWT_PRIVATE_KEY
+            - name: DB_ROOT_PASSWD
+              valueFrom:
+                secretKeyRef:
+                  name: seafile-secrets
+                  key: MARIA_ROOT_PASSWORD
+            - name: TIME_ZONE
+              value: "Europe/Paris"
+            - name: INIT_SEAFILE_ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: seafile-secrets
+                  key: INIT_SEAFILE_ADMIN_EMAIL #admin email
+            - name: INIT_SEAFILE_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: seafile-secrets
+                  key: INIT_SEAFILE_ADMIN_PASSWORD #admin password
+            - name: SEAFILE_SERVER_LETSENCRYPT
+              value: "false"
+            - name: FORCE_HTTPS_IN_CONF
+              value: "true"
+            - name: REQUESTS_CA_BUNDLE
+              value: /etc/ssl/certs/ca-certificates.crt
+          ports:
+            - containerPort: 80
+            - containerPort: 8082
+              name: seafile-drive
+          volumeMounts:
+            - name: seafile-data
+              mountPath: /shared
+            - name: certs
+              mountPath: "/etc/ssl/certs"
+      initContainers:
+        - name: debian-update-ca-certs
+          image: seafileltd/seafile-mc:12.0.11
+          command: ["/bin/bash", "-c"]
+          args: # update cert and apply nonsensical rights required by seafile non-root mode
+            - update-ca-certificates;
+              chown seafile:seafile /shared/seafile;
+              chmod -R 777 /shared/seafile;
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: seafile-data
+              mountPath: /shared
+            - name: certs
+              mountPath: "/etc/ssl/certs"
+            - name: domain-tls
+              readOnly: true
+              mountPath: /usr/local/share/ca-certificates/Cluster-CA.crt
+              subPath: ca.crt
+      volumes:
+        - name: certs
+        - name: domain-tls
+          secret:
+            secretName: domain-tls
+        - name: seafile-data
+          persistentVolumeClaim:
+            claimName: seafile-data
+      restartPolicy: Always

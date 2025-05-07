@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: identity
+  labels:
+    app: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:17.4-alpine3.21
+          ports:
+            - name: sql
+              containerPort: 5432
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres
+            - mountPath: /run/secrets/postgres
+              name: postgres-secrets
+              readOnly: true
+          env:
+            - name: POSTGRES_DB
+              value: keycloak_db
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            - name: POSTGRES_USER_FILE
+              value: /run/secrets/postgres/PG_ADMIN_USER
+            - name: POSTGRES_PASSWORD_FILE
+              value: /run/secrets/postgres/PG_ADMIN_PASSWORD
+      volumes:
+        - name: postgres
+          persistentVolumeClaim:
+            claimName: postgres
+        - name: postgres-secrets
+          secret:
+            secretName: postgres-secrets
