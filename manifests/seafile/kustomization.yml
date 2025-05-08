@@ -12,8 +12,6 @@ resources:
   - ns-seafile.yml
   - pvc-mariadb-data.yml
   - pvc-seafile.yml
-  - pv-mariadb-data.yml
-  - pv-seafile.yml
   - svc-mariadb.yml
   - svc-memcached.yml
   - svc-seafile.yml
