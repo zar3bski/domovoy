@@ -47,15 +47,19 @@
         enabled: true
         name: node-exporter
 
-# TODO: allow node exporter port
+- name: Install additional utils packages
+  ansible.builtin.apt:
+    pkg:
+      - console-data
 
-- name: Install Plugins
+- name: Install OMV Plugins
   ansible.builtin.apt:
     pkg:
       - openmediavault-md
       - openmediavault-k8s
       - openmediavault-clamav
       - openmediavault-filebrowser
+      - openmediavault-sharerootfs
 
 # RAID confiuration
 - name: Check if RAID 5 array already exists
