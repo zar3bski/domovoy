@@ -1,0 +1,25 @@
+#!/bin/bash
+DISCORD_WEBHOOK='{{ webhook_url }}'
+
+{% raw %}
+generate_post_data() {
+cat <<EOF
+{
+  "content": "",
+  "embeds": [{
+    "title": "${OMV_NOTIFICATION_SUBJECT}",
+    "description": "$(cat ${OMV_NOTIFICATION_MESSAGE_FILE})",
+    "color": "45973",
+    "footer": {
+        "text": "${OMV_NOTIFICATION_DATE}",
+        "icon_url": ""
+    }
+  }]
+}
+EOF
+}
+{% endraw %}
+
+
+
+curl -H "Content-Type: application/json" -X POST -d "$(generate_post_data)" $DISCORD_WEBHOOK

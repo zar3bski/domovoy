@@ -11,6 +11,7 @@ The **configure** part sets a RAID volume up, installs a few plugins and sets a 
 
 ```yaml
 some_host:
+  webhook_url: https://url/of/your/discord/webhook # optional
   CA_cert: |
     -----BEGIN CERTIFICATE-----
   ssl_intermediary_key: |

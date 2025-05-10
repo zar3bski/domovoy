@@ -156,3 +156,18 @@
         daemon_reload: true
         enabled: true
         name: nginx
+
+- name: Set discord notifications
+  when: webhook_url is defined
+  block:
+    - name: Install curl
+      ansible.builtin.apt:
+        pkg:
+          - curl
+    - name: Copy script
+      ansible.builtin.template:
+        src: templates/20discord.j2
+        dest: /usr/share/openmediavault/notification/sink.d/20discord
+        mode: '0755'
+        owner: root
+        group: root
