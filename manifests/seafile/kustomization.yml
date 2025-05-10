@@ -70,3 +70,15 @@ replacements:
           name: seafile
         fieldPaths:
           - spec.template.spec.containers.[name=seafile].env.[name=SEAFILE_SERVER_HOSTNAME].value
+  - source:
+      kind: ConfigMap
+      version: v1
+      name: cluster-variables
+      namespace: seafile
+      fieldPath: data.SEAFILE_STORAGE_SIZE
+    targets:
+      - select:
+          kind: PersistentVolumeClaim
+          name: seafile-data
+        fieldPaths:
+          - spec.resources.requests.storage
