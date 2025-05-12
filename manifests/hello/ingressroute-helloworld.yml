@@ -9,6 +9,9 @@ spec:
   routes:
     - kind: Rule
       match: <HELLO_MATCH>
+      middlewares:
+        - name: fail2ban-hello
+          namespace: hello
       services:
         - name: helloworld
           port: 80

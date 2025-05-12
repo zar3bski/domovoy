@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - ns-hello.yml
+  - middleware-fail2ban-hello.yml
   - deploy-helloworld.yml
   - svc-helloworld.yml
   - certificate-helloworld.yml
