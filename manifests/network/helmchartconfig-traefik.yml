@@ -1,0 +1,26 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+
+spec:
+  valuesContent: |-
+    ports:
+      web:
+        exposedPort: 8080
+      websecure:
+        exposedPort: 8443
+      dashboard:
+        port: 4443
+        protocol: TCP
+        expose:
+          default: true
+        exposedPort: 4443
+        tls:
+          enabled: true
+    experimental:
+      plugins:
+        fail2ban:
+          moduleName: "github.com/tomMoulard/fail2ban"
+          version: "v0.8.3"
