@@ -24,28 +24,28 @@
 - name: Setup wireguard
   block:
     - name: Copy private key
-      with_items: "{{ wireguard }}"
+      with_items: "{{ wireguard.interfaces }}"
       ansible.builtin.template:
         src: templates/privatekey.j2
         dest: /etc/wireguard/{{ item.interface }}.privatekey
         mode: "0600"
 
     - name: Copy public key
-      with_items: "{{ wireguard }}"
+      with_items: "{{ wireguard.interfaces }}"
       ansible.builtin.template:
         src: templates/publickey.j2
         dest: /etc/wireguard/{{ item.interface }}.publickey
         mode: "0600"
 
     - name: Copy public key
-      with_items: "{{ wireguard }}"
+      with_items: "{{ wireguard.interfaces }}"
       ansible.builtin.template:
         src: templates/wg.conf.j2
         dest: /etc/wireguard/{{ item.interface }}.conf
         mode: "0600"
 
     - name: Create Peers shared mapping file
-      with_items: "{{ wireguard }}"
+      with_items: "{{ wireguard.interfaces }}"
       ansible.builtin.template:
         src: templates/peers.j2
         dest: /usr/share/wireguard/{{ item.interface }}.peers
@@ -64,7 +64,7 @@
         mode: "0700"
 
     - name: Allow wireguard traffic to this host
-      with_items: "{{ wireguard }}"
+      with_items: "{{ wireguard.interfaces }}"
       community.general.ufw:
         rule: allow
         proto: any
@@ -73,7 +73,7 @@
       when: item.WG_PORT is defined
 
     - name: Start or restart Interface
-      with_items: "{{ wireguard }}"
+      with_items: "{{ wireguard.interfaces }}"
       ansible.builtin.systemd:
         daemon_reload: true
         service: wg-quick@{{ item.interface }}
@@ -103,10 +103,28 @@
       ansible.builtin.template:
         src: templates/prometheus-wireguard-exporter.service.j2
         dest: /etc/systemd/system/prometheus-wireguard-exporter.service
-        mode: '0755'
+        mode: '0555'
     - name: Start or restart the exporter
       ansible.builtin.systemd:
         daemon_reload: true
         service: prometheus-wireguard-exporter
         enabled: true
         state: restarted
+
+- name: Set public IP tracking
+  when: wireguard.public_ip_tracking is defined
+  block:
+    - name: Copy notification script
+      ansible.builtin.template:
+        src: templates/notify-public-ip-changes.sh.j2
+        dest: /usr/bin/notify-public-ip-changes
+        owner: root
+        group: root
+        mode: '0700'
+    - name: Create Cron Job
+      ansible.builtin.template:
+        src: templates/notify-public-ip-changes.cron.j2
+        dest: /etc/cron.d/notify-public-ip-changes
+        owner: root
+        group: root
+        mode: '0500'
