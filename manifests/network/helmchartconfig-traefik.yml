@@ -27,6 +27,11 @@ spec:
     logs:
       general:
         level: "INFO"
+      access:
+        enabled: true
+    env:
+      - name: TZ
+        value: Europe/Paris
     service:
       spec:
         externalTrafficPolicy: Local
