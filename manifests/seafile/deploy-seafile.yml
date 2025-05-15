@@ -22,9 +22,9 @@ spec:
               memory: 256Mi
             limits:
               cpu: 2000m
-              memory: 2Gi
+              memory: 2.5Gi
           env:
-            - name: NON_ROOT # TODO
+            - name: NON_ROOT
               value: "true"
             - name: SEAFILE_ENABLE_OAUTH
               value: "True"
