@@ -16,3 +16,5 @@ spec:
         - name: seafile
           namespace: seafile
           port: 8082
+  tls:
+    secretName: domain-tls
