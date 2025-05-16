@@ -5,6 +5,7 @@ metadata:
   namespace: vaultwarden
 spec:
   secretName: domain-tls
+  commonName: <VAULT_DOMAIN>
   dnsNames:
     - <VAULT_DOMAIN>
   issuerRef:

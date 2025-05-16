@@ -15,3 +15,5 @@ spec:
           port: 80
   tls:
     secretName: domain-tls
+    domains:
+      - main: <VAULT_DOMAIN>

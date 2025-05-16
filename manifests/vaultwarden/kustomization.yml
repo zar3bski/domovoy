@@ -33,7 +33,13 @@ replacements:
           kind: Certificate
           name: vaultwarden
         fieldPaths:
+          - spec.commonName
           - spec.dnsNames.0
+      - select:
+          kind: IngressRoute
+          name: vaultwarden
+        fieldPaths:
+          - spec.tls.domains.0.main
   - source:
       kind: ConfigMap
       version: v1
