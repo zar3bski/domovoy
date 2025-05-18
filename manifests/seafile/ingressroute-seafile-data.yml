@@ -18,3 +18,5 @@ spec:
           port: 8082
   tls:
     secretName: domain-tls
+    domains:
+      - main: <SEAFILE_DOMAIN>

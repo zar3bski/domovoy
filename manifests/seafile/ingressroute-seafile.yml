@@ -9,9 +9,15 @@ spec:
   routes:
     - kind: Rule
       match: <SEAFILE_MATCH>
+      observability:
+        accessLogs: true
+        metrics: true
+        tracing: true
       services:
         - name: seafile
           namespace: seafile
           port: 80
   tls:
     secretName: domain-tls
+    domains:
+      - main: <SEAFILE_DOMAIN>

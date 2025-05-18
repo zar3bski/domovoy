@@ -61,9 +61,20 @@ replacements:
       fieldPath: data.SEAFILE_DOMAIN
     targets:
       - select:
+          kind: IngressRoute
+          name: seafile
+        fieldPaths:
+          - spec.tls.domains.0.main
+      - select:
+          kind: IngressRoute
+          name: seafile-data
+        fieldPaths:
+          - spec.tls.domains.0.main
+      - select:
           kind: Certificate
           name: seafile
         fieldPaths:
+          - spec.commonName
           - spec.dnsNames.0
       - select:
           kind: Deployment

@@ -4,7 +4,8 @@ metadata:
   name: seafile
   namespace: seafile
 spec:
-  secretName: domain-tls # <===  Name of secret where the generated certificate will be stored.
+  secretName: domain-tls
+  commonName: <SEAFILE_DOMAIN>
   dnsNames:
     - <SEAFILE_DOMAIN>
   issuerRef:
