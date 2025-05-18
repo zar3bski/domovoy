@@ -1,0 +1,23 @@
+stream {
+    upstream omv-hci {
+        server 127.0.0.1:444;
+    }
+
+    upstream k3s-websecure {
+        server 127.0.0.1:8443;
+    }
+    
+    map $ssl_preread_server_name $name {
+        hostnames;
+        omv.{{ inventory_hostname }} omv-hci;
+        *.{{ inventory_hostname }} k3s-websecure;
+    }
+
+    server {
+        listen 443;
+        proxy_pass $name;
+        ssl_preread on;
+        proxy_timeout 3s;
+        proxy_connect_timeout 1s;
+    }
+}

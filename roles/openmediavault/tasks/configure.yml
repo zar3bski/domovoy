@@ -1,22 +1,22 @@
-
 - name: Install node exporter
   block:
     - name: Create a node exporter user
       ansible.builtin.user:
         name: metrics
         create_home: true
-        shell: /bin/rbash  # Restricted shell
+        shell: /bin/rbash # Restricted shell
     - name: Identify material architecture # noqa: no-changed-when
       ansible.builtin.command: "dpkg --print-architecture"
       register: arch
     - name: Download binary # noqa: yaml[line-length]
       ansible.builtin.get_url:
         dest: /home/metrics
-        mode: '0755'
+        mode: "0755"
         owner: metrics
         group: metrics
-        url: "https://github.com/prometheus/node_exporter/releases/download/v{{ common_node_exporter_version }}\
-              /node_exporter-{{ common_node_exporter_version }}.linux-{{ arch.stdout }}.tar.gz"
+        url:
+          "https://github.com/prometheus/node_exporter/releases/download/v{{ common_node_exporter_version }}\
+          /node_exporter-{{ common_node_exporter_version }}.linux-{{ arch.stdout }}.tar.gz"
     - name: Decompress archive
       ansible.builtin.unarchive:
         src: /home/metrics/node_exporter-{{ common_node_exporter_version }}.linux-{{ arch.stdout }}.tar.gz
@@ -32,12 +32,12 @@
       ansible.builtin.template:
         src: templates/node-exporter.service.j2
         dest: /etc/systemd/system/node-exporter.service
-        mode: '0755'
+        mode: "0755"
     - name: Create node-exporter web config
       ansible.builtin.template:
         src: templates/node-exporter.web.config.j2
         dest: /home/metrics/node-exporter.web.config
-        mode: '0750'
+        mode: "0750"
         owner: metrics
         group: metrics
     - name: Enable and start service
@@ -72,7 +72,6 @@
     cmd: omv-mkraid /dev/md0 -l 5 -n 3 {{ raid5_devices | join(' ') }}
   when: 'raid5_devices is defined and "/dev/md0" not in array.stdout[0]'
 
-
 # HTTPS configuration
 - name: SSL configuration
   block:
@@ -81,21 +80,21 @@
         dest: /etc/ssl/certs/omv-intermediary.crt
         content: "{{ ssl_intermediary_cert }}"
         owner: root
-        mode: '0644'
+        mode: "0644"
 
     - name: Copy SSL intermediary key
       ansible.builtin.copy:
         dest: /etc/ssl/private/omv-intermediary.key
         content: "{{ ssl_intermediary_key }}"
         owner: root
-        mode: '0600'
+        mode: "0600"
 
     - name: Copy leaf certs generation script
       ansible.builtin.copy:
         src: ./files/generate-leaf-from-intermediary.sh
         dest: /usr/local/bin/generate-leaf-from-intermediary
         owner: root
-        mode: '0755'
+        mode: "0755"
 
     - name: Generate leaf certificate
       ansible.builtin.command:
@@ -112,14 +111,14 @@
         dest: /etc/ssl/certs/omv-chain.crt
         content: "{{ leaf_cert_content.content | b64decode }}{{ ssl_intermediary_cert }}{{ ca_cert }}"
         owner: root
-        mode: '0644'
+        mode: "0644"
 
     - name: Copy update script
       ansible.builtin.copy:
         src: ./files/omv-ssl-update-certs.sh
         dest: /usr/local/bin/omv-ssl-update-certs
         owner: root
-        mode: '0755'
+        mode: "0755"
 
     - name: Update SSL certs
       ansible.builtin.command:
@@ -130,26 +129,38 @@
       ansible.builtin.template:
         src: templates/ca-omv-cluster.yml.j2
         dest: /etc/ssl/private/ca-omv-cluster.yml
-        mode: '0600'
+        mode: "0600"
         owner: root
         group: root
 
 - name: Redirect sub domains to k3s Load balancer
   block:
-    - name: Copy Nginx conf to available sites
+    - name: Install Nginx stream module
+      ansible.builtin.apt:
+        pkg:
+          - libnginx-mod-stream
+    - name: Alter OMV Nginx Conf > IP v4 to 127.0.0.1:444
+      ansible.builtin.lineinfile:
+        path: /etc/nginx/sites-available/openmediavault-webgui
+        regexp: ".*\\*:443.*"
+        line: "    listen 127.0.0.1:444 default_server http2 ssl deferred;"
+    - name: Alter OMV Nginx Conf > IP v6 to  [::1]:444
+      ansible.builtin.lineinfile:
+        path: /etc/nginx/sites-available/openmediavault-webgui
+        regexp: ".*\\[::\\]:443.*"
+        line: "    listen [::1]:444 default_server http2 ssl deferred;"
+    - name: Create stream configuration
       ansible.builtin.template:
-        src: templates/k3s-ingress-server.conf.j2
-        dest: /etc/nginx/sites-available/k3s-ingress-server.conf
-        mode: '0644'
+        src: templates/k3s-tcp-stream.conf.j2
+        dest: /etc/nginx/k3s-tcp-stream.conf
+        mode: "0644"
         owner: root
         group: root
-    - name: Nginx enable site
-      ansible.builtin.file:
-        src: /etc/nginx/sites-available/k3s-ingress-server.conf
-        dest: /etc/nginx/sites-enabled/k3s-ingress-server.conf
-        state: link
-        owner: root
-        group: root
+    - name: Include stream configuration in Main conf
+      ansible.builtin.lineinfile:
+        path: /etc/nginx/nginx.conf
+        insertafter: "include /etc/nginx/modules-enabled/\\*.conf;"
+        line: "include /etc/nginx/k3s-tcp-stream.conf;"
     - name: Restart Nginx
       ansible.builtin.systemd_service:
         state: restarted
@@ -168,6 +179,6 @@
       ansible.builtin.template:
         src: templates/20discord.j2
         dest: /usr/share/openmediavault/notification/sink.d/20discord
-        mode: '0755'
+        mode: "0755"
         owner: root
         group: root
