@@ -182,3 +182,24 @@
         mode: "0755"
         owner: root
         group: root
+
+- name: Set scheduled archiving for Saved Persistent Volume Claims
+  block:
+    - name: Install tooling
+      ansible.builtin.apt:
+        pkg:
+          - lbzip2
+    - name: Copy archive password
+      ansible.builtin.template:
+        src: templates/archiving_password.j2
+        dest: /root/.archive_password
+        owner: root
+        group: root
+        mode: "0600"
+    - name: Copy archiving script
+      ansible.builtin.copy:
+        src: ./files/k3s-archive-saved-pvc.sh
+        dest: /usr/local/bin/k3s-archive-saved-pvc
+        owner: root
+        group: root
+        mode: "0750"

@@ -18,6 +18,7 @@ some_host:
      -----BEGIN PRIVATE KEY-----
   ssl_intermediary_cert: |
      -----BEGIN CERTIFICATE-----
+  archive_password: some_pass # password to be used for PVC archive encryption
   raid5_devices: 
     - /dev/vdb 
     - /dev/vdc 

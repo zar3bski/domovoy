@@ -44,3 +44,21 @@ kubectl kustomize ./
 ```shell
 kubectl apply -k ./
 ```
+
+## Disaster recovery
+
+### saved  PVC 
+
+Persistent volume claims handled by the `storageClass` **saved-local-path**. `k3s-archive-saved-pvc` (provisioned by ansible) should be used in a CRON job to save those PVC on a different volume. 
+
+Encrypted archives can be decrypted + extracted using
+
+```shell
+openssl enc -pbkdf2 -d -aes256 -in name_of_the.tar.gz.aes  | tar -xz
+```
+to provide password from STDIN or with 
+
+```shell
+openssl enc -pbkdf2 -d -pass file:/path/to/.archive_password -aes256 -in name_of_the.tar.gz.aes  | tar -xz
+```
+
