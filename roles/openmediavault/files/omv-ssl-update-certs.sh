@@ -40,7 +40,7 @@ echo
 if ! omv_config_exists "${xpath}"; then
     echo "Config for ${uuid} does not exist: creating"
     omv_config_add_node_data "/config/system/certificates" "sslcertificate" \
-        "<uuid>${uuid}</uuid><certificate>${cert}</certificate><privatekey>${key}</privatekey><comment>${subject}</comment>"
+        "<uuid>${uuid}</uuid><certificate>$(cat ${cert})</certificate><privatekey>${key}</privatekey><comment>${subject}</comment>"
     echo "Config created successfully"
 else
     echo "Updating certificate in database ..."
