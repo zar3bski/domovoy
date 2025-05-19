@@ -202,4 +202,11 @@
         dest: /usr/local/bin/k3s-archive-saved-pvc
         owner: root
         group: root
-        mode: "0750"
+        mode: "0500"
+    - name: Copy unused PVC listing script
+      ansible.builtin.copy:
+        src: ./files/k3s-list-unused-pvc.sh
+        dest: /usr/local/bin/k3s-list-unused-pvc
+        owner: root
+        group: root
+        mode: "0500"
