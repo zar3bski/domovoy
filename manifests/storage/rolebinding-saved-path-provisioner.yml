@@ -9,5 +9,5 @@ roleRef:
   name: saved-path-provisioner-role
 subjects:
   - kind: ServiceAccount
-    name: local-path-provisioner-service-account
+    name: saved-path-provisioner-service-account
     namespace: custom-storage

@@ -1,7 +1,7 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: local-path-config
+  name: saved-path-config
   namespace: custom-storage
 data:
   config.json: |-
@@ -26,6 +26,7 @@ data:
     kind: Pod
     metadata:
       name: helper-pod
+      namespace: custom-storage
     spec:
       priorityClassName: system-node-critical
       tolerations:

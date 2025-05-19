@@ -13,7 +13,7 @@ spec:
       labels:
         app: saved-path-provisioner
     spec:
-      serviceAccountName: local-path-provisioner-service-account
+      serviceAccountName: saved-path-provisioner-service-account
       containers:
         - name: saved-path-provisioner
           image: rancher/local-path-provisioner:v0.0.31
@@ -21,6 +21,14 @@ spec:
           command:
             - local-path-provisioner
             - start
+            - --provisioner-name
+            - zar3bski.com/saved-path
+            - --configmap-name
+            - saved-path-config
+            - --service-account-name
+            - saved-path-provisioner-service-account
+            - --namespace
+            - custom-storage
             - --config
             - /etc/config/config.json
           volumeMounts:
@@ -36,4 +44,4 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: local-path-config
+            name: saved-path-config
