@@ -29,9 +29,14 @@ spec:
         level: "INFO"
       access:
         enabled: true
-    env:
-      - name: TZ
-        value: Europe/Paris
+        fields: 
+          general:
+            names: 
+              StartUTC: drop
+    envFrom:
+      - configMapRef:
+          name: cluster-variables
+          namespace: kube-system
     service:
       spec:
         externalTrafficPolicy: Local
