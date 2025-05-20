@@ -10,6 +10,7 @@
   roles:
     - common
     - wireguard
+    - technitium
 
 - name: NAS servers
   hosts: nas-servers
