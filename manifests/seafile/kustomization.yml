@@ -20,13 +20,13 @@ secretGenerator:
   - name: seafile-secrets
     namespace: seafile
     envs:
-      - .secret.env
+      - .seafile.secret.env
 
 configMapGenerator:
   - name: cluster-variables
     namespace: seafile
     envs:
-      - .env
+      - .seafile.env
 
 replacements:
   - source:

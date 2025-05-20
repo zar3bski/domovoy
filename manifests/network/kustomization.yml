@@ -6,7 +6,7 @@ generatorOptions:
 
 configMapGenerator:
   - name: cluster-variables
-    envs: [./.env]
+    envs: [./.network.env]
     behavior: create
     namespace: kube-system
 

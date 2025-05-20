@@ -13,13 +13,13 @@ secretGenerator:
   - name: vaultwarden-secrets
     namespace: vaultwarden
     envs:
-      - .secret.env
+      - .vaultwarden.secret.env
 
 configMapGenerator:
   - name: vaultwarden-config
     namespace: vaultwarden
     envs:
-      - .env
+      - .vaultwarden.env
 
 replacements:
   - source:

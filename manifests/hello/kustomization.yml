@@ -11,7 +11,7 @@ resources:
 
 configMapGenerator:
   - name: cluster-variables
-    envs: [./.env]
+    envs: [./.hello.env]
     behavior: create
     namespace: hello
 
