@@ -13,10 +13,15 @@ spec:
       labels:
         app: vaultwarden
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
       containers:
         - name: vaultwarden
           image: vaultwarden/server:1.33.2-alpine
           env:
+            - name: SHOW_PASSWORD_HINT
+              value: "false"
             - name: DOMAIN
               valueFrom:
                 configMapKeyRef:
