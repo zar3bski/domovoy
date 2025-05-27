@@ -4,3 +4,4 @@ inventory.yml
 .certs
 .build
 *.env
+*/keycloak/provisioning/*.json

@@ -16,6 +16,31 @@ spec:
         app: keycloak
     spec:
       containers:
+        - name: keycloak-provisionner
+          image: python:3.13.3-alpine3.20
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 20m
+              memory: 32Mi
+          command: ["python"]
+          args:
+            - /opt/keycloack/provisioning.py
+          env:
+            - name: REALM
+              valueFrom:
+                configMapKeyRef:
+                  name: cluster-variables
+                  key: REALM
+            - name: LOG_LEVEL
+              value: INFO
+          volumeMounts:
+            - mountPath: /var/run/secrets/keycloak
+              name: keycloak-secrets
+            - mountPath: /opt/keycloack
+              name: keycloak-provisioning
         - name: keycloak
           image: quay.io/keycloak/keycloak:26.2
           args:
@@ -61,6 +86,12 @@ spec:
               name: keycloak-main
               subPath: keycloak.conf
       volumes:
+        - name: keycloak-secrets
+          secret:
+            secretName: keycloak-secrets
         - name: keycloak-main
           configMap:
             name: keycloak-main
+        - name: keycloak-provisioning
+          configMap:
+            name: keycloak-provisioning
