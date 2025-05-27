@@ -21,5 +21,5 @@ Because of keycloak uuid instability (`uuid` not exported in resource def, gener
 
 ## Roadmap
 
-- [ ] watchdog for `keycloak.provisioning`
+- [X] watchdog for `keycloak.provisioning`
 - [ ] metrics exportation
