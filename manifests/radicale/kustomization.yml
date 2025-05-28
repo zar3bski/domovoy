@@ -1,0 +1,49 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - certificate-radicale.yml
+  - cm-radicale.yml
+  - deploy-radicale.yml
+  - ingressroute-radicale.yml
+  - ns-radicale.yml
+  - pvc-radicale-data.yml
+  - svc-radicale.yml
+
+configMapGenerator:
+  - name: radicale-variables
+    namespace: radicale
+    envs:
+      - .radicale.env
+
+replacements:
+  - source:
+      kind: ConfigMap
+      version: v1
+      name: radicale-variables
+      namespace: radicale
+      fieldPath: data.RADICALE_MATCH
+    targets:
+      - select:
+          kind: IngressRoute
+          name: radicale
+        fieldPaths:
+          - spec.routes.0.match
+  - source:
+      kind: ConfigMap
+      version: v1
+      name: radicale-variables
+      namespace: radicale
+      fieldPath: data.RADICALE_DOMAIN
+    targets:
+      - select:
+          kind: Certificate
+          name: radicale
+        fieldPaths:
+          - spec.commonName
+          - spec.dnsNames.0
+      - select:
+          kind: IngressRoute
+          name: radicale
+        fieldPaths:
+          - spec.tls.domains.0.main

@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: radicale
+  namespace: radicale
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: radicale
+  template:
+    metadata:
+      labels:
+        app: radicale
+    spec:
+      containers:
+        - name: radicale
+          image: zar3bski/radicale:3.5.4
+          resources:
+            requests:
+              cpu: 20m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 256Mi
+          env: []
+          ports:
+            - containerPort: 5232
+          volumeMounts:
+            - name: radicale-data
+              mountPath: /var/lib/radicale
+            - name: radicale-conf
+              mountPath: /etc/radicale
+      volumes:
+        - name: radicale-data
+          persistentVolumeClaim:
+            claimName: radicale-data
+        - name: radicale-conf
+          configMap:
+            name: radicale
+
+      restartPolicy: Always

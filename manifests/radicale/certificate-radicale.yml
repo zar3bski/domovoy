@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: radicale
+  namespace: radicale
+spec:
+  secretName: domain-tls
+  commonName: <RADICALE_DOMAIN>
+  dnsNames:
+    - <RADICALE_DOMAIN>
+  issuerRef:
+    name: ca-clusterissuer
+    kind: ClusterIssuer

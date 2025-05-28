@@ -1,0 +1,23 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: radicale
+  namespace: radicale
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: <RADICALE_MATCH>
+      observability:
+        accessLogs: true
+        metrics: true
+        tracing: true
+      services:
+        - name: radicale
+          namespace: radicale
+          port: 5232
+  tls:
+    secretName: domain-tls
+    domains:
+      - main: <RADICALE_DOMAIN>
