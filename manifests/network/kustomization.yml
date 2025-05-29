@@ -1,6 +1,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+resources:
+  - certificate-wildcard-domain-tls.yml
+  - helmchartconfig-traefik.yml
+
 generatorOptions:
   disableNameSuffixHash: true
 
@@ -10,5 +14,17 @@ configMapGenerator:
     behavior: create
     namespace: kube-system
 
-resources:
-  - helmchartconfig-traefik.yml
+replacements:
+  - source:
+      kind: ConfigMap
+      version: v1
+      name: cluster-variables
+      namespace: kube-system
+      fieldPath: data.WILDCARD_DOMAIN
+    targets:
+      - select:
+          kind: Certificate
+          name: wildcard-domain-tls
+        fieldPaths:
+          - spec.commonName
+          - spec.dnsNames.0

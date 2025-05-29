@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-domain-tls
+  namespace: kube-system
+spec:
+  secretName: wildcard-domain-tls
+  commonName: <WILDCARD_DOMAIN>
+  dnsNames:
+    - <WILDCARD_DOMAIN>
+  issuerRef:
+    name: ca-clusterissuer
+    kind: ClusterIssuer

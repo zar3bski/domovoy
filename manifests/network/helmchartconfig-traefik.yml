@@ -4,8 +4,24 @@ metadata:
   name: traefik
   namespace: kube-system
 
+# TODO: variabilize identity.enki.sin
 spec:
   valuesContent: |-
+    deployment:
+      initContainers:
+        - name: ca-loader
+          image: busybox:1.37.0-glibc
+          command: ["sh", "-c", "cp /etc/ssl/ca.crt /data"]
+          volumeMounts:
+            - name: wildcard-domain-tls
+              mountPath: /etc/ssl/ca.crt
+              subPath: ca.crt
+            - name: data
+              mountPath: /data
+      additionalVolumes:
+        - name: wildcard-domain-tls
+          secret:
+            secretName: wildcard-domain-tls
     ports:
       web:
         exposedPort: 8080
@@ -22,8 +38,11 @@ spec:
     experimental:
       plugins:
         fail2ban:
-          moduleName: "github.com/tomMoulard/fail2ban"
-          version: "v0.8.3"
+          moduleName: github.com/tomMoulard/fail2ban
+          version: v0.8.3
+        traefikoidc:
+          moduleName: github.com/lukaszraczylo/traefikoidc
+          version: v0.6.2-beta1
     logs:
       general:
         level: "INFO"
