@@ -34,6 +34,7 @@ configMapGenerator:
     files:
       - provisioning/provisioning.py
       - provisioning/realm-export.json
+      - provisioning/client-grafana.json
       - provisioning/client-hello.json
       - provisioning/client-radicale.json
       - provisioning/client-seafile.json
