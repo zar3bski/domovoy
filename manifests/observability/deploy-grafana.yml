@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: grafana
+  name: grafana
+  namespace: observability
+spec:
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      securityContext:
+        fsGroup: 472
+        supplementalGroups:
+          - 0
+      initContainers:
+        - name: internal-ca-loader
+          image: alpine/openssl:3.3.3
+          command:
+            - /bin/sh
+          args:
+            - -c
+            - mkdir -p /etc/ssl/internal-certs;
+              touch /etc/ssl/internal-certs/ca-certificates.crt;
+              cat /etc/ssl/certs/ca-certificates.crt >> /etc/ssl/internal-certs/ca-certificates.crt;
+              cat /internal-ca.crt >> /etc/ssl/internal-certs/ca-certificates.crt;
+          volumeMounts:
+            - name: ca-certificates
+              mountPath: /etc/ssl/internal-certs
+            - name: domain-tls
+              mountPath: /internal-ca.crt
+              subPath: ca.crt
+      containers:
+        - name: grafana
+          image: grafana/grafana:12.0.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http-grafana
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /robots.txt
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 2
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 3000
+            timeoutSeconds: 1
+          resources:
+            requests:
+              cpu: 250m
+              memory: 750Mi
+          env:
+            - name: GF_SERVER_ROOT_URL
+              value: <GRAFANA_ROOT_URL>
+          volumeMounts:
+            - mountPath: /var/run/secrets/grafana
+              name: grafana-secrets
+            - mountPath: /etc/oidc-endpoints
+              name: oidc-endpoints
+            - mountPath: /etc/grafana/grafana.ini
+              name: grafana-config
+              subPath: grafana.ini
+            - mountPath: /var/lib/grafana
+              name: grafana-pv
+            - name: ca-certificates
+              mountPath: /etc/ssl/certs/ca-certificates.crt
+              subPath: ca-certificates.crt
+      volumes:
+        - name: domain-tls
+          secret:
+            secretName: domain-tls
+        - name: ca-certificates
+        - name: grafana-secrets
+          secret:
+            secretName: grafana-secrets
+        - name: oidc-endpoints
+          configMap:
+            name: oidc-endpoints
+        - name: grafana-config
+          configMap:
+            name: grafana-config
+        - name: grafana-pv
+          persistentVolumeClaim:
+            claimName: grafana-pvc

@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+  namespace: observability
+data:
+  grafana.ini: |
+    [auth.generic_oauth]
+    client_id=$__file{/var/run/secrets/grafana/client_id}
+    client_secret=$__file{/var/run/secrets/grafana/client_secret}
+    auth_url=$__file{/etc/oidc-endpoints/authorization_endpoint}
+    api_url=$__file{/etc/oidc-endpoints/userinfo_endpoint}
+    token_url=$__file{/etc/oidc-endpoints/token_endpoint}
+    role_attribute_path: contains(roles[*], 'grafanaadmin') && 'GrafanaAdmin' || contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'
+    enabled=true
+    scopes = "openid profile email offline_access"
+    use_pkce = true
+    use_refresh_token = true
+
+    [security]
+    admin_user=$__file{/var/run/secrets/grafana/admin_user}
+    admin_password=$__file{/var/run/secrets/grafana/admin_password}
+    cookie_secure=true
+    cookie_samesite=strict

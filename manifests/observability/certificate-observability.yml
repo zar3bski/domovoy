@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: observability
+  namespace: observability
+spec:
+  secretName: domain-tls
+  commonName: <GRAFANA_DOMAIN>
+  dnsNames:
+    - <GRAFANA_DOMAIN>
+  issuerRef:
+    name: ca-clusterissuer
+    kind: ClusterIssuer

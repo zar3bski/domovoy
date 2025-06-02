@@ -1,0 +1,23 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: observability
+  namespace: observability
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: <GRAFANA_MATCH>
+      observability:
+        accessLogs: true
+        metrics: true
+        tracing: false
+      services:
+        - name: grafana
+          namespace: observability
+          port: 3000
+  tls:
+    secretName: domain-tls
+    domains:
+      - main: <GRAFANA_DOMAIN>
