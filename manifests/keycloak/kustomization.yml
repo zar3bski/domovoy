@@ -6,6 +6,7 @@ generatorOptions:
 
 resources:
   - cm-keycloak-main.yml
+  - cm-oidc-endpoints.yml
   - deploy-keycloak.yml
   - deploy-postgres.yml
   - ingressroute-keycloak.yml
