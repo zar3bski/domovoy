@@ -11,7 +11,7 @@ data:
     auth_url=$__file{/etc/oidc-endpoints/authorization_endpoint}
     api_url=$__file{/etc/oidc-endpoints/userinfo_endpoint}
     token_url=$__file{/etc/oidc-endpoints/token_endpoint}
-    role_attribute_path: contains(roles[*], 'grafanaadmin') && 'GrafanaAdmin' || contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'
+    role_attribute_path: contains(account.roles[*], 'grafanaadmin') && 'GrafanaAdmin' || contains(account.roles[*], 'admin') && 'Admin' || contains(account.roles[*], 'editor') && 'Editor' || 'Viewer'
     enabled=true
     scopes = "openid profile email offline_access"
     use_pkce = true
