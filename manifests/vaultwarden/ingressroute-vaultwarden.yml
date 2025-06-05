@@ -9,6 +9,9 @@ spec:
   routes:
     - kind: Rule
       match: <VAULTWARDEN_MATCH>
+      observability:
+        accessLogs: true
+        metrics: true
       services:
         - name: vaultwarden
           namespace: vaultwarden
