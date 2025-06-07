@@ -12,6 +12,9 @@ spec:
         - name: stripprefix
           namespace: seafile
       match: <SEAFILE_DATA_MATCH> # WARN relies on prefix /seafhttp
+      observability:
+        accessLogs: true
+        metrics: true
       services:
         - name: seafile
           namespace: seafile
