@@ -139,16 +139,26 @@
       ansible.builtin.apt:
         pkg:
           - libnginx-mod-stream
-    - name: Alter OMV Nginx Conf > IP v4 to 127.0.0.1:444
+    - name: Alter OMV Nginx Conf > HTTP IP v4 to 127.0.0.1:81
+      ansible.builtin.lineinfile:
+        path: /etc/nginx/sites-available/openmediavault-webgui
+        regexp: ".*\\*:80.*"
+        line: "    listen 127.0.0.1:81 proxy_protocol;"
+    - name: Alter OMV Nginx Conf > HTTP IP v6 to 127.0.0.1:81
+      ansible.builtin.lineinfile:
+        path: /etc/nginx/sites-available/openmediavault-webgui
+        regexp: ".*\\[::\\]:80.*"
+        line: "    listen [::1]:81 proxy_protocol;"
+    - name: Alter OMV Nginx Conf > HTTPS IP v4 to 127.0.0.1:444
       ansible.builtin.lineinfile:
         path: /etc/nginx/sites-available/openmediavault-webgui
         regexp: ".*\\*:443.*"
-        line: "    listen 127.0.0.1:444 default_server http2 ssl deferred;"
-    - name: Alter OMV Nginx Conf > IP v6 to  [::1]:444
+        line: "    listen 127.0.0.1:444 http2 ssl deferred proxy_protocol;"
+    - name: Alter OMV Nginx Conf > HTTPS IP v6 to  [::1]:444
       ansible.builtin.lineinfile:
         path: /etc/nginx/sites-available/openmediavault-webgui
         regexp: ".*\\[::\\]:443.*"
-        line: "    listen [::1]:444 default_server http2 ssl deferred;"
+        line: "    listen [::1]:444 http2 ssl deferred proxy_protocol;"
     - name: Create stream configuration
       ansible.builtin.template:
         src: templates/k3s-tcp-stream.conf.j2
