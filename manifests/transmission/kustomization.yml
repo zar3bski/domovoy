@@ -1,0 +1,55 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+resources:
+  - certificate-transmission.yml
+  - deploy-transmission.yml
+  - ingressroutetcp-transmission-torrent.yml
+  - ingressroute-transmission.yml
+  - ingressrouteudp-transmission-torrent.yml
+  - ns-transmission.yml
+  - pvc-transmission-config.yml
+  - pvc-transmission-downloads.yml
+  - svc-transmission.yml
+  - svc-transmission-torrent.yml
+
+configMapGenerator:
+  - name: transmission-variables
+    namespace: transmission
+    envs:
+      - .transmission.env
+
+replacements:
+  - source:
+      kind: ConfigMap
+      version: v1
+      name: transmission-variables
+      namespace: transmission
+      fieldPath: data.TRANSMISSION_DOMAIN
+    targets:
+      - select:
+          kind: Certificate
+          name: transmission
+        fieldPaths:
+          - spec.commonName
+          - spec.dnsNames.0
+      - select:
+          kind: IngressRoute
+          name: transmission
+        fieldPaths:
+          - spec.tls.domains.0.main
+  - source:
+      kind: ConfigMap
+      version: v1
+      name: transmission-variables
+      namespace: transmission
+      fieldPath: data.TRANSMISSION_MATCH
+    targets:
+      - select:
+          kind: IngressRoute
+          name: transmission
+        fieldPaths:
+          - spec.routes.0.match

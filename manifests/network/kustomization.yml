@@ -17,8 +17,8 @@ configMapGenerator:
       annotations:
         reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
         reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "observability,identity"
-        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "observability,identity"
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "observability,identity,transmission"
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "observability,identity,transmission"
 
 replacements:
   - source:

@@ -8,3 +8,4 @@ resources:
   - keycloak
   - observability
   - radicale
+  - transmission

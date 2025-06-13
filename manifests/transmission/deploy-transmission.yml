@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transmission
+  namespace: transmission
+spec:
+  selector:
+    matchLabels:
+      app: transmission
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: transmission
+    spec:
+      securityContext:
+        runAsUser: 65534
+        runAsGroup: 65534
+      containers:
+        - name: transmission
+          image: lscr.io/linuxserver/transmission:4.0.6-r4-ls296
+          env:
+            - name: PUID
+              value: "65534"
+            - name: PGID
+              value: "65534"
+            - name: TZ
+              valueFrom:
+                configMapKeyRef:
+                  name: cluster-variables
+                  key: TZ
+          volumeMounts:
+            - name: transmission-downloads
+              mountPath: /downloads
+            - name: transmission-config
+              mountPath: /config
+          ports:
+            - containerPort: 9091
+            - containerPort: 51413
+              protocol: TCP
+            - containerPort: 51413
+              protocol: UDP
+      volumes:
+        - name: transmission-downloads
+          persistentVolumeClaim:
+            claimName: transmission-downloads
+        - name: transmission-config
+          persistentVolumeClaim:
+            claimName: transmission-config
