@@ -4,7 +4,6 @@ metadata:
   name: traefik
   namespace: kube-system
 
-# TODO: variabilize identity.enki.sin
 spec:
   valuesContent: |-
     deployment:

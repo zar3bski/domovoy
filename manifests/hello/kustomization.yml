@@ -14,7 +14,7 @@ resources:
   - ingressroute-helloworld.yml
 
 configMapGenerator:
-  - name: cluster-variables
+  - name: hello-variables
     envs: [./.hello.env]
     behavior: create
     namespace: hello
@@ -29,7 +29,7 @@ replacements:
   - source:
       kind: ConfigMap
       version: v1
-      name: cluster-variables
+      name: hello-variables
       namespace: hello
       fieldPath: data.HELLO_DOMAIN
     targets:
@@ -41,7 +41,7 @@ replacements:
   - source:
       kind: ConfigMap
       version: v1
-      name: cluster-variables
+      name: hello-variables
       namespace: hello
       fieldPath: data.HELLO_MATCH
     targets:

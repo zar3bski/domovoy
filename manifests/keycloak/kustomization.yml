@@ -26,7 +26,7 @@ secretGenerator:
       - .keycloak.secrets.env
 
 configMapGenerator:
-  - name: cluster-variables
+  - name: keycloak-variables
     namespace: identity
     envs:
       - .keycloack.env
@@ -44,7 +44,7 @@ replacements:
   - source:
       kind: ConfigMap
       version: v1
-      name: cluster-variables
+      name: keycloak-variables
       namespace: identity
       fieldPath: data.KEYCLOAK_MATCH
     targets:
