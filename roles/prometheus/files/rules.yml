@@ -40,13 +40,13 @@ groups:
           description: "Node memory is filling up (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: HostUnusualNetworkThroughputIn
-        expr: (sum by (instance) (rate(node_network_receive_bytes_total[2m])) / 1024 / 1024 > 100) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
+        expr: (sum by (instance) (rate(node_network_receive_bytes_total[2m])) / 1024 / 1024 > 200) * on(instance) group_left (nodename) node_uname_info{nodename=~".+"}
         for: 5m
         labels:
           severity: warning
         annotations:
           summary: Host unusual network throughput in (instance {{ $labels.instance }})
-          description: "Host network interfaces are probably receiving too much data (> 100 MB/s)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Host network interfaces are probably receiving too much data (> 200 MB/s)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       # Please add ignored mountpoints in node_exporter parameters like
       # "--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|run)($|/)".
