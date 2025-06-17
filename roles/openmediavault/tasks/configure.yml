@@ -139,6 +139,7 @@
       ansible.builtin.apt:
         pkg:
           - libnginx-mod-stream
+          - nginx-full
     - name: Alter OMV Nginx Conf > HTTP IP v4 to 127.0.0.1:81
       ansible.builtin.lineinfile:
         path: /etc/nginx/sites-available/openmediavault-webgui
