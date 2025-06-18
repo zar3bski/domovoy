@@ -10,6 +10,7 @@ resources:
   - ingressroutetcp-transmission-torrent.yml
   - ingressroute-transmission.yml
   - ingressrouteudp-transmission-torrent.yml
+  - middleware-oidc-transmission.yml
   - ns-transmission.yml
   - pvc-transmission-config.yml
   - pvc-transmission-downloads.yml
@@ -21,6 +22,12 @@ configMapGenerator:
     namespace: transmission
     envs:
       - .transmission.env
+
+secretGenerator:
+  - name: traefik-middleware-oidc
+    namespace: transmission
+    envs:
+      - .traefik-middleware-oidc.secret.env
 
 replacements:
   - source:

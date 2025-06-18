@@ -30,6 +30,10 @@ configMapGenerator:
     namespace: identity
     envs:
       - .keycloack.env
+  - name: oidc
+    namespace: identity
+    envs:
+      - .oidc.env
   - name: keycloak-provisioning
     namespace: identity
     files:
@@ -39,6 +43,7 @@ configMapGenerator:
       - provisioning/client-hello.json
       - provisioning/client-radicale.json
       - provisioning/client-seafile.json
+      - provisioning/client-transmission.json
 
 replacements:
   - source:
@@ -53,3 +58,69 @@ replacements:
           name: keycloak
         fieldPaths:
           - spec.routes.0.match
+  - source:
+      kind: ConfigMap
+      version: v1
+      name: oidc
+      fieldPath: data.ISSUER
+    targets:
+      - select:
+          kind: ConfigMap
+          name: oidc-endpoints
+        fieldPaths:
+          - data.issuer
+  - source:
+      kind: ConfigMap
+      version: v1
+      name: oidc
+      fieldPath: data.AUTHORIZATION_ENDPOINT
+    targets:
+      - select:
+          kind: ConfigMap
+          name: oidc-endpoints
+        fieldPaths:
+          - data.authorization_endpoint
+  - source:
+      kind: ConfigMap
+      version: v1
+      name: oidc
+      fieldPath: data.TOKEN_ENDPOINT
+    targets:
+      - select:
+          kind: ConfigMap
+          name: oidc-endpoints
+        fieldPaths:
+          - data.token_endpoint
+  - source:
+      kind: ConfigMap
+      version: v1
+      name: oidc
+      fieldPath: data.INTROSPECTION_ENDPOINT
+    targets:
+      - select:
+          kind: ConfigMap
+          name: oidc-endpoints
+        fieldPaths:
+          - data.introspection_endpoint
+  - source:
+      kind: ConfigMap
+      version: v1
+      name: oidc
+      fieldPath: data.USERINFO_ENDPOINT
+    targets:
+      - select:
+          kind: ConfigMap
+          name: oidc-endpoints
+        fieldPaths:
+          - data.userinfo_endpoint
+  - source:
+      kind: ConfigMap
+      version: v1
+      name: oidc
+      fieldPath: data.END_SESSION_ENDPOINT
+    targets:
+      - select:
+          kind: ConfigMap
+          name: oidc-endpoints
+        fieldPaths:
+          - data.end_session_endpoint

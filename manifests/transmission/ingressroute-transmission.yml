@@ -9,6 +9,9 @@ spec:
   routes:
     - kind: Rule
       match: <TRANSMISSION_MATCH>
+      middlewares:
+        - name: oidc-transmission
+          namespace: transmission
       observability:
         accessLogs: true
         metrics: true

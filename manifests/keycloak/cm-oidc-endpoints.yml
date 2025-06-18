@@ -6,12 +6,12 @@ metadata:
   annotations:
     reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
     reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-    reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "observability,identity"
-    reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "observability,identity"
+    reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "observability,identity,transmission"
+    reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "observability,identity,transmission"
 data:
-  issuer: "https://identity.enki.sin/realms/chaos-computer-clan"
-  authorization_endpoint: "https://identity.enki.sin/realms/chaos-computer-clan/protocol/openid-connect/auth"
-  token_endpoint: "https://identity.enki.sin/realms/chaos-computer-clan/protocol/openid-connect/token"
-  introspection_endpoint: "https://identity.enki.sin/realms/chaos-computer-clan/protocol/openid-connect/token/introspect"
-  userinfo_endpoint: "https://identity.enki.sin/realms/chaos-computer-clan/protocol/openid-connect/userinfo"
-  end_session_endpoint: "https://identity.enki.sin/realms/chaos-computer-clan/protocol/openid-connect/logout"
+  issuer: <ISSUER>
+  authorization_endpoint: <AUTHORIZATION_ENDPOINT>
+  token_endpoint: <TOKEN_ENDPOINT>
+  introspection_endpoint: <INTROSPECTION_ENDPOINT>
+  userinfo_endpoint: <USERINFO_ENDPOINT>
+  end_session_endpoint: <END_SESSION_ENDPOINT>
