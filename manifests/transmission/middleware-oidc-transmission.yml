@@ -6,7 +6,7 @@ metadata:
 spec:
   plugin:
     traefikoidc:
-      logLevel: info
+      logLevel: INFO
       providerURL: urn:k8s:secret:traefik-middleware-oidc:ISSUER
       clientID: urn:k8s:secret:traefik-middleware-oidc:CLIENT_ID
       clientSecret: urn:k8s:secret:traefik-middleware-oidc:SECRET

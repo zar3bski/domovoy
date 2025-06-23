@@ -19,6 +19,13 @@ spec:
       containers:
         - name: vaultwarden
           image: vaultwarden/server:1.33.2-alpine
+          resources:
+            requests:
+              cpu: 20m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 800Mi
           env:
             - name: SHOW_PASSWORD_HINT
               value: "false"
@@ -32,6 +39,71 @@ spec:
               mountPath: /data
           ports:
             - containerPort: 80
+        - name: bitwarden-cli
+          image: zar3bski/bitwarden-cli:2025.5.0
+          resources:
+            requests:
+              cpu: 20m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 28087
+            runAsGroup: 28087
+          env:
+            - name: SVC_USER
+              valueFrom:
+                secretKeyRef:
+                  name: bitwarden-cli
+                  key: SVC_USER
+            - name: SVC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bitwarden-cli
+                  key: SVC_PASSWORD
+            - name: BW_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: bitwarden-cli
+                  key: BW_HOST
+            - name: BW_USER
+              valueFrom:
+                secretKeyRef:
+                  name: bitwarden-cli
+                  key: BW_USERNAME
+            - name: BW_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bitwarden-cli
+                  key: BW_PASSWORD
+          ports:
+            - name: http
+              containerPort: 8087
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+                - /livenessProbe.sh
+            initialDelaySeconds: 30
+            failureThreshold: 3
+            timeoutSeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            tcpSocket:
+              port: 8087
+            initialDelaySeconds: 60
+            failureThreshold: 3
+            timeoutSeconds: 2
+            periodSeconds: 20
+          startupProbe:
+            tcpSocket:
+              port: 8087
+            initialDelaySeconds: 120
+            failureThreshold: 3
+            timeoutSeconds: 2
+            periodSeconds: 30
       volumes:
         - name: vaultwarden-data
           persistentVolumeClaim:

@@ -10,3 +10,6 @@ spec:
     - name: http
       port: 80
       targetPort: 80
+    - name: cli
+      port: 8087
+      targetPort: 8087

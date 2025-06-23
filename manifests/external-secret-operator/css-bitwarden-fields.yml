@@ -1,0 +1,18 @@
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: bitwarden-fields
+  namespace: external-secrets
+spec:
+  provider:
+    webhook:
+      secrets:
+        - name: auth
+          secretRef:
+            name: bitwarden-cli-credentials
+            namespace: external-secrets
+      headers:
+        Authorization: Basic {{ print .auth.SVC_USER ":" .auth.SVC_PASSWORD | b64enc }}
+      url: "http://vaultwarden.vaultwarden.svc.cluster.local:8087/object/item/{{ .remoteRef.key }}"
+      result:
+        jsonPath: '$.data.fields[?@.name=="{{ .remoteRef.property }}"].value'

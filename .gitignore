@@ -5,3 +5,4 @@ inventory.yml
 .build
 *.env
 */keycloak/provisioning/*.json
+**/charts/*

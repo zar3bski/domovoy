@@ -9,12 +9,6 @@ resources:
   - pvc-vaultwarden.yml
   - svc-vaultwarden.yml
 
-secretGenerator:
-  - name: vaultwarden-secrets
-    namespace: vaultwarden
-    envs:
-      - .vaultwarden.secret.env
-
 configMapGenerator:
   - name: vaultwarden-config
     namespace: vaultwarden
