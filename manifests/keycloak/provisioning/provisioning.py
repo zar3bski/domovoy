@@ -4,7 +4,7 @@ from enum import Enum
 import hashlib
 from queue import Queue
 from typing import Literal
-from urllib.error import URLError
+from urllib.error import URLError, HTTPError
 from urllib import request, parse
 import time
 import json
@@ -21,7 +21,7 @@ logging.basicConfig(
 )
 
 SECRETS_PATH = "/var/run/secrets/keycloak"
-CM_PATH = "/opt/keycloak"
+CM_PATH = "/opt/keycloak/definitions"
 ROOT_API = "http://localhost:8080"
 REALM = getenv("REALM")
 type ResourceType = Literal["realm", "client"]
@@ -224,7 +224,7 @@ class Scheduler:
         )
         files = glob.glob(f"{self.folder}/*.json")
         self.files = {}
-        for f in files:
+        for f in sorted(list(files), key=lambda x: x.startswith("realm-"), reverse=True):
             self.files[f] = self._compute_file_hash(f)
             self.changes.put(f)
         self._apply_changes()
@@ -236,16 +236,22 @@ class Scheduler:
         """
         for remote in Remotes:
             logger.debug("Refreshing %s remote definitions", remote)
-            resp = request.urlopen(
-                request.Request(
-                    remote.value.url,
-                    method="GET",
-                    headers={
-                        "Authorization": f"Bearer {self._token}",
-                    },
+            try:
+                resp = request.urlopen(
+                    request.Request(
+                        remote.value.url,
+                        method="GET",
+                        headers={
+                            "Authorization": f"Bearer {self._token}",
+                        },
+                    )
                 )
-            )
-            remote.value.set_entities(json.loads(resp.read()))
+                remote.value.set_entities(json.loads(resp.read()))
+            except HTTPError:
+                logger.warning(
+                    "Failed to refresh local definitions for %s. In case of initialisation, ignore this warning",
+                    remote,
+                )
 
     def _apply_changes(self):
         """
@@ -269,7 +275,6 @@ class Scheduler:
         """
         while True:
             files = glob.glob(f"{self.folder}/*.json")
-            logger.debug("Found the following files in the watch folder: %s", files)
             for file in files:
                 h = self._compute_file_hash(file)
                 if file not in self.files.keys() or self.files[file] != h:
