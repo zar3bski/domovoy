@@ -4,6 +4,7 @@ resources:
   - ns-external-secrets.yml
   - build.yml
   - css-bitwarden-fields.yml
+  - css-bitwarden-files.yml
 # Uncomment for manifest generation
 #
 # kustomize build -o external-secret-operator/build.yml --enable-helm ./external-secret-operator

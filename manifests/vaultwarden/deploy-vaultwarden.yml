@@ -49,6 +49,10 @@ spec:
               cpu: 200m
               memory: 128Mi
           imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /usr/local/share/ca-certificates/ca.crt
+              name: domain-tls
+              subPath: ca.crt
           securityContext:
             runAsUser: 28087
             runAsGroup: 28087
@@ -108,3 +112,6 @@ spec:
         - name: vaultwarden-data
           persistentVolumeClaim:
             claimName: vaultwarden-data
+        - name: domain-tls
+          secret: 
+            secretName: domain-tls
