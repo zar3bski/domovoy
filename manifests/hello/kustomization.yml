@@ -5,6 +5,7 @@ generatorOptions:
   disableNameSuffixHash: true
 
 resources:
+  - es-hello-oidc.yml
   - ns-hello.yml
   - middleware-fail2ban-hello.yml
   - middleware-oidc-hello.yml
@@ -19,11 +20,6 @@ configMapGenerator:
     behavior: create
     namespace: hello
 
-secretGenerator:
-  - name: traefik-middleware-oidc
-    envs: [./.hello.oidc.secret.env]
-    behavior: create
-    namespace: hello
 
 replacements:
   - source:

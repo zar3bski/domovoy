@@ -9,7 +9,7 @@ spec:
       logLevel: info
       providerURL: urn:k8s:secret:traefik-middleware-oidc:ISSUER
       clientID: urn:k8s:secret:traefik-middleware-oidc:CLIENT_ID
-      clientSecret: urn:k8s:secret:traefik-middleware-oidc:SECRET
+      clientSecret: urn:k8s:secret:traefik-middleware-oidc:CLIENT_SECRET
       sessionEncryptionKey: urn:k8s:secret:traefik-middleware-oidc:ENCRYPTION_KEY
       callbackURL: /oauth2/callback
       scopes:
