@@ -6,44 +6,27 @@ generatorOptions:
 
 resources:
   - cm-keycloak-main.yml
-  - cm-oidc-endpoints.yml
   - deploy-keycloak.yml
   - deploy-postgres.yml
+  - es-keycloak-secrets.yml
+  - es-keycloak-provisioning.yml
+  - es-postgres-secrets.yml
   - ingressroute-keycloak.yml
   - ns-identity.yml
   - pvc-postgres.yml
   - svc-keycloak.yml
   - svc-postgres.yml
 
-secretGenerator:
-  - name: postgres-secrets
-    namespace: identity
-    envs:
-      - .keycloack.postgres-secrets.env
-  - name: keycloak-secrets
-    namespace: identity
-    envs:
-      - .keycloak.secrets.env
 
 configMapGenerator:
   - name: keycloak-variables
     namespace: identity
     envs:
       - .keycloack.env
-  - name: oidc
-    namespace: identity
-    envs:
-      - .oidc.env
   - name: keycloak-provisioning
     namespace: identity
     files:
       - provisioning/provisioning.py
-      - provisioning/realm-export.json
-      - provisioning/client-grafana.json
-      - provisioning/client-hello.json
-      - provisioning/client-radicale.json
-      - provisioning/client-seafile.json
-      - provisioning/client-transmission.json
 
 replacements:
   - source:
@@ -58,69 +41,3 @@ replacements:
           name: keycloak
         fieldPaths:
           - spec.routes.0.match
-  - source:
-      kind: ConfigMap
-      version: v1
-      name: oidc
-      fieldPath: data.ISSUER
-    targets:
-      - select:
-          kind: ConfigMap
-          name: oidc-endpoints
-        fieldPaths:
-          - data.issuer
-  - source:
-      kind: ConfigMap
-      version: v1
-      name: oidc
-      fieldPath: data.AUTHORIZATION_ENDPOINT
-    targets:
-      - select:
-          kind: ConfigMap
-          name: oidc-endpoints
-        fieldPaths:
-          - data.authorization_endpoint
-  - source:
-      kind: ConfigMap
-      version: v1
-      name: oidc
-      fieldPath: data.TOKEN_ENDPOINT
-    targets:
-      - select:
-          kind: ConfigMap
-          name: oidc-endpoints
-        fieldPaths:
-          - data.token_endpoint
-  - source:
-      kind: ConfigMap
-      version: v1
-      name: oidc
-      fieldPath: data.INTROSPECTION_ENDPOINT
-    targets:
-      - select:
-          kind: ConfigMap
-          name: oidc-endpoints
-        fieldPaths:
-          - data.introspection_endpoint
-  - source:
-      kind: ConfigMap
-      version: v1
-      name: oidc
-      fieldPath: data.USERINFO_ENDPOINT
-    targets:
-      - select:
-          kind: ConfigMap
-          name: oidc-endpoints
-        fieldPaths:
-          - data.userinfo_endpoint
-  - source:
-      kind: ConfigMap
-      version: v1
-      name: oidc
-      fieldPath: data.END_SESSION_ENDPOINT
-    targets:
-      - select:
-          kind: ConfigMap
-          name: oidc-endpoints
-        fieldPaths:
-          - data.end_session_endpoint

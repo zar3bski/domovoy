@@ -1,0 +1,40 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: keycloak-provisioning
+  namespace: identity
+
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: bitwarden-files
+    kind: ClusterSecretStore
+  target:
+    name: keycloak-provisioning
+    deletionPolicy: Delete
+    creationPolicy: Owner
+  data:
+    - secretKey: client-grafana.json
+      remoteRef:
+        key: app-keycloak-provisioning
+        property: client-grafana.json
+    - secretKey: client-hello.json
+      remoteRef:
+        key: app-keycloak-provisioning
+        property: client-hello.json
+    - secretKey: client-radicale.json
+      remoteRef:
+        key: app-keycloak-provisioning
+        property: client-radicale.json
+    - secretKey: client-seafile.json
+      remoteRef:
+        key: app-keycloak-provisioning
+        property: client-seafile.json
+    - secretKey: client-transmission.json
+      remoteRef:
+        key: app-keycloak-provisioning
+        property: client-transmission.json
+    - secretKey: realm-export.json
+      remoteRef:
+        key: app-keycloak-provisioning
+        property: realm-export.json

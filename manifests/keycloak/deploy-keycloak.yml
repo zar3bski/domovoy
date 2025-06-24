@@ -39,8 +39,11 @@ spec:
           volumeMounts:
             - mountPath: /var/run/secrets/keycloak
               name: keycloak-secrets
-            - mountPath: /opt/keycloak
-              name: keycloak-provisioning
+            - mountPath: /opt/keycloak/definitions
+              name: keycloak-provisioning-secret
+            - mountPath: /opt/keycloak/provisioning.py
+              name: keycloak-provisioning-cm
+              subPath: provisioning.py
         - name: keycloak
           image: quay.io/keycloak/keycloak:26.2
           args:
@@ -92,6 +95,9 @@ spec:
         - name: keycloak-main
           configMap:
             name: keycloak-main
-        - name: keycloak-provisioning
+        - name: keycloak-provisioning-cm
           configMap:
             name: keycloak-provisioning
+        - name: keycloak-provisioning-secret
+          secret:
+            secretName: keycloak-provisioning
