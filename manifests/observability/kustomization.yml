@@ -8,16 +8,12 @@ resources:
   - certificate-observability.yml
   - cm-grafana.yml
   - deploy-grafana.yml
+  - es-cluster-oidc-endpoints.yml
+  - es-grafana-secrets.yml
   - ingressroute-observability.yml
   - ns-observability.yml
   - pvc-grafana.yml
   - svc-grafana.yml
-
-secretGenerator:
-  - name: grafana-secrets
-    namespace: observability
-    envs:
-      - .grafana-secrets.env
 
 configMapGenerator:
   - name: observability-variables

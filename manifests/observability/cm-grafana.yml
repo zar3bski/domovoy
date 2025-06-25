@@ -6,19 +6,26 @@ metadata:
 data:
   grafana.ini: |
     [auth.generic_oauth]
-    client_id=$__file{/var/run/secrets/grafana/client_id}
-    client_secret=$__file{/var/run/secrets/grafana/client_secret}
-    auth_url=$__file{/etc/oidc-endpoints/authorization_endpoint}
-    api_url=$__file{/etc/oidc-endpoints/userinfo_endpoint}
-    token_url=$__file{/etc/oidc-endpoints/token_endpoint}
-    role_attribute_path: contains(account.roles[*], 'grafanaadmin') && 'GrafanaAdmin' || contains(account.roles[*], 'admin') && 'Admin' || contains(account.roles[*], 'editor') && 'Editor' || 'Viewer'
     enabled=true
-    scopes = "openid profile email offline_access"
-    use_pkce = true
-    use_refresh_token = true
+    allow_sign_up=true
+    name=KEYCLOAK
+    client_id=$__file{/var/run/secrets/grafana/CLIENT_ID}
+    client_secret=$__file{/var/run/secrets/grafana/CLIENT_SECRET}
+    auth_url=$__file{/etc/cluster-oidc-endpoints/AUTHORIZATION_ENDPOINT}
+    api_url=$__file{/etc/cluster-oidc-endpoints/USERINFO_ENDPOINT}
+    token_url=$__file{/etc/cluster-oidc-endpoints/TOKEN_ENDPOINT}
+    signout_redirect_url=$__file{/etc/cluster-oidc-endpoints/ENDSESSION_ENDPOINT}
+    role_attribute_path=contains(account.roles[*], 'grafanaadmin') && 'GrafanaAdmin' || contains(account.roles[*], 'admin') && 'Admin' || contains(account.roles[*], 'editor') && 'Editor' || 'Viewer'
+    login_attribute_path=preferred_username
+    name_attribute_path=preferred_username
+    email_attribute_path=email
+    scopes="openid profile email"
+    use_pkce=true
+    use_refresh_token=true
+    
 
     [security]
-    admin_user=$__file{/var/run/secrets/grafana/admin_user}
-    admin_password=$__file{/var/run/secrets/grafana/admin_password}
+    admin_user=$__file{/var/run/secrets/grafana/ADMIN_USER}
+    admin_password=$__file{/var/run/secrets/grafana/ADMIN_PASSWORD}
     cookie_secure=true
     cookie_samesite=strict

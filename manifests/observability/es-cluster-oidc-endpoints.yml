@@ -1,0 +1,39 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: cluster-oidc-endpoints
+  namespace: observability
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: bitwarden-fields
+    kind: ClusterSecretStore
+  target:
+    name: cluster-oidc-endpoints
+    deletionPolicy: Delete
+    creationPolicy: Owner
+  data:
+    - secretKey: ISSUER
+      remoteRef:
+        key: cluster-oidc
+        property: issuer
+    - secretKey: AUTHORIZATION_ENDPOINT
+      remoteRef:
+        key: cluster-oidc
+        property: authorization_endpoint
+    - secretKey: TOKEN_ENDPOINT
+      remoteRef:
+        key: cluster-oidc
+        property: token_endpoint
+    - secretKey: INTROSPECTION_ENDPOINT
+      remoteRef:
+        key: cluster-oidc
+        property: introspection_endpoint
+    - secretKey: USERINFO_ENDPOINT
+      remoteRef:
+        key: cluster-oidc
+        property: userinfo_endpoint
+    - secretKey: ENDSESSION_ENDPOINT
+      remoteRef:
+        key: cluster-oidc
+        property: endsession_endpoint

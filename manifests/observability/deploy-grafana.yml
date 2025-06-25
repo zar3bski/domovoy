@@ -63,16 +63,21 @@ spec:
             timeoutSeconds: 1
           resources:
             requests:
+              cpu: 100m
+              memory: 400Mi
+            limits:
               cpu: 250m
               memory: 750Mi
           env:
+            - name: GF_LOG_LEVEL
+              value: INFO
             - name: GF_SERVER_ROOT_URL
               value: <GRAFANA_ROOT_URL>
           volumeMounts:
             - mountPath: /var/run/secrets/grafana
               name: grafana-secrets
-            - mountPath: /etc/oidc-endpoints
-              name: oidc-endpoints
+            - mountPath: /etc/cluster-oidc-endpoints
+              name: cluster-oidc-endpoints
             - mountPath: /etc/grafana/grafana.ini
               name: grafana-config
               subPath: grafana.ini
@@ -89,9 +94,9 @@ spec:
         - name: grafana-secrets
           secret:
             secretName: grafana-secrets
-        - name: oidc-endpoints
-          configMap:
-            name: oidc-endpoints
+        - name: cluster-oidc-endpoints
+          secret:
+            secretName: cluster-oidc-endpoints
         - name: grafana-config
           configMap:
             name: grafana-config
