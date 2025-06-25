@@ -6,6 +6,7 @@ resources:
   - deploy-mariadb.yml
   - deploy-memcached.yml
   - deploy-seafile.yml
+  - es-seafile-secret.yml
   - ingressroute-seafile-data.yml
   - ingressroute-seafile.yml
   - middleware-stripprefix.yml
@@ -16,11 +17,6 @@ resources:
   - svc-memcached.yml
   - svc-seafile.yml
 
-secretGenerator:
-  - name: seafile-secrets
-    namespace: seafile
-    envs:
-      - .seafile.secret.env
 
 configMapGenerator:
   - name: seafile-variables
