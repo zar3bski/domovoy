@@ -15,6 +15,10 @@ Because of keycloak uuid instability (`uuid` not exported in resource def, gener
 |        realms | `id`       | realm-<wathever-you-want>.json  |
 |       clients | `clientId` | client-<wathever-you-want>.json |
 
+> If some applications **Roles** depend on **Realm Groups**, please export realm will all parameters (see bellow) for provisioning to succeed
+
+![](./docs/imgs/realm-export.png)
+
 ### Limitations
 
 * One realm: all resources are created in the same realm

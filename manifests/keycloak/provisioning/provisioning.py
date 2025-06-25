@@ -223,12 +223,26 @@ class Scheduler:
             REALM,
         )
         files = glob.glob(f"{self.folder}/*.json")
+
         self.files = {}
-        for f in sorted(list(files), key=lambda x: x.startswith("realm-"), reverse=True):
-            self.files[f] = self._compute_file_hash(f)
-            self.changes.put(f)
+        self._detect_changes()
         self._apply_changes()
         logger.debug("stored hashes: %s", self.files)
+
+    def _detect_changes(self):
+        files = glob.glob(f"{self.folder}/*.json")
+        logger.debug("Found the following definitions in %s: %s", self.folder, files)
+        for file in sorted(
+            list(files),
+            key=lambda x: path.basename(x).startswith("realm-"),
+            reverse=True,
+        ):
+            h = self._compute_file_hash(file)
+            logger.debug("Computed hash of %s: %s", file, h)
+            if file not in self.files.keys() or self.files[file] != h:
+                logger.info("Changes detected on %s", file)
+                self.changes.put(file)
+                self.files[file] = h
 
     def _refresh_remote(self):
         """
@@ -274,13 +288,7 @@ class Scheduler:
         Infinite loop looking for changes in the watch folder
         """
         while True:
-            files = glob.glob(f"{self.folder}/*.json")
-            for file in files:
-                h = self._compute_file_hash(file)
-                if file not in self.files.keys() or self.files[file] != h:
-                    logger.info("Changes detected on %s", file)
-                    self.changes.put(file)
-                self.files[file] = h
+            self._detect_changes()
             if self.changes.empty() == False:
                 self._apply_changes()
             time.sleep(15)
