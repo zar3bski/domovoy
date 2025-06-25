@@ -1,0 +1,19 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: cluster-variables
+  namespace: transmission
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: bitwarden-fields
+    kind: ClusterSecretStore
+  target:
+    name: cluster-variables
+    deletionPolicy: Delete
+    creationPolicy: Owner
+  data:
+    - secretKey: TZ
+      remoteRef:
+        key: cluster-common
+        property: timezone

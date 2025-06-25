@@ -26,7 +26,7 @@ spec:
               value: "65534"
             - name: TZ
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: cluster-variables
                   key: TZ
           volumeMounts:
@@ -40,6 +40,13 @@ spec:
               protocol: TCP
             - containerPort: 51413
               protocol: UDP
+          resources:
+            requests:
+              cpu: 50m
+              memory: 100Mi
+            limits:
+              cpu: 150m
+              memory: 200Mi
       volumes:
         - name: transmission-downloads
           persistentVolumeClaim:
