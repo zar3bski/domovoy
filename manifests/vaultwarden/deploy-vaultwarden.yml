@@ -27,6 +27,8 @@ spec:
               cpu: 200m
               memory: 800Mi
           env:
+            - name: TZ
+              value: Europe/Paris
             - name: SHOW_PASSWORD_HINT
               value: "false"
             - name: DOMAIN
