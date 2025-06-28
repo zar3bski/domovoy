@@ -18,7 +18,7 @@ ExecStart=/usr/bin/docker run --rm --name %n \
     -v /home/grafana/data:/var/lib/grafana \
     -e GF_SECURITY_ADMIN_USER=admin \
     -e GF_SECURITY_ADMIN_PASSWORD={{grafana_admin}} \
-    -e GF_SERVER_DOMAIN=grafana.{{inventory_hostname}}.{{dns_zone}} \
+    -e GF_SERVER_DOMAIN=grafana.{{inventory_hostname}} \
     -p 3000:3000 \
     grafana/grafana:{{prometheus_grafana_image_tag}}
 

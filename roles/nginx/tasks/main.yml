@@ -16,12 +16,12 @@
 
 - name: Copy SSL certificate
   ansible.builtin.copy:
-    dest: /etc/ssl/certs/{{ inventory_hostname }}.{{ dns_zone }}.crt
+    dest: /etc/ssl/certs/{{ inventory_hostname }}.crt
     content: "{{ ssl_cert }}"
 
 - name: Copy SSL key
   ansible.builtin.copy:
-    dest: /etc/ssl/private/{{ inventory_hostname }}.{{ dns_zone }}.key
+    dest: /etc/ssl/private/{{ inventory_hostname }}.key
     content: "{{ ssl_key }}"
 
 - name: Enable and start service

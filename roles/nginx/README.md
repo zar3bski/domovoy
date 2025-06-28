@@ -4,10 +4,8 @@ Simple reverse proxy
 
 ```yaml
 lan-server:
-  vars:
-    dns_zone: some.lan
   hosts:
-    some.host.com:
+    some.host.lan:
         ssl_key: |
            <SSL KEY>
         ssl_cert: |
