@@ -62,7 +62,7 @@
       - openmediavault-sharerootfs
 
 # RAID confiuration
-- name: Check if RAID 5 array already exists
+- name: Check if RAID array already exists
   ansible.builtin.command:
     cmd: omv-sysinfo 30-mdadm
   register: array
@@ -70,7 +70,13 @@
 - name: Create RAID 5 volume
   ansible.builtin.command:
     cmd: omv-mkraid /dev/md0 -l 5 -n 3 {{ raid5_devices | join(' ') }}
-  when: 'raid5_devices is defined and "/dev/md0" not in array.stdout[0]'
+  when: 'raid5_devices is defined and "md0" "".join(array.stdout)'
+
+- name: Create RAID 1 volume
+  ansible.builtin.command:
+    cmd: omv-mkraid /dev/md1 -l 1 -n 2 {{ raid1_devices | join(' ') }}
+  when: 'raid1_devices is defined and "md1" not in "".join(array.stdout)'
+
 
 # HTTPS configuration
 - name: SSL configuration
