@@ -5,9 +5,16 @@ Home infrastructure for nerds envisioning to live off grid. Most daily services 
 
 ## Usage
 
+### Create a virtual environment and activate it
+
+```shell
+python -m venv .ASI_VENV
+source ./.ASI_VENV/bin/activate
+```
+
 ### Install dependencies
 
-```py
+```shell
 pip3 install -r requirements.txt
 ```
 
