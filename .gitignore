@@ -3,6 +3,7 @@ inventory.yml
 .vscode
 .certs
 .build
+.ASI_VENV
 *.env
 */keycloak/provisioning/*.json
 **/charts/*
