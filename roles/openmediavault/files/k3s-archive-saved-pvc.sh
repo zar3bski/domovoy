@@ -4,6 +4,8 @@
 # presupposes that PVCs live in /var/lib/rancher/k3s/saved_storage (i.e storageClass
 # should be configured accordingly). Relies on a password stored in /root/.archive_password
 #
+# decrypt archives with openssl enc -pbkdf2 -d -aes256 -in <archive>.tar.gz.aes | tar xz -C ./
+
 
 SAVED_PVC_FOLDER=/var/lib/rancher/k3s/saved_storage
 DESTINATION=$1

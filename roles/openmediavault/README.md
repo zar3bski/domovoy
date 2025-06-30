@@ -39,3 +39,8 @@ before running the playbook again
 
 On the **second execution** (`./tasks/configure.yml`) is executed
 
+## Decrypt archives 
+
+```shell
+decrypt archives with openssl enc -pbkdf2 -d -aes256 -in <archive>.tar.gz.aes | tar xz -C ./
+```
