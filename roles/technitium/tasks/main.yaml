@@ -70,6 +70,11 @@
     dest: /etc/systemd/system/technitium.service
     mode: '0700'
 
+- name: Allow IN ipv4 and ipv6 to 53
+  community.general.ufw:
+    rule: allow
+    port: 53
+    
 - name: Enable and start service
   ansible.builtin.systemd_service:
     state: restarted
