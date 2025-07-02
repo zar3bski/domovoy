@@ -7,21 +7,18 @@ generatorOptions:
 resources:
   - certificate-transmission.yml
   - deploy-transmission.yml
-  - es-cluster-variables.yml
   - es-traefik-middleware-oidc.yml
-  - ingressroutetcp-transmission-torrent.yml
+#  - ingressroutetcp-transmission-torrent.yml
   - ingressroute-transmission.yml
-  - ingressrouteudp-transmission-torrent.yml
+#  - ingressrouteudp-transmission-torrent.yml
   - middleware-oidc-transmission.yml
-  - ns-transmission.yml
   - pvc-transmission-config.yml
-  - pvc-transmission-downloads.yml
   - svc-transmission.yml
   - svc-transmission-torrent.yml
 
 configMapGenerator:
   - name: transmission-variables
-    namespace: transmission
+    namespace: media
     envs:
       - .transmission.env
 
@@ -31,7 +28,7 @@ replacements:
       kind: ConfigMap
       version: v1
       name: transmission-variables
-      namespace: transmission
+      namespace: media
       fieldPath: data.TRANSMISSION_DOMAIN
     targets:
       - select:
@@ -49,7 +46,7 @@ replacements:
       kind: ConfigMap
       version: v1
       name: transmission-variables
-      namespace: transmission
+      namespace: media
       fieldPath: data.TRANSMISSION_MATCH
     targets:
       - select:

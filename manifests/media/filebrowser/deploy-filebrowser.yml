@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: filebrowser
+  namespace: media
+spec:
+  selector:
+    matchLabels:
+      app: filebrowser
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: filebrowser
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 33333
+      initContainers:
+        - name: internal-ca-loader
+          image: alpine/openssl:3.3.3
+          command:
+            - /bin/sh
+          args:
+            - -c
+            - mkdir -p /etc/ssl/internal-certs;
+              touch /etc/ssl/internal-certs/ca-certificates.crt;
+              cat /etc/ssl/certs/ca-certificates.crt >> /etc/ssl/internal-certs/ca-certificates.crt;
+              cat /internal-ca.crt >> /etc/ssl/internal-certs/ca-certificates.crt;
+          volumeMounts:
+            - name: ca-certificates
+              mountPath: /etc/ssl/internal-certs
+            - name: domain-tls
+              mountPath: /internal-ca.crt
+              subPath: ca.crt
+      containers:
+        - name: filebrowser
+          image: filebrowser
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 200m
+              memory: 512Mi
+          volumeMounts:
+            - mountPath: /srv/local/downloads
+              name: transmission-downloads
+            - mountPath: /srv/local/Music
+              name: server-media-files
+              subPath: Music
+            - mountPath: /srv/local/Readings
+              name: server-media-files
+              subPath: Readings
+            - mountPath: /srv/local/Videos
+              name: server-media-files
+              subPath: Videos
+            - mountPath: /home/filebrowser/config.yaml
+              name: filebrowser-config
+              subPath: filebrowser.yml
+            - name: ca-certificates
+              mountPath: /etc/ssl/certs/ca-certificates.crt
+              subPath: ca-certificates.crt
+          ports:
+            - containerPort: 80
+      volumes:
+        - name: domain-tls
+          secret:
+            secretName: domain-tls
+        - name: ca-certificates
+        - name: transmission-downloads
+          persistentVolumeClaim:
+            claimName: transmission-downloads
+        - name: filebrowser-config
+          secret: 
+            secretName: filebrowser-config
+        - name: server-media-files
+          hostPath: # FIXME: variabilise
+            path: /srv/dev-disk-by-uuid-d9212f02-84d7-493c-9816-b40060139418/

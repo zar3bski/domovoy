@@ -1,0 +1,45 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: filebrowser-config
+  namespace: media
+spec:
+  secretStoreRef:
+    name: bitwarden-fields
+    kind: ClusterSecretStore
+  target:
+    name: filebrowser-config
+    template:
+      engineVersion: v2
+      templateFrom:
+      - target: Data
+        configMap:
+          name: filebrowser-config-tpl
+          items:
+          - key: filebrowser.yml
+            templateAs: Values
+  data:
+    - secretKey: ADMIN_USERNAME
+      remoteRef:
+        key: app-filebrowser-secrets
+        property: admin_username
+    - secretKey: ADMIN_PASSWORD
+      remoteRef:
+        key: app-filebrowser-secrets
+        property: admin_password
+    - secretKey: CLIENT_ID
+      remoteRef:
+        key: app-filebrowser-secrets
+        property: client_id
+    - secretKey: CLIENT_SECRET
+      remoteRef: 
+        key: app-filebrowser-secrets
+        property: client_secret
+    - secretKey: ISSUER
+      remoteRef: 
+        key: cluster-oidc
+        property: issuer
+    - secretKey: ENDSESSION_ENDPOINT
+      remoteRef: 
+        key: cluster-oidc
+        property: endsession_endpoint

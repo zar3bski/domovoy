@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: transmission
-  namespace: transmission
+  namespace: media
 spec:
   selector:
     matchLabels:
@@ -15,7 +15,23 @@ spec:
     spec:
       securityContext:
         runAsUser: 65534
-        runAsGroup: 65534
+        runAsGroup: 33333
+      initContainers:
+        - name: volume-rights-setter
+          image: busybox:1.37.0-glibc
+          command:
+            - /bin/sh
+          args:
+            - -c
+            - chown -R 65534:33333 /downloads
+            - chmod 775 /downloads
+          volumeMounts:
+            - name: transmission-downloads
+              mountPath: /downloads
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+
       containers:
         - name: transmission
           image: lscr.io/linuxserver/transmission:4.0.6-r4-ls296
@@ -46,7 +62,7 @@ spec:
               memory: 100Mi
             limits:
               cpu: 150m
-              memory: 200Mi
+              memory: 300Mi
       volumes:
         - name: transmission-downloads
           persistentVolumeClaim:

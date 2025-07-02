@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: downloads
+spec:
+  capacity:
+    storage: 30Gi
+  storageClassName: "manual"
+  persistentVolumeReclaimPolicy: Delete
+  accessModes: 
+    - ReadWriteMany
+  hostPath:
+    path: /var/lib/rancher/k3s/storage/downloads
+    type: DirectoryOrCreate  
+  

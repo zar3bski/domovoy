@@ -1,8 +1,17 @@
 
+# Media
 
-## Transmission
+## Transmission 
 
 ### Roadmap
 
 - [ ] Solve incoming connection TCP / UDP (current set-up looks like closed port for transmission)
-- [ ] minimal auth
+- [X] Oauth
+
+
+## filebrowser 
+
+### Roadmap
+
+- [X] Oauth
+- [X] Role mapping

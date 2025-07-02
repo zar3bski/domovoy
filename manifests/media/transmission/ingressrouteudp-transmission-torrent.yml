@@ -2,13 +2,13 @@ apiVersion: traefik.io/v1alpha1
 kind: IngressRouteUDP
 metadata:
   name: transmission-torrent
-  namespace: transmission
+  namespace: media
 spec:
   entryPoints:
     - torrent-udp
   routes:
     - services:
         - name: transmission-torrent
-          namespace: transmission
+          namespace: media
           port: 51413
           nativeLB: true

@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: filebrowser-config-tpl
+  namespace: media
+data:
+  filebrowser.yml: |
+    server:                            # base URL for the server, the subpath that the server is running on.
+      logging:
+        - levels: "warning|error"             # separated list of log levels to enable. (eg. "info|warning|error|debug")
+          apiLevels: "warning|error"          # separated list of log levels to enable for the API. (eg. "info|warning|error")
+          output: stdout                      # output location. (eg. "stdout" or "path/to/file.log")
+          noColors: false                     # disable colors in the output
+          json: false                         # output in json format, currently not supported
+          utc: false                          # use UTC time in the output instead of local time
+      debugMedia: false                       # output ffmpeg stdout for media integration -- careful can produces lots of output!                 # path to the database file
+      sources:                                #  validate:required,dive
+        - path: /srv/local                    # file system path. (Can be relative)  validate:required
+          name: local
+
+    auth:
+      tokenExpirationHours: 1                 # the number of hours until the token expires. Default is 2 hours.
+      methods:
+        oidc:                                 #  validate:omitempty
+          enabled: true                       # whether to enable OIDC authentication
+          clientId: "{{ .CLIENT_ID }}"        # client id of the OIDC application
+          clientSecret: "{{ .CLIENT_SECRET }}"# client secret of the OIDC application
+          issuerUrl: "{{ .ISSUER }}"          # authorization URL of the OIDC provider
+          scopes: "email openid profile"      # scopes to request from the OIDC provider
+          userIdentifier: "preferred_username"# the field value to use as the username. Default is "preferred_username", can also be "email" or "username", or "phone"
+          disableVerifyTLS: false             # disable TLS verification for the OIDC provider. This is insecure and should only be used for testing.
+          logoutRedirectUrl: "{{ .ENDSESSION_ENDPOINT }}" # if provider logout url is provided, filebrowser will also redirect to logout url. Custom logout query params are respected.
+          createUser: true                    # create user if not exists
+          adminGroup: "admin"                 # if set, users in this group will be granted admin privileges.
+      adminUsername: "{{ .ADMIN_USERNAME }}"  # the username of the admin user. If not set, the default is "admin".
+      adminPassword: "{{ .ADMIN_PASSWORD }}"  # the password of the admin user. If not set, the default is "admin".
+      #totpSecret: ""                          # secret used to encrypt TOTP secrets
+    frontend:
+      name: FileBrowser Quantum               # display name
+      disableDefaultLinks: false              # disable default links in the sidebar
+      disableUsedPercentage: false            # disable used percentage for the sources in the sidebar
+      externalLinks:
+        - text: (untracked)                   # the text to display on the link  validate:required
+          title: untracked                    # the title to display on hover
+          url: https://github.com/gtsteffaniak/filebrowser/releases/ # the url to link to  validate:required
+        - text: Help                          # the text to display on the link  validate:required
+          title: ""                           # the title to display on hover
+          url: https://github.com/gtsteffaniak/filebrowser/wiki # the url to link to  validate:required
+    userDefaults:
+      stickySidebar: true                     # keep sidebar open when navigating
+      darkMode: true                          # should dark mode be enabled
+      locale: fr                              # language to use: eg. de, en, or fr
+      viewMode: normal                        # view mode to use: eg. normal, list, grid, or compact
+      singleClick: false                      # open directory on single click, also enables middle click to open in new tab
+      showHidden: false                       # show hidden files in the UI. On windows this includes files starting with a dot and windows hidden files
+      dateFormat: false                       # when false, the date is relative, when true, the date is an exact timestamp
+      gallerySize: 3                          # 0-9 - the size of the gallery thumbnails
+      themeColor: var(--blue)                 # theme color to use: eg. #ff0000, or var(--red), var(--purple), etc
+      quickDownload: false                    # show icon to download in one click
+      disableOnlyOfficeExt: .txt .csv .html .pdf # comma separated list of file extensions to disable onlyoffice preview for
+      disableOfficePreviewExt: ""             # comma separated list of file extensions to disable office preview for
+      lockPassword: false                     # disable the user from changing their password
+      disableSettings: false                  # disable the user from viewing the settings page
+      preview:
+        disableHideSidebar: false
+        highQuality: false
+        image: false
+        video: false
+        motionVideoPreview: false
+        office: false
+        popup: false
+        autoplayMedia: false
+      permissions:
+        api: false
+        admin: false
+        modify: true
+        share: false
+        realtime: false
+      loginMethod: password                   # login method to use: eg. password, proxy, oidc
+      disableUpdateNotifications: false       # disable update notifications banner for admin users
+    integrations:
+      office:                                 #  validate:omitempty
+        url: ""                               # The URL to the OnlyOffice Document Server, needs to be accessible to the user.  validate:required
+        internalUrl: ""                       # An optional internal address that the filebrowser server can use to communicate with the OnlyOffice Document Server, could be useful to bypass proxy.
+        secret: ""                            #  validate:required
+      media:                                  #  validate:omitempty
+        ffmpegPath: ""                        # path to ffmpeg directory with ffmpeg and ffprobe (eg. /usr/local/bin)
