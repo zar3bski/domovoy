@@ -19,6 +19,9 @@ PostDown = /etc/wireguard/helper/remove-nat-routing.sh {{ item.interface }} {{ i
 # friendly_name = {{ peer.name }}
 PublicKey = {{ peer.PublicKey }}
 AllowedIPs = {{ peer.AllowedIPs }}
+{% if peer.PersistentKeepalive is defined %}
+PersistentKeepalive = {{ peer.PersistentKeepalive }}
+{% endif %}
 
 {% if peer.Endpoint is defined %}
 Endpoint = {{ peer.Endpoint }}
