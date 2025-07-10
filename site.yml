@@ -36,6 +36,7 @@
   roles:
     - common
     - prometheus
+    - gh-runner
     - wireguard
     - technitium
     - nginx

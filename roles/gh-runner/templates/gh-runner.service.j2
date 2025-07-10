@@ -5,7 +5,7 @@ Description=GitHub action self hosted runner
 User=gh-runner
 TimeoutStartSec=0
 Restart=always
-ExecStart=/home/gh-runner/actions-runner/run.sh
+ExecStart=/home/gh-runner/{{ item.name }}/run.sh
 
 [Install]
 WantedBy=default.target

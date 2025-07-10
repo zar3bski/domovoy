@@ -33,43 +33,37 @@
     url: https://github.com/actions/runner/releases/download/v{{action_runner_version}}/actions-runner-linux-{{arch.stdout}}-{{action_runner_version}}.tar.gz
 
 
-- name: Create dest folder
-  ansible.builtin.file:
-    path: /home/gh-runner/actions-runner
-    owner: gh-runner
-    group: gh-runner
-    state: directory
-    mode: '1755'
-
-
-- name: Untar the archive
-  ansible.builtin.unarchive:
-    src: /home/gh-runner/actions-runner-linux-{{ arch.stdout }}-{{ action_runner_version }}.tar.gz
-    dest: /home/gh-runner/actions-runner
-    owner: gh-runner
-    group: gh-runner
-    copy: false
-
-- name: Check if .runner file exists
-  ansible.builtin.stat:
-    path: /home/gh-runner/actions-runner/.runner
-  register: runner_file
-
-# If a runner already exists, skip this step
-- name: Execute config script
-  ansible.builtin.shell: su - gh-runner -c "cd /home/gh-runner/actions-runner && ./config.sh --url {{gh_runner_url}} --token {{gh_runner_token}} --name {{inventory_hostname}} --labels {{gh_runner_labels}} --work _work --unattended"
-  when: runner_file.stat.exists == false
-
-- name: Create gh-runner service
-  block:
+- name: Set runner for each repo 
+  block: 
+    - name: Create folder
+      with_items: "{{ gh_runners }}"
+      ansible.builtin.file:
+        path: /home/gh-runner/{{item.name}}
+        state: directory
+        owner: gh-runner
+        group: gh-runner
+        mode: '0750'
+    - name: Untar the archive
+      with_items: "{{ gh_runners }}"
+      ansible.builtin.unarchive:
+        src: /home/gh-runner/actions-runner-linux-{{ arch.stdout }}-{{ action_runner_version }}.tar.gz
+        dest: /home/gh-runner/{{item.name}}
+        owner: gh-runner
+        group: gh-runner
+        copy: false
+    - name: Execute config script
+      with_items: "{{ gh_runners }}"
+      ansible.builtin.shell: su - gh-runner -c "cd /home/gh-runner/{{item.name}} && ./config.sh --url {{item.url}} --token {{item.token}} --name {{item.name}} --labels {{item.labels}} --unattended || echo 'runner exists'"
     - name: Create systemd conf file
+      with_items: "{{ gh_runners }}"
       ansible.builtin.template:
         src: templates/gh-runner.service.j2
-        dest: /etc/systemd/system/gh-runner.service
+        dest: /etc/systemd/system/gh-runner-{{item.name}}.service
         mode: '0755'
     - name: Enable and start service
+      with_items: "{{ gh_runners }}"
       ansible.builtin.systemd_service:
         state: started
         daemon_reload: true
         enabled: true
-        name: gh-runner
+        name: gh-runner-{{item.name}}

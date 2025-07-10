@@ -78,14 +78,7 @@ see [roles/nginx/README.md](roles/nginx/README.md) for details
 
 ### Github runner
 
-```yaml
-dmz-servers:
-  hosts:
-    cook:
-      gh_runner_url: https://github.com/<some_user_or_organisation>/<some_repo>
-      gh_runner_token: <token>
-      gh_runner_labels: AMR64,Linux,self-hosted
-```
+see [roles/gh-runner/README.md](roles/gh-runner/README.md) for details
 
 ### Open Media Vault
 
