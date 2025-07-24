@@ -11,7 +11,7 @@ spec:
       middlewares:
         - name: stripprefix
           namespace: seafile
-      match: <SEAFILE_DATA_MATCH> # WARN relies on prefix /seafhttp
+      match: Host(`file.enki.sin`) && PathPrefix(`/seafhttp`) # WARN relies on prefix /seafhttp
       observability:
         accessLogs: true
         metrics: true
@@ -22,4 +22,4 @@ spec:
   tls:
     secretName: domain-tls
     domains:
-      - main: <SEAFILE_DOMAIN>
+      - main: file.enki.sin:8443

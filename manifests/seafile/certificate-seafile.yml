@@ -5,9 +5,10 @@ metadata:
   namespace: seafile
 spec:
   secretName: domain-tls
-  commonName: <SEAFILE_DOMAIN>
+  commonName: file.enki.sin:8443
   dnsNames:
-    - <SEAFILE_DOMAIN>
+    - file.enki.sin:8443
+    - file.enki.sin
   issuerRef:
     name: ca-clusterissuer
     kind: ClusterIssuer

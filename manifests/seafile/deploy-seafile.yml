@@ -29,7 +29,7 @@ spec:
             - name: SEAFILE_ENABLE_OAUTH
               value: "True"
             - name: SEAFILE_SERVER_HOSTNAME
-              value: <SEAFILE_DOMAIN>
+              value: file.enki.sin:8443
             - name: SEAFILE_SERVER_PROTOCOL
               value: https
             - name: DB_HOST

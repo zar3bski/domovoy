@@ -8,7 +8,7 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: <SEAFILE_MATCH>
+      match: Host(`file.enki.sin`) && PathPrefix(`/`)
       observability:
         accessLogs: true
         metrics: true
@@ -20,4 +20,4 @@ spec:
   tls:
     secretName: domain-tls
     domains:
-      - main: <SEAFILE_DOMAIN>
+      - main: file.enki.sin:8443

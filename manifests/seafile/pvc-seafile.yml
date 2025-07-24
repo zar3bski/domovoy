@@ -8,5 +8,5 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: <SEAFILE_STORAGE_SIZE>
+      storage: 100Gi
   storageClassName: saved-local-path
