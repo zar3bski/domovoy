@@ -32,10 +32,7 @@ spec:
             - name: SHOW_PASSWORD_HINT
               value: "false"
             - name: DOMAIN
-              valueFrom:
-                configMapKeyRef:
-                  name: vaultwarden-config
-                  key: VAULT_ROOT_URL
+              value: https://vault.enki.sin:8443
           volumeMounts:
             - name: vaultwarden-data
               mountPath: /data

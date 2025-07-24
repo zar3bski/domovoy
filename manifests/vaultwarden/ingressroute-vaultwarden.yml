@@ -8,7 +8,7 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: <VAULTWARDEN_MATCH>
+      match: Host(`vault.enki.sin`) && PathPrefix(`/`)
       observability:
         accessLogs: true
         metrics: true
@@ -19,4 +19,4 @@ spec:
   tls:
     secretName: domain-tls
     domains:
-      - main: <VAULT_DOMAIN>
+      - main: vault.enki.sin
