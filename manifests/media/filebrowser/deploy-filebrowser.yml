@@ -18,7 +18,7 @@ spec:
         runAsGroup: 33333
       initContainers:
         - name: internal-ca-loader
-          image: alpine/openssl:3.3.3
+          image: internal-ca-loader
           command:
             - /bin/sh
           args:

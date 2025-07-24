@@ -17,6 +17,16 @@ resources:
   - svc-memcached.yml
   - svc-seafile.yml
 
+images:
+  - name: mariadb
+    newName: mariadb
+    newTag: "10.11"
+  - name: memcached
+    newName: memcached
+    newTag: "1.6.18"
+  - name: seafile
+    newName: seafileltd/seafile-mc
+    newTag: "12.0.11"
 
 configMapGenerator:
   - name: seafile-variables

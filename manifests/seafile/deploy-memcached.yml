@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: memcached
-          image: memcached:1.6.18
+          image: memcached
           resources:
             requests:
               cpu: 50m

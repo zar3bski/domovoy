@@ -4,6 +4,14 @@ kind: Kustomization
 generatorOptions:
   disableNameSuffixHash: true
 
+images:
+  - name: internal-ca-loader
+    newName: alpine/openssl
+    newTag: "3.3.3"
+  - name: grafana
+    newName: grafana/grafana
+    newTag: "12.0.1"
+
 resources:
   - certificate-observability.yml
   - cm-grafana.yml

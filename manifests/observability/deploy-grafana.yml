@@ -20,7 +20,7 @@ spec:
           - 0
       initContainers:
         - name: internal-ca-loader
-          image: alpine/openssl:3.3.3
+          image: internal-ca-loader
           command:
             - /bin/sh
           args:
@@ -37,7 +37,7 @@ spec:
               subPath: ca.crt
       containers:
         - name: grafana
-          image: grafana/grafana:12.0.1
+          image: grafana
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000

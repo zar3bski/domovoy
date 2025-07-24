@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: seafile
-          image: seafileltd/seafile-mc:12.0.11
+          image: seafile
           resources:
             requests:
               cpu: 200m

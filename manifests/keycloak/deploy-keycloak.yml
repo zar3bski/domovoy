@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: keycloak-provisionner
-          image: python:3.13.3-alpine3.20
+          image: keycloak-provisionner
           resources:
             requests:
               cpu: 10m
@@ -45,7 +45,7 @@ spec:
               name: keycloak-provisioning-cm
               subPath: provisioning.py
         - name: keycloak
-          image: quay.io/keycloak/keycloak:26.2
+          image: keycloak
           args:
             - start
           ports:

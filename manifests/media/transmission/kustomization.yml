@@ -4,6 +4,11 @@ kind: Kustomization
 generatorOptions:
   disableNameSuffixHash: true
 
+images:
+  - name: transmission
+    newName: lscr.io/linuxserver/transmission
+    newTag: 4.0.6-r4-ls296
+
 resources:
   - certificate-transmission.yml
   - deploy-transmission.yml

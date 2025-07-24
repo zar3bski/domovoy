@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: radicale
-          image: zar3bski/radicale:3.5.4
+          image: radicale
           resources:
             requests:
               cpu: 20m

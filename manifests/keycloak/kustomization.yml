@@ -1,6 +1,17 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+images:
+  - name: keycloak-provisionner
+    newName: python
+    newTag: 3.13.3-alpine3.20
+  - name: keycloak
+    newName: quay.io/keycloak/keycloak
+    newTag: "26.2"
+  - name: postgres
+    newName: postgres
+    newTag: 17.4-alpine3.21
+
 generatorOptions:
   disableNameSuffixHash: true
 

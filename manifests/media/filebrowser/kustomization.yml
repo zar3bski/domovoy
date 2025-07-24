@@ -5,6 +5,9 @@ images:
   - name: filebrowser
     newName: gtstef/filebrowser
     newTag: 0.7.11-beta-slim
+  - name: internal-ca-loader
+    newName: alpine/openssl
+    newTag: "3.3.3"
 
 resources:
   - certificate-filebrowser.yml

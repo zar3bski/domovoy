@@ -18,7 +18,7 @@ spec:
         runAsGroup: 1000
       containers:
         - name: vaultwarden
-          image: vaultwarden/server:1.33.2-alpine
+          image: vaultwarden
           resources:
             requests:
               cpu: 20m
@@ -42,7 +42,7 @@ spec:
           ports:
             - containerPort: 80
         - name: bitwarden-cli
-          image: zar3bski/bitwarden-cli:2025.5.0
+          image: bitwarden-cli
           resources:
             requests:
               cpu: 20m
