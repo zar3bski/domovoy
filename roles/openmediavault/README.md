@@ -25,7 +25,7 @@ some_host:
     - /dev/vdd
 ```
 
-> NB: for Nginx to accept to use the cert generated with`ssl_intermediary_key`, the certificate must be signed by the one added to the trust store through `ca_cert`
+> NB: for Nginx to accept to use the cert generated with`ssl_intermediary_key`, the certificate must be signed by the one added to the trust store through `CA_cert`
 
 ## Installation
 

@@ -45,7 +45,7 @@ certs and keys will appear in `.certs`
 - Designed for Debian based servers
 - rely on [UFW](https://github.com/jbq/ufw)
 
-## Users accros the infra
+## Users across the infra
 
 |  PID | name         | Description                                 |
 | ---: | :----------- | :------------------------------------------ |
@@ -70,7 +70,7 @@ certs and keys will appear in `.certs`
 
 ## Services
 
-> all technical users running the various services are limited to a restricted shell (a.k.a. `/bin/rbash`) exept for **gh-runner**
+> all technical users running the various services are limited to a restricted shell (a.k.a. `/bin/rbash`) except for **gh-runner**
 
 ### Nginx 
 
@@ -142,7 +142,7 @@ Except after providing the right sequence
 ...
 ```
 
-This playbook handles knocking using `roles/common/knocking.yml`. This involves to had it as **pre_tasks** and to disable `gather_facts`, for it is performed at module initialization
+This playbook handles knocking using `roles/common/knocking.yml`. This involves to add it as **pre_tasks** and to disable `gather_facts`, for it is performed at module initialization
 
 ```yaml
   gather_facts: false

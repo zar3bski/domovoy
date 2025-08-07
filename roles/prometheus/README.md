@@ -2,7 +2,7 @@
 > This stack is not supposed to be exposed publicly
 
 
-> These 3 services can only live on the same node because they share a docker network
+> These 3 services can only live on the same node because they share a **docker network**
 
 ```yaml
 prometheus-servers:
