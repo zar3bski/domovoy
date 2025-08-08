@@ -76,8 +76,15 @@ spec:
           volumeMounts:
             - mountPath: /var/run/secrets/grafana
               name: grafana-secrets
+            - mountPath: /var/run/secrets/loki_password
+              name: loki-secrets
+              subPath: PASSWORD
             - mountPath: /etc/cluster-oidc-endpoints
               name: cluster-oidc-endpoints
+            - mountPath: /etc/grafana/provisioning/datasources
+              name: grafana-datasources
+            - mountPath: /etc/grafana/provisioning/dashboards
+              name: grafana-dashboards
             - mountPath: /etc/grafana/grafana.ini
               name: grafana-config
               subPath: grafana.ini
@@ -100,6 +107,15 @@ spec:
         - name: grafana-config
           configMap:
             name: grafana-config
+        - name: grafana-datasources
+          configMap:
+            name: grafana-datasources
+        - name: grafana-dashboards
+          configMap:
+            name: grafana-dashboards
         - name: grafana-pv
           persistentVolumeClaim:
             claimName: grafana-pvc
+        - name: loki-secrets
+          secret:
+            secretName: loki-secrets

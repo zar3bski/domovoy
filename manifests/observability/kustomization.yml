@@ -11,23 +11,56 @@ images:
   - name: grafana
     newName: grafana/grafana
     newTag: "12.0.1"
+  - name: loki
+    newName: docker.io/grafana/loki
+    newTag: "3.2.1"
+  - name: loki-reverse-proxy
+    newName: nginx
+    newTag: "1.29-alpine3.22"
+  - name: alloy
+    newName: docker.io/grafana/alloy
+    newTag: "v1.10.1"
 
 resources:
   - certificate-observability.yml
+  - clusterrole-cluster-monitor.yml
+  - clusterrolebinding-cluster-monitor.yml
   - cm-grafana.yml
+  - deploy-alloy.yml
   - deploy-grafana.yml
+  - deploy-loki.yml
   - es-cluster-oidc-endpoints.yml
   - es-grafana-secrets.yml
+  - es-loki-secrets.yml
   - ingressroute-observability.yml
   - ns-observability.yml
   - pvc-grafana.yml
+  - pvc-loki.yml
+  - sa-alloy.yml
   - svc-grafana.yml
+  - svc-loki.yml
 
 configMapGenerator:
   - name: observability-variables
     namespace: observability
     envs:
       - .observability.env
+  - name: loki-config
+    namespace: observability
+    files:
+      - confs/loki-config.yaml
+      - confs/loki-reverse-proxy.conf
+  - name: alloy-config
+    namespace: observability
+    files:
+      - confs/config.alloy
+  - name: grafana-datasources
+    namespace: observability
+    files: 
+      - confs/grafana-datasources/source-loki.yml
+  - name: grafana-dashboards
+    namespace: observability
+    files: []
 
 replacements:
   - source:
