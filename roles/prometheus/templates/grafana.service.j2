@@ -1,11 +1,8 @@
 [Unit]
 Description=Grafana
 Requires=docker.service
-Requires=prometheus.service
-After=prometheus.service
 
 [Service]
-
 TimeoutStartSec=0
 Restart=always
 ExecStartPre=-/usr/bin/docker stop %n
