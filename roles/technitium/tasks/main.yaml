@@ -64,11 +64,29 @@
     enabled: false
     name: systemd-resolved
 
+- name: Drop symlink to /run/systemd/resolve/stub-resolv.conf
+  ansible.builtin.file:
+    path: "/etc/resolv.conf"
+    state: absent
+
 - name: Create systemd config file
   ansible.builtin.template:
     src: templates/technitium.service.j2
     dest: /etc/systemd/system/technitium.service
     mode: '0700'
+
+- name: Set system's DNS servers globally 
+  ansible.builtin.lineinfile:
+    path: "/etc/resolv.conf"
+    line: 'nameserver {{ item }}'
+    create: true
+    state: present
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+    - "{{ ansible_facts['default_ipv4']['address'] }}"
+    - "8.8.8.8"
 
 - name: Allow IN ipv4 and ipv6 to 53
   community.general.ufw:
