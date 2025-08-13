@@ -181,3 +181,25 @@
         owner: root
         group: root
         mode: "0500"
+
+- name: Fix TooMany opened file error
+  block: 
+    - name: Increase file limits for user space
+      ansible.builtin.lineinfile:
+        path: /etc/systemd/user.conf
+        search_string: "DefaultLimitNOFILE"
+        line: 'DefaultLimitNOFILE=4096:524288'
+    - name: Increase file limits for system space
+      ansible.builtin.lineinfile:
+        path: /etc/systemd/system.conf
+        search_string: "DefaultLimitNOFILE"
+        line: 'DefaultLimitNOFILE=4096:524288'
+    - name: Increase system-wide file limits 
+      ansible.builtin.lineinfile:
+        path: /etc/sysctl.d/99-sysctl.conf
+        search_string: "fs.file-max"
+        line: 'fs.file-max = 131071'
+    - name: Increase system-wide file limits 
+      ansible.builtin.lineinfile:
+        path: /etc/sysctl.d/99-sysctl.conf
+        line: 'fs.inotify.max_user_instances = 256'
