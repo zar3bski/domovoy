@@ -1,0 +1,11 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: https-redirect
+  labels:
+    app.kubernetes.io/part-of: domovoy
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+    port: "8443"

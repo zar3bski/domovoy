@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - certificate-wildcard-domain-tls.yml
   - helmchartconfig-traefik.yml
+  - middleware-https-redirect.yml
 
 generatorOptions:
   disableNameSuffixHash: true

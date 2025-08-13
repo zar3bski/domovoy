@@ -3,6 +3,8 @@ kind: HelmChartConfig
 metadata:
   name: traefik
   namespace: kube-system
+  labels:
+    app.kubernetes.io/part-of: domovoy
 
 spec:
   valuesContent: |-
