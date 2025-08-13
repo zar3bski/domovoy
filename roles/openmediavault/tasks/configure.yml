@@ -183,7 +183,7 @@
         mode: "0500"
 
 - name: Fix TooMany opened file error
-  block: 
+  block:
     - name: Increase file limits for user space
       ansible.builtin.lineinfile:
         path: /etc/systemd/user.conf
@@ -194,7 +194,7 @@
         path: /etc/systemd/system.conf
         search_string: "DefaultLimitNOFILE"
         line: 'DefaultLimitNOFILE=4096:524288'
-    - name: Increase system-wide file limits 
+    - name: Increase system-wide file limits
       ansible.builtin.lineinfile:
         path: /etc/sysctl.d/99-sysctl.conf
         search_string: "fs.file-max"
