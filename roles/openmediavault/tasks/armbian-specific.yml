@@ -1,0 +1,4 @@
+- name: Set timeout disk detection with rootdelay kernel option
+  ansible.builtin.lineinfile:
+    path: /boot/armbianEnv.txt
+    line: '"rootdelay=30 quiet"'

@@ -1,9 +1,11 @@
 - name: Gathering facts
   ansible.builtin.setup:
+
 - name: Check whether keyrings has already been imported
   ansible.builtin.stat:
     path: /usr/share/keyrings/openmediavault-archive-keyring.gpg
-  register: p
+  register: openmediavault_keyring
+
 - name: Identify motherboard
   block:
     - name: Install dependencies
@@ -17,16 +19,28 @@
           set -o pipefail
           lshw -json -class system | jq '.[0].product'
         executable: /bin/bash
-      register: motherboard
+      register: openmediavault_motherboard
+
+- name: Check if distro is armbian
+  ansible.builtin.stat:
+    path: /etc/armbian-release
+  register: openmediavault_armbian
+
+- name: Armbian specific tuning
+  ansible.builtin.include_tasks:
+    file: armbian-specific.yml
+  when: openmediavault_armbian.stat.isreg is defined and openmediavault_armbian.stat.isreg
+
 - name: Radxa ROCK 5 ITX specific tuning
   ansible.builtin.include_tasks:
     file: rock-5-itx-specific.yml
-  when: motherboard.stdout == '"Radxa ROCK 5 ITX"'
+  when: openmediavault_motherboard.stdout == '"Radxa ROCK 5 ITX"'
+
 - name: Install Openmediavault
   ansible.builtin.include_tasks:
     file: install.yml
-  when: p.stat.exists == False
+  when: openmediavault_keyring.stat.exists
+
 - name: Configure Openmediavault
   ansible.builtin.include_tasks:
     file: configure.yml
-
