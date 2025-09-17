@@ -63,6 +63,19 @@
         dest: /etc/wireguard/helper/remove-nat-routing.sh
         mode: "0700"
 
+    - name: Allow helper scripts execution in AppArmor
+      ansible.builtin.lineinfile:
+        path: /etc/apparmor.d/local/wg-quick
+        line: /etc/wireguard/helper/** ix,
+        mode: '0644'
+        create: true
+
+    - name: Reload AppArmor
+      ansible.builtin.systemd:
+        service: apparmor
+        enabled: true
+        state: restarted
+
     - name: Allow wireguard traffic to this host
       with_items: "{{ wireguard.interfaces }}"
       community.general.ufw:
