@@ -12,7 +12,7 @@ The **configure** part sets a RAID volume up, installs a few plugins and sets a 
 ```yaml
 some_host:
   webhook_url: https://url/of/your/discord/webhook # optional
-  CA_cert: |
+  ca_cert: |
     -----BEGIN CERTIFICATE-----
   ssl_intermediary_key: |
      -----BEGIN PRIVATE KEY-----
@@ -25,7 +25,7 @@ some_host:
     - /dev/vdd
 ```
 
-> NB: for Nginx to accept to use the cert generated with`ssl_intermediary_key`, the certificate must be signed by the one added to the trust store through `CA_cert`
+> NB: for Nginx to accept to use the cert generated with`ssl_intermediary_key`, the certificate must be signed by the one added to the trust store through `ca_cert`
 
 ## Installation
 
