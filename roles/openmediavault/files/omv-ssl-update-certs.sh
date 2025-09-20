@@ -39,8 +39,11 @@ echo
 
 if ! omv_config_exists "${xpath}"; then
     echo "Config for ${uuid} does not exist: creating"
+    cert_content=$(awk '{printf "%s\\n", $0}' $cert)
+    key_content=$(awk '{printf "%s\\n", $0}' $key)
+
     omv_config_add_node_data "/config/system/certificates" "sslcertificate" \
-        "<uuid>${uuid}</uuid><certificate>$(cat ${cert})</certificate><privatekey>${key}</privatekey><comment>${subject}</comment>"
+        "<uuid>${uuid}</uuid><certificate>${cert_content}</certificate><privatekey>${key_content}</privatekey><comment>${subject}</comment>"
     echo "Config created successfully"
 else
     echo "Updating certificate in database ..."
