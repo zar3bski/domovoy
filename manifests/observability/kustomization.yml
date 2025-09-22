@@ -89,6 +89,17 @@ replacements:
       kind: ConfigMap
       name: observability-variables
       namespace: observability
+      fieldPath: data.LOKI_MATCH
+    targets:
+      - select:
+          kind: IngressRoute
+          name: observability
+        fieldPaths:
+          - spec.routes.1.match
+  - source:
+      kind: ConfigMap
+      name: observability-variables
+      namespace: observability
       fieldPath: data.GRAFANA_DOMAIN
     targets:
       - select:

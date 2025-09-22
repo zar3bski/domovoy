@@ -17,6 +17,16 @@ spec:
         - name: grafana
           namespace: observability
           port: 3000
+    - kind: Rule
+      match: <LOKI_MATCH>
+      observability:
+        accessLogs: true
+        metrics: true
+        tracing: false
+      services:
+        - name: loki
+          namespace: observability
+          port: 80
   tls:
     secretName: domain-tls
     domains:
