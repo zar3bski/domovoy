@@ -18,7 +18,7 @@ loki.write "default" {
   }
 }
 
-local.file_match "node_logs" {
+local.file_match "syslog" {
   path_targets = [{
       __path__  = "/var/log/syslog",
       job       = "node/syslog",
@@ -27,7 +27,16 @@ local.file_match "node_logs" {
   }]
 }
 
-loki.source.file "node_logs" {
-  targets    = local.file_match.node_logs.targets
-  forward_to = [loki.write.default.receiver]
+loki.process "syslog" {
+    forward_to = [loki.write.default.receiver]
+    // extract unit name from syslog
+    stage.regex{
+      expression = "^[0-9\\-T:\\.\\+]*\\s\\w*\\s(?<_unit>\\w*)"
+      labels_from_groups = true
+    }
+}
+
+loki.source.file "syslog" {
+  targets = local.file_match.syslog.targets
+  forward_to = [loki.process.syslog.receiver]
 }

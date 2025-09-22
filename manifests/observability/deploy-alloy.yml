@@ -14,6 +14,7 @@ spec:
       labels:
         app: alloy
     spec:
+      hostname: enki-alloy
       serviceAccountName: alloy
       securityContext:
         fsGroup: 473
@@ -28,8 +29,8 @@ spec:
               cpu: 50m
               memory: 100Mi
             limits:
-              cpu: 100m
-              memory: 200Mi
+              cpu: 200m
+              memory: 400Mi
           env: []
           volumeMounts: 
             - mountPath: /etc/alloy/config.alloy
