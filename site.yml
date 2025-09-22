@@ -35,6 +35,8 @@
       ansible.builtin.import_tasks: 'roles/common/knocking.yml'
   roles:
     - common
+    - role: alloy
+      tags: [alloy]
     - prometheus
     - gh-runner
     - wireguard

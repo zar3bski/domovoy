@@ -1,0 +1,33 @@
+// For a full configuration reference, see https://grafana.com/docs/alloy
+logging {
+  level = "warn"
+}
+
+local.file "loki_password" {
+  filename  = "/var/lib/alloy/secrets/loki_pass"  
+  is_secret = true
+}
+
+loki.write "default" {
+  endpoint {
+    url = "{{ alloy.loki_url }}/api/v1/push"
+    basic_auth {
+      username = "loki"
+      password = local.file.loki_password.content
+    }
+  }
+}
+
+local.file_match "node_logs" {
+  path_targets = [{
+      __path__  = "/var/log/syslog",
+      job       = "node/syslog",
+      node_name = "{{ inventory_hostname }}",
+      cluster   = "enki",
+  }]
+}
+
+loki.source.file "node_logs" {
+  targets    = local.file_match.node_logs.targets
+  forward_to = [loki.write.default.receiver]
+}
