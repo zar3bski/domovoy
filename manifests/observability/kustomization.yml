@@ -60,7 +60,9 @@ configMapGenerator:
       - confs/grafana-datasources/source-loki.yml
   - name: grafana-dashboards
     namespace: observability
-    files: []
+    files:
+      - confs/grafana-dashboards/default.yml
+      - confs/grafana-dashboards/logs.json
 
 replacements:
   - source:
