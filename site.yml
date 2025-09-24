@@ -42,3 +42,10 @@
     - wireguard
     - technitium
     - nginx
+
+- name: Dev servers
+  tags: dev
+  hosts: dev-servers
+  become: true
+  roles:
+    - k3s

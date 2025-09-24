@@ -1,0 +1,17 @@
+- name: Cluster SSL setting
+  block:
+    - name: Generate kube CA secret manifest
+      ansible.builtin.template:
+        src: templates/ca-omv-cluster.yml.j2
+        dest: /etc/ssl/private/ca-omv-cluster.yml
+        mode: "0600"
+        owner: root
+        group: root
+    - name: Kubectl apply ca-omv-cluster.yml
+      ansible.builtin.command:
+        argv:
+          - kubectl
+          - apply
+          - -f
+          - /etc/ssl/private/ca-omv-cluster.yml
+      changed_when: false
