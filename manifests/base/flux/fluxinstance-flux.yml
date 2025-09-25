@@ -1,0 +1,16 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: FluxInstance
+metadata:
+  name: flux
+  namespace: flux-system
+spec:
+  distribution:
+    version: "2.x"
+    registry: "ghcr.io/fluxcd"
+  sync:
+    kind: GitRepository
+    url: "https://github.com/zar3bski/playbooks.git"
+    ref: "refs/heads/main"
+    path: "manifests"
+    # Public repo = no need for pullSecret
+    #pullSecret: "flux-system"

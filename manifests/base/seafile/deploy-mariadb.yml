@@ -21,7 +21,7 @@ spec:
               cpu: 50m
               memory: 50Mi
             limits:
-              cpu: 200m
+              cpu: 400m
               memory: 400Mi
           env:
             - name: MARIADB_ROOT_PASSWORD

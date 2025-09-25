@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+resources:
+  - ../../../base/seafile
+  - es-seafile-secret.yml
+
+images:
+  - name: mariadb
+    newName: mariadb
+    newTag: "10.11"
+  - name: seafile
+    newName: seafileltd/seafile-mc
+    newTag: "13.0.11"
+  - name: redis
+    newName: redis
+    newTag: "8.2.1-alpine"

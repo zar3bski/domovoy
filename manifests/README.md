@@ -28,7 +28,7 @@ kubectl apply -f /etc/ssl/private/ca-omv-cluster.yml
 1. Create the namespace
 
 ```shell
-kubectl apply -f ./vaultwarden/ns-vaultwarden.yml
+kubectl apply -f ./overlays/prod/vaultwarden/ns-vaultwarden.yml
 ```
 
 2. Create manually the following **secret** 
@@ -56,7 +56,7 @@ EOF
 3. Install the app
 
 ```shell
-kubectl apply -k ./vaultwarden
+kubectl apply -k ./overlays/prod/vaultwarden
 ```
 
 #### Case 1: Reuse PVC from previous install
@@ -75,7 +75,7 @@ All infra secrets are pulled by a vaultwarden service account identified by **se
 1. Create the namespace
 
 ```shell
-kubectl apply -f ./external-secret-operator/ns-external-secrets.yml
+kubectl apply -f ./overlays/prod/external-secret-operator/ns-external-secrets.yml
 ```
 
 2. Create the secret to access bitwarden-cli
@@ -104,7 +104,7 @@ EOF
 3. Deploy the **external-secret-operator**
 
 ```shell
-kubectl apply -k ./external-secret-operator
+kubectl apply -k ./overlays/prod/external-secret-operator
 ```
 
 ### Create the various .env
@@ -120,13 +120,13 @@ find ./ -name "*.env.example"
 **Inspect**
 
 ```shell
-kubectl kustomize ./
+kubectl kustomize ./overlays/<env>
 ```
 
 **apply changes to cluster**
 
 ```shell
-kubectl apply -k ./
+kubectl apply -k ./overlays/<env>
 ```
 
 ## Disaster recovery

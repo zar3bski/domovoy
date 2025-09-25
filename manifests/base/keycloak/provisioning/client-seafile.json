@@ -1,0 +1,63 @@
+{
+  "clientId": "seafile",
+  "name": "seafile",
+  "description": "seafile OIDC",
+  "rootUrl": "https://file.enki.sin:8443",
+  "adminUrl": "https://file.enki.sin:8443",
+  "baseUrl": "https://file.enki.sin:8443",
+  "surrogateAuthRequired": false,
+  "enabled": true,
+  "alwaysDisplayInConsole": false,
+  "clientAuthenticatorType": "client-secret",
+  "secret": "X8KaAvvTOCY9KoPfnYNvT0U9ZkLanQwK",
+  "redirectUris": [
+    "https://file.enki.sin:8443/oauth/callback/"
+  ],
+  "webOrigins": [
+    "file.enki.sin",
+    "file.enki.sin:8443"
+  ],
+  "notBefore": 0,
+  "bearerOnly": false,
+  "consentRequired": false,
+  "standardFlowEnabled": true,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": false,
+  "serviceAccountsEnabled": false,
+  "publicClient": false,
+  "frontchannelLogout": true,
+  "protocol": "openid-connect",
+  "attributes": {
+    "realm_client": "false",
+    "oidc.ciba.grant.enabled": "false",
+    "client.secret.creation.time": "1748265416",
+    "backchannel.logout.session.required": "true",
+    "standard.token.exchange.enabled": "false",
+    "post.logout.redirect.uris": "https://file.enki.sin:8443",
+    "oauth2.device.authorization.grant.enabled": "false",
+    "backchannel.logout.revoke.offline.tokens": "false"
+  },
+  "authenticationFlowBindingOverrides": {},
+  "fullScopeAllowed": true,
+  "nodeReRegistrationTimeout": -1,
+  "defaultClientScopes": [
+    "web-origins",
+    "acr",
+    "roles",
+    "profile",
+    "basic",
+    "email"
+  ],
+  "optionalClientScopes": [
+    "address",
+    "phone",
+    "organization",
+    "offline_access",
+    "microprofile-jwt"
+  ],
+  "access": {
+    "view": true,
+    "configure": true,
+    "manage": true
+  }
+}

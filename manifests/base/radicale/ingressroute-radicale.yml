@@ -17,6 +17,7 @@ spec:
         - name: radicale
           namespace: radicale
           port: 5232
+          passHostHeader: true
   tls:
     secretName: domain-tls
     domains:

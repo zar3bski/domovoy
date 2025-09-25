@@ -1,0 +1,6 @@
+- op: replace
+  path: /spec/routes/0/match
+  value: Host(`file.alpine.dev.local`) && PathPrefix(`/`)
+- op: replace
+  path: /spec/tls/domains/0/main
+  value: file.alpine.dev.local:8443

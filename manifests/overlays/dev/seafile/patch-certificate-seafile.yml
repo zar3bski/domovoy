@@ -1,0 +1,10 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: seafile
+  namespace: seafile
+spec:
+  commonName: file.alpine.dev.local
+  dnsNames:
+    - file.alpine.dev.local:8443
+    - file.alpine.dev.local

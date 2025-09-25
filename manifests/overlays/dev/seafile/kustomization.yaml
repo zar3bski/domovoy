@@ -1,0 +1,56 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+secretGenerator:
+  - name: seafile-secrets
+    namespace: seafile
+    literals:
+      - MARIA_ROOT_PASSWORD=admin
+      - INIT_SEAFILE_ADMIN_PASSWORD=admin@gmail.com
+      - INIT_SEAFILE_ADMIN_EMAIL=admin
+      - JWT_PRIVATE_KEY=BN8skuCRpV8IaDx5KgEsft8sKeITvju1
+      - REDIS_PASS=5KgEsft8sKeITvju1
+      - REDIS_CONF=requirepass 5KgEsft8sKeITvju1
+      - SEAFILE_MYSQL_DB_PASSWORD=c409376a-d5b5-44a0-9a50-6ce32218603a
+
+resources:
+  - ../../../base/seafile
+
+images:
+  - name: mariadb
+    newName: mariadb
+    newTag: "10.11"
+  - name: seafile
+    newName: seafileltd/seafile-mc
+    newTag: "13.0.11"
+  - name: redis
+    newName: redis
+    newTag: "8.2.1-alpine"
+
+patches:
+  - path: ./patch-certificate-seafile.yml
+    target:
+      kind: Certificate
+      namespace: seafile
+  - path: ./patch-deploy-seafile.yml
+    target:
+      kind: Deployment
+      name: seafile
+      namespace: seafile
+  - path: ./patch-ingress-seafile-data.yml
+    target:
+      kind: IngressRoute
+      namespace: seafile
+      name: seafile-data
+  - path: ./patch-ingress-seafile.yml
+    target:
+      kind: IngressRoute
+      namespace: seafile
+      name: seafile
+  - path: ./patch-pvc.yml
+    target:
+      kind: PersistentVolumeClaim
+      namespace: seafile

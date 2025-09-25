@@ -1,0 +1,69 @@
+{
+  "clientId": "transmission-iNECTouNcELOpoWa",
+  "name": "transmission",
+  "description": "transmission",
+  "rootUrl": "https://dl.enki.sin:8443/transmission/web/",
+  "adminUrl": "https://dl.enki.sin:8443/transmission/web/",
+  "baseUrl": "https://dl.enki.sin:8443/transmission/web/",
+  "surrogateAuthRequired": false,
+  "enabled": true,
+  "alwaysDisplayInConsole": false,
+  "clientAuthenticatorType": "client-secret",
+  "secret": "puLEw0SvQrIIp2kTdEIQSrBwYVp6KrnC",
+  "redirectUris": [
+    "https://dl.enki.sin:8443/oauth2/callback"
+  ],
+  "webOrigins": [
+    "dl.enki.sin",
+    "dl.enki.sin:8443"
+  ],
+  "notBefore": 0,
+  "bearerOnly": false,
+  "consentRequired": false,
+  "standardFlowEnabled": true,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": false,
+  "serviceAccountsEnabled": false,
+  "publicClient": false,
+  "frontchannelLogout": true,
+  "protocol": "openid-connect",
+  "attributes": {
+    "realm_client": "false",
+    "oidc.ciba.grant.enabled": "false",
+    "client.secret.creation.time": "1750233634",
+    "backchannel.logout.session.required": "true",
+    "standard.token.exchange.enabled": "false",
+    "post.logout.redirect.uris": "https://dl.enki.sin:8443/transmission/web/",
+    "oauth2.device.authorization.grant.enabled": "false",
+    "backchannel.logout.revoke.offline.tokens": "false",
+    "login_theme": "",
+    "display.on.consent.screen": "false",
+    "consent.screen.text": "",
+    "frontchannel.logout.url": "",
+    "frontchannel.logout.session.required": "true"
+  },
+  "authenticationFlowBindingOverrides": {},
+  "fullScopeAllowed": true,
+  "nodeReRegistrationTimeout": -1,
+  "defaultClientScopes": [
+    "web-origins",
+    "acr",
+    "roles",
+    "profile",
+    "basic",
+    "email"
+  ],
+  "optionalClientScopes": [
+    "address",
+    "phone",
+    "organization",
+    "offline_access",
+    "microprofile-jwt"
+  ],
+  "access": {
+    "view": true,
+    "configure": true,
+    "manage": true
+  },
+  "authorizationServicesEnabled": false
+}
