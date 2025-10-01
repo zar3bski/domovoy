@@ -39,7 +39,7 @@ spec:
                 secretKeyRef:
                   name: seafile-secrets
                   key: JWT_PRIVATE_KEY
-            - name: DB_ROOT_PASSWD
+            - name: INIT_SEAFILE_MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: seafile-secrets
