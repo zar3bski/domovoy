@@ -8,7 +8,7 @@ TimeoutStartSec=0
 Restart=always
 ExecStartPre=-/usr/bin/docker stop %n
 ExecStartPre=-/usr/bin/docker rm %n
-ExecStartPre=/usr/bin/docker pull bitnami/alertmanager:{{prometheus_alertmanager_image_tag}}
+ExecStartPre=-/usr/bin/docker pull bitnami/alertmanager:{{prometheus_alertmanager_image_tag}}
 ExecStart=/usr/bin/docker run --rm --name %n \
     --network=observability \
     --user 1006 \
