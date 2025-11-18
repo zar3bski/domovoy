@@ -9,6 +9,11 @@ ExecStart=/usr/bin/node_exporter \
    --web.config.file=/home/metrics/node-exporter.web.config \
    --collector.systemd \
    --collector.interrupts \
+   --collector.processes \
+   --collector.tcpstat \
+{% if monitor_btrfs is defined and monitor_btrfs is true %}
+   --collector.btrfs \
+{% endif %}
    --web.listen-address=:{{ node_exporter_port }}
 KillSignal=SIGINT
 Restart=on-failure
