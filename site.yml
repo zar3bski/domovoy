@@ -10,7 +10,8 @@
   roles:
     - common
     - wireguard
-    - technitium
+    - role: technitium
+      tags: [dns]
 
 - name: NAS servers
   hosts: nas-servers
@@ -40,7 +41,8 @@
     - prometheus
     - gh-runner
     - wireguard
-    - technitium
+    - role: technitium
+      tags: [dns]
     - nginx
 
 - name: Dev servers
