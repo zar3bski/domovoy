@@ -42,5 +42,5 @@
   when: openmediavault_keyring.stat.exists
 
 - name: Configure Openmediavault
-  ansible.builtin.include_tasks:
+  ansible.builtin.import_tasks:
     file: configure.yml

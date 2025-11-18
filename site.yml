@@ -9,6 +9,8 @@
       ansible.builtin.import_tasks: 'roles/common/knocking.yml'
   roles:
     - common
+    - role: node-exporter
+      tags: [observability]
     - wireguard
     - role: technitium
       tags: [dns]
@@ -24,6 +26,8 @@
       ansible.builtin.import_tasks: 'roles/common/knocking.yml'
   roles:
     - openmediavault
+    - role: node-exporter
+      tags: [observability]
 
 - name: Lan servers
   hosts: lan-servers
@@ -36,9 +40,12 @@
       ansible.builtin.import_tasks: 'roles/common/knocking.yml'
   roles:
     - common
+    - role: node-exporter
+      tags: [observability]
     - role: alloy
-      tags: [alloy]
-    - prometheus
+      tags: [observability]
+    - role: prometheus
+      tags: [observability]
     - gh-runner
     - wireguard
     - role: technitium
