@@ -13,7 +13,6 @@ data:
           noColors: false                     # disable colors in the output
           json: false                         # output in json format, currently not supported
           utc: false                          # use UTC time in the output instead of local time
-      debugMedia: false                       # output ffmpeg stdout for media integration -- careful can produces lots of output!                 # path to the database file
       sources:                                #  validate:required,dive
         - path: /srv/local                    # file system path. (Can be relative)  validate:required
           name: local
