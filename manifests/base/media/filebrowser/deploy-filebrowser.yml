@@ -46,15 +46,15 @@ spec:
           volumeMounts:
             - mountPath: /srv/local/downloads
               name: transmission-downloads
-            - mountPath: /srv/local/Music
+            - mountPath: /srv/local/music
               name: server-media-files
-              subPath: Music
-            - mountPath: /srv/local/Readings
+              subPath: music
+            - mountPath: /srv/local/readings
               name: server-media-files
-              subPath: Readings
-            - mountPath: /srv/local/Videos
+              subPath: readings
+            - mountPath: /srv/local/videos
               name: server-media-files
-              subPath: Videos
+              subPath: videos
             - mountPath: /home/filebrowser/config.yaml
               name: filebrowser-config
               subPath: filebrowser.yml
@@ -76,4 +76,4 @@ spec:
             secretName: filebrowser-config
         - name: server-media-files
           hostPath: # FIXME: variabilise
-            path: /srv/dev-disk-by-uuid-d9212f02-84d7-493c-9816-b40060139418/
+            path: /srv/dev-disk-by-uuid-7dfc0a29-4dea-4dc7-a911-986ee7f35be6/
