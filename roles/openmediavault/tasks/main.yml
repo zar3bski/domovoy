@@ -39,7 +39,7 @@
 - name: Install Openmediavault
   ansible.builtin.include_tasks:
     file: install.yml
-  when: openmediavault_keyring.stat.exists
+  when: openmediavault_keyring.stat.exists == false
 
 - name: Configure Openmediavault
   ansible.builtin.import_tasks:
