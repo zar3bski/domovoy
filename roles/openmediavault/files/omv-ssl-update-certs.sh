@@ -37,20 +37,21 @@ xpath="/config/system/certificates/sslcertificate[uuid='${uuid}']"
 echo "xpath :: ${xpath}"
 echo
 
+cert_content=$(cat ${cert})
+key_content=$(cat ${key})
 if ! omv_config_exists "${xpath}"; then
     echo "Config for ${uuid} does not exist: creating"
-    cert_content=$(awk '{printf "%s\\n", $0}' $cert)
-    key_content=$(awk '{printf "%s\\n", $0}' $key)
+
 
     omv_config_add_node_data "/config/system/certificates" "sslcertificate" \
         "<uuid>${uuid}</uuid><certificate>${cert_content}</certificate><privatekey>${key_content}</privatekey><comment>${subject}</comment>"
     echo "Config created successfully"
 else
     echo "Updating certificate in database ..."
-    omv_config_update "${xpath}/certificate" "$(cat ${cert})"
+    omv_config_update "${xpath}/certificate" "$cert_content"
 
     echo "Updating private key in database ..."
-    omv_config_update "${xpath}/privatekey" "$(cat ${key})"
+    omv_config_update "${xpath}/privatekey" "$key_content"
 
     echo "Updating comment in database ..."
     omv_config_update "${xpath}/comment" "${subject}"
