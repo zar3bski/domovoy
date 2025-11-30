@@ -75,6 +75,7 @@ data:
         modify: true
         share: false
         realtime: false
+        create: true
       loginMethod: password                   # login method to use: eg. password, proxy, oidc
       disableUpdateNotifications: false       # disable update notifications banner for admin users
     integrations:
