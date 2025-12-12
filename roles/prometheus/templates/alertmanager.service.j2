@@ -8,12 +8,12 @@ TimeoutStartSec=0
 Restart=always
 ExecStartPre=-/usr/bin/docker stop %n
 ExecStartPre=-/usr/bin/docker rm %n
-ExecStartPre=-/usr/bin/docker pull bitnami/alertmanager:{{prometheus_alertmanager_image_tag}}
 ExecStart=/usr/bin/docker run --rm --name %n \
     --network=observability \
     --user 1006 \
-    -v /home/alertmanager/conf:/opt/bitnami/alertmanager/conf \
-    bitnami/alertmanager:{{prometheus_alertmanager_image_tag}}
+    -v /home/alertmanager/conf/config.yml:/etc/alertmanager/alertmanager.yml \
+    -v /home/alertmanager/data:/alertmanager \
+    prom/alertmanager:{{prometheus_alertmanager_image_tag}}
 
 [Install]
 WantedBy=default.target

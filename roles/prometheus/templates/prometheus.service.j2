@@ -9,17 +9,16 @@ Restart=always
 ExecStartPre=-/usr/bin/docker network create observability
 ExecStartPre=-/usr/bin/docker stop %n
 ExecStartPre=-/usr/bin/docker rm %n
-ExecStartPre=-/usr/bin/docker pull bitnami/prometheus:{{prometheus_image_tag}}
 ExecStart=/usr/bin/docker run --rm --name %n \
     --network=observability \
     --user 1003 \
     -p 9090:9090 \
-    -v /home/prometheus/data:/opt/bitnami/prometheus/data \
-    -v /home/prometheus/conf:/opt/bitnami/prometheus/conf \
+    -v /home/prometheus/data:/prometheus \
+    -v /home/prometheus/conf:/etc/prometheus \
 {% for node in groups["all"] %}
     --add-host={{ hostvars[node].inventory_hostname_short }}:{{ hostvars[node].ansible_default_ipv4.address }} \
 {% endfor %}
-    bitnami/prometheus:{{prometheus_image_tag}}
+    prom/prometheus:{{prometheus_image_tag}}
 
 [Install]
 WantedBy=default.target
