@@ -7,3 +7,5 @@ inventory.yml
 *.env
 */keycloak/provisioning/*.json
 **/charts/*
+.vault_pass
+vault.yml

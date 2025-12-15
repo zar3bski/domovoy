@@ -32,6 +32,21 @@ and
 ansible-playbook -i inventory.yml site.yml
 ```
 
+### Create vault.yml and its .vault_pass
+
+You might not want some sensitive values to live in clear format in your inventory. For these variable, simply populate a `vault.yml` with the following command
+
+```shell
+ansible-vault create vault.yml
+```
+
+write the password you choose in `.vault_pass`
+
+```shell
+echo '<your password>' > .vault_pass
+chmod 600 .vault_pass
+```
+
 ### Generate server's SSL cert based on a local CA
 
 ```shell
@@ -70,7 +85,7 @@ certs and keys will appear in `.certs`
 
 ## Services
 
-> all technical users running the various services are limited to a restricted shell (a.k.a. `/bin/rbash`) except for **gh-runner**
+> all technical users running the various services are limited to a restricted shell (a.k.a. `/bin/rbash`) except for **gh-runner**. Some roles only support **Debian based systems** while others also work on other distributions (mainly **Archlinux**). Please refer to the roles' `README` to check for compatibility.
 
 ### Nginx 
 
