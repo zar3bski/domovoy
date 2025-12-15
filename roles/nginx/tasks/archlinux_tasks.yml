@@ -1,0 +1,47 @@
+- name: Install Nginx
+  community.general.pacman:
+    name:
+      - nginx-mainline 
+
+- name: Create group www-data
+  ansible.builtin.group:
+    name: www-data
+
+- name: Create user www-data
+  ansible.builtin.user:
+    name: www-data
+    system: true
+    shell: /sbin/nologin
+    home: /var/www
+    create_home: false
+    group: www-data
+    password_lock: true
+  
+- name: Create sites-enabled folder
+  ansible.builtin.file:
+    dest: /etc/nginx/sites-enabled/
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create conf.d folder
+  ansible.builtin.file:
+    dest: /etc/nginx/conf.d/
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Write nginx main configuration file
+  ansible.builtin.template:
+    src: templates/nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    mode: '0755'
+
+- name: Start nginx service
+  ansible.builtin.systemd_service:
+    state: restarted
+    daemon_reload: true
+    enabled: true
+    name: nginx

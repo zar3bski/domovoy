@@ -1,0 +1,65 @@
+- name: Update repositories cache and upgrade
+  community.general.pacman:
+    update_cache: true
+    upgrade: true
+
+- name: Install common packages
+  community.general.pacman:
+    name:
+      - acl
+      - apparmor
+      - htop
+      - iptables
+      - kernel-modules-hook
+      - knockd
+      - uboot-tools
+      - ufw
+      - audit
+    state: present
+
+- name: Disable iptables service
+  ansible.builtin.systemd_service:
+    state: stopped
+    daemon_reload: true
+    enabled: false
+    name: iptables
+
+- name: Start ufw service
+  ansible.builtin.systemd_service:
+    state: restarted
+    daemon_reload: true
+    enabled: true
+    name: ufw
+
+- name: Trust CA certificate
+  block:
+    - name: Copy ca_cert (if any)
+      ansible.builtin.copy:
+        content: '{{ ca_cert }}'
+        dest: /etc/ca-certificates/trust-source/anchors/Internal_CA.crt
+        owner: root
+        mode: '0700'
+      when: ca_cert is defined
+    - name: Update CA certs
+      ansible.builtin.command:
+        cmd: update-ca-trust
+
+- name: Set LSM kernel parameters for U-boot ARM
+  block:
+    - name: Add lsm option
+      ansible.builtin.lineinfile:
+        regexp: ^(setenv\sbootargs(?!.*lsm).*)$
+        path: /boot/boot.txt
+        line: '\1 lsm=landlock,lockdown,yama,integrity,apparmor,bpf'
+        backrefs: yes
+    - name: Add audit option
+      ansible.builtin.lineinfile:
+        regexp: ^(setenv\sbootargs(?!.*audit).*)$
+        path: /boot/boot.txt
+        line: '\1 audit=1'
+        backrefs: yes
+    - name: Generate boot image with ./mkscr
+      ansible.builtin.command:
+        chdir: /boot
+        cmd: ./mkscr
+  when: ansible_architecture == 'aarch64'

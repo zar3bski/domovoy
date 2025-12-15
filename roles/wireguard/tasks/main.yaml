@@ -1,7 +1,9 @@
-- name: Install wireguard
-  ansible.builtin.apt:
-    pkg:
-      - wireguard
+- name: Gathering facts
+  ansible.builtin.setup:
+
+- name: "Include OS specific tasks"
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_os_family | lower }}_tasks.yml"
 
 - name: Create wireguard folder
   ansible.builtin.file:
@@ -25,6 +27,8 @@
   block:
     - name: Copy private key
       with_items: "{{ wireguard.interfaces }}"
+      loop_control:
+        label: "{{ item.interface }}"
       ansible.builtin.template:
         src: templates/privatekey.j2
         dest: /etc/wireguard/{{ item.interface }}.privatekey
@@ -32,6 +36,8 @@
 
     - name: Copy public key
       with_items: "{{ wireguard.interfaces }}"
+      loop_control:
+        label: "{{ item.interface }}"
       ansible.builtin.template:
         src: templates/publickey.j2
         dest: /etc/wireguard/{{ item.interface }}.publickey
@@ -39,6 +45,8 @@
 
     - name: Copy public key
       with_items: "{{ wireguard.interfaces }}"
+      loop_control:
+        label: "{{ item.interface }}"
       ansible.builtin.template:
         src: templates/wg.conf.j2
         dest: /etc/wireguard/{{ item.interface }}.conf
@@ -46,6 +54,8 @@
 
     - name: Create Peers shared mapping file
       with_items: "{{ wireguard.interfaces }}"
+      loop_control:
+        label: "{{ item.interface }}"
       ansible.builtin.template:
         src: templates/peers.j2
         dest: /usr/share/wireguard/{{ item.interface }}.peers
@@ -63,13 +73,6 @@
         dest: /etc/wireguard/helper/remove-nat-routing.sh
         mode: "0700"
 
-    - name: Allow helper scripts execution in AppArmor
-      ansible.builtin.lineinfile:
-        path: /etc/apparmor.d/local/wg-quick
-        line: /etc/wireguard/helper/** ix,
-        mode: '0644'
-        create: true
-
     - name: Reload AppArmor
       ansible.builtin.systemd:
         service: apparmor
@@ -78,6 +81,8 @@
 
     - name: Allow wireguard traffic to this host
       with_items: "{{ wireguard.interfaces }}"
+      loop_control:
+        label: "{{ item.interface }}"
       community.general.ufw:
         rule: allow
         proto: any
@@ -87,6 +92,8 @@
 
     - name: Start or restart Interface
       with_items: "{{ wireguard.interfaces }}"
+      loop_control:
+        label: "{{ item.interface }}"
       ansible.builtin.systemd:
         daemon_reload: true
         service: wg-quick@{{ item.interface }}
@@ -95,13 +102,14 @@
 
 - name: Setup wireguard prometheus exporter
   block:
-    - name: Download binary # noqa: yaml[line-length]
+    - name: Download binary
       ansible.builtin.get_url:
         dest: /usr/bin
         mode: '0755'
         owner: metrics
         group: metrics
-        url: https://github.com/zar3bski/blobs/raw/refs/heads/main/binaries/aarch64/wireguard-prometheus-exporter/3.6.6/prometheus_wireguard_exporter
+        url: "https://github.com/zar3bski/blobs/raw/refs/heads/main/binaries/{{ ansible_architecture }}\
+             /wireguard-prometheus-exporter/3.6.6/prometheus_wireguard_exporter"
     - name: Allow wireguard trafic to the exporter
       community.general.ufw:
         rule: allow
@@ -110,7 +118,7 @@
     - name: Make sudo without password for metrics user
       ansible.builtin.copy:
         dest: /etc/sudoers.d/80-metrics-sudo-wg
-        content: "metrics ALL=(root) NOPASSWD: /usr/bin/wg show all dump"
+        content: "metrics ALL=(root) NOPASSWD: /usr/bin/wg show all dump\n"
         mode: "0440"
     - name: Create systemd conf file
       ansible.builtin.template:

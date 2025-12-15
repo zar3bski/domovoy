@@ -1,7 +1,9 @@
-- name: Install Nginx
-  ansible.builtin.apt:
-    pkg:
-      - nginx
+- name: Gathering facts
+  ansible.builtin.setup:
+
+- name: "Include OS specific tasks"
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_os_family | lower }}_tasks.yml"
 
 - name: Allow incoming traffic IN 443
   community.general.ufw:

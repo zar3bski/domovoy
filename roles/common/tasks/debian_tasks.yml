@@ -1,0 +1,29 @@
+- name: Update repositories cache
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Upgrade packages
+  ansible.builtin.apt:
+    upgrade: safe
+
+- name: Install common packages
+  ansible.builtin.apt:
+    pkg:
+      - ufw
+      - htop
+      - acl
+      - knockd
+      - apparmor
+
+- name: Trust CA certificate
+  block:
+    - name: Copy ca_cert (if any)
+      ansible.builtin.copy:
+        content: '{{ ca_cert }}'
+        dest: /usr/local/share/ca-certificates/Internal_CA.crt
+        owner: root
+        mode: '0700'
+      when: ca_cert is defined
+    - name: Update CA certs
+      ansible.builtin.command:
+        cmd: update-ca-certificates

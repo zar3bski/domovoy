@@ -1,0 +1,127 @@
+#------------------------------------------------------------------
+#    Copyright (C) 2025 zar3bski.
+#    This program is free software; you can redistribute it and/or
+#    modify it under the terms of version 3 of the GNU General Public
+#    License published by the Free Software Foundation.
+#------------------------------------------------------------------
+# vim: ft=apparmor
+#
+abi <abi/4.0>,
+
+include <tunables/global>
+
+profile wg-quick /usr/bin/wg-quick flags=(attach_disconnected) {
+  include <abstractions/base>
+  include <abstractions/consoles>
+
+  capability dac_read_search,
+  capability net_admin,
+  capability net_raw,
+
+  # Network access rules
+  network netlink raw,
+  network unix stream,
+  network inet raw,
+  network inet6 raw,
+
+  # binaries called from within wg-quick
+  file mrix /usr/bin/readlink,
+  file mrix /usr/bin/stat,
+  file mrix /usr/bin/cat,
+  file mrix /usr/bin/rm,
+  file mrix /usr/bin/mv,
+  file mrix /usr/bin/sync,
+  file mrix /usr/bin/sort,
+  file mrix /usr/sbin/xtables-nft-multi,
+  file mrix /usr/bin/resolvectl,
+  file mrix /usr/sbin/resolvconf,
+  file mrix /usr/bin/wg,
+
+  # dbus access
+  file rw @{run}/dbus/system_bus_socket,
+
+  # Required for post-routing iptables based scripts
+  file mrix /etc/wireguard/helper/**,
+  file rwk /run/xtables.lock,
+  file mrix /sbin/iptables,
+  file mrix /sbin/ip6tables,
+  file mrix /usr/bin/xtables-legacy-multi,
+
+  # read only files
+  file r /etc/nsswitch.conf,
+  file r /etc/passwd,
+
+  dbus (send)
+      bus=system
+      path=/org/freedesktop/resolve1
+      interface=org.freedesktop.resolve1.Manager
+      member="SetLink{DNSEx,Domains}"
+      peer=(name=org.freedesktop.resolve1, label=unconfined),
+
+  dbus (send)
+      bus=system
+      path=/org/freedesktop/DBus
+      interface=org.freedesktop.DBus
+      member="Hello"
+      peer=(name=org.freedesktop.DBus, label=unconfined),
+
+  # Sub-profile for nft tool restrictions
+  file mrCx /usr/sbin/nft,
+  profile nft /usr/sbin/nft {
+    include <abstractions/base> 
+
+    capability net_admin,
+
+    # Allow executable mapping and read for the binary
+    file mr /usr/sbin/nft,
+
+    # Network access rules
+    network netlink raw,
+
+    file r /usr/share/iproute2/rt_realms,
+    file r /usr/share/iproute2/group,
+  }
+
+  # Sub-profile for IP tool restrictions
+  file mrCx /usr/bin/ip,
+  profile ip /usr/bin/ip {
+    include <abstractions/base>
+
+    capability net_admin,
+    capability sys_module,
+
+    # Allow executable mapping and read for the binary
+    file mr /usr/bin/ip,
+
+    # Network access rules
+    network netlink raw,
+
+    file r /usr/share/iproute2/group,
+    file r /usr/share/iproute2/rt_tables,
+    file r @{run}/netns/{,**},
+    
+  }
+  
+  # Sub-profile for sysctl tool restrictions
+  file mrCx /usr/sbin/sysctl,
+  profile sysctl /usr/sbin/sysctl {
+    include <abstractions/base> 
+    
+    # Allow executable mapping and read for the binary
+    file mr /usr/sbin/sysctl,
+ 
+    file w @{PROC}/sys/net/ipv4/conf/all/src_valid_mark,
+  }
+
+  # wireguard configuration and key files
+  file rw @{etc_rw}/wireguard/{,**},
+
+  # Allow executable mapping and read for the binary
+  file mr /usr/bin/wg-quick,
+
+  # Process-specific access
+  file r @{PROC}/@{pid}/net/ip_tables_names,
+
+  # Site-specific additions and overrides. See local/README for details.
+  include if exists <local/wg-quick>
+}

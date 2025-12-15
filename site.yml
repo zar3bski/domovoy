@@ -2,6 +2,8 @@
   hosts: wan-servers
   become: true
   gather_facts: false
+  vars_files:
+    - ./vault.yml
   vars:
     node_exporter_port: 9101
   pre_tasks:
@@ -9,9 +11,11 @@
       ansible.builtin.import_tasks: 'roles/common/knocking.yml'
   roles:
     - common
+    - nginx
     - role: node-exporter
       tags: [observability]
-    - wireguard
+    - role: wireguard
+      tags: [vpn]
     - role: technitium
       tags: [dns]
 
@@ -19,6 +23,8 @@
   hosts: nas-servers
   become: true
   gather_facts: false
+  vars_files:
+    - ./vault.yml
   vars:
     node_exporter_port: 9101
   pre_tasks:
@@ -33,6 +39,8 @@
   hosts: lan-servers
   become: true
   gather_facts: false
+  vars_files:
+    - ./vault.yml
   vars:
     node_exporter_port: 9101
   pre_tasks:
@@ -42,14 +50,15 @@
     - common
     - role: node-exporter
       tags: [observability]
+    - role: technitium
+      tags: [dns]
     - role: alloy
       tags: [observability]
     - role: prometheus
       tags: [observability]
     - gh-runner
-    - wireguard
-    - role: technitium
-      tags: [dns]
+    - role: wireguard
+      tags: [vpn]
     - nginx
 
 - name: Dev servers

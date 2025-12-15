@@ -10,26 +10,25 @@
         name: metrics
         create_home: true
         shell: /bin/rbash  # Restricted shell
-    - name: Identify material architecture # noqa: no-changed-when
-      ansible.builtin.command: "dpkg --print-architecture"
-      register: arch
-    - name: Download binary # noqa: yaml[line-length]
+    - name: Download binary
       ansible.builtin.get_url:
         dest: /home/metrics
         mode: '0755'
         owner: metrics
         group: metrics
         url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}\
-              /node_exporter-{{ node_exporter_version }}.linux-{{ arch.stdout }}.tar.gz"
+              /node_exporter-{{ node_exporter_version }}.linux-{{ 'arm64' if ansible_architecture == 'aarch64' else ansible_architecture }}.tar.gz"
     - name: Decompress archive
       ansible.builtin.unarchive:
-        src: /home/metrics/node_exporter-{{ node_exporter_version }}.linux-{{ arch.stdout }}.tar.gz
+        src: "/home/metrics/node_exporter-{{ node_exporter_version }}.linux\
+              -{{ 'arm64' if ansible_architecture == 'aarch64' else ansible_architecture }}.tar.gz"
         remote_src: true
         dest: /home/metrics/
     - name: Move binary
       ansible.builtin.copy:
         dest: /usr/bin/node_exporter
-        src: /home/metrics/node_exporter-{{ node_exporter_version }}.linux-{{ arch.stdout }}/node_exporter
+        src: "/home/metrics/node_exporter-{{ node_exporter_version }}.linux\
+              -{{ 'arm64' if ansible_architecture == 'aarch64' else ansible_architecture }}/node_exporter"
         remote_src: true
         mode: "0755"
     - name: Create systemd conf file

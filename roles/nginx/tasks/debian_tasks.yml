@@ -1,0 +1,4 @@
+- name: Install Nginx
+  ansible.builtin.apt:
+    pkg:
+      - nginx

@@ -1,0 +1,11 @@
+- name: Install wireguard
+  ansible.builtin.apt:
+    pkg:
+      - wireguard
+
+- name: Allow helper scripts execution in AppArmor
+  ansible.builtin.lineinfile:
+    path: /etc/apparmor.d/local/wg-quick
+    line: /etc/wireguard/helper/** ix,
+    mode: '0644'
+    create: true

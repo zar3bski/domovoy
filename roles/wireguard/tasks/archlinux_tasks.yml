@@ -1,0 +1,20 @@
+- name: Install wireguard
+  community.general.pacman:
+    name:
+      - wireguard-tools
+      - cronie
+
+- name: Start and enable cron service
+  ansible.builtin.systemd_service:
+    state: restarted
+    daemon_reload: true
+    enabled: true
+    name: cronie
+
+- name: Copy apparmor general profile
+  ansible.builtin.copy:
+    src: files/apparmor-wg-quick
+    dest: /etc/apparmor.d/wg-quick
+    owner: root
+    group: root
+    mode: '0644'

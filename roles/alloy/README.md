@@ -1,5 +1,11 @@
 # Alloy
 
+## Compatible Systems
+
+- Debian based
+
+## Configuration
+
 Parse local logs to be sent to a Loki instance 
 
 ```yaml

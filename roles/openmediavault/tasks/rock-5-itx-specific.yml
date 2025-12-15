@@ -10,7 +10,7 @@
       ansible.builtin.lineinfile:
         path: /etc/default/cpufrequtils
         search_string: "ENABLE"
-        line: 'ENABLE="true"'
+        line: 'ENABLE="false"'
     - name: Set Governor
       ansible.builtin.lineinfile:
         path: /etc/default/cpufrequtils

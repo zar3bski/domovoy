@@ -1,3 +1,8 @@
+## Compatible Systems
+
+- Debian based
+- Archlinux
+
 ## Configuration
 
 Simply add 

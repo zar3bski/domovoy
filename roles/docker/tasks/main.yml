@@ -1,0 +1,6 @@
+- name: Gathering facts
+  ansible.builtin.setup:
+
+- name: "OS specific docker installation"
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_os_family | lower }}_tasks.yml"

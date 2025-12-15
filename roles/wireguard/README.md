@@ -1,3 +1,10 @@
+## Compatible Systems
+
+- Debian based
+- Archlinux
+
+## Configuration
+
 Use an existing key pair or generate one following the [documentation](https://www.wireguard.com/quickstart/). You can add `peers` directly in the inventory. 
 
 ```yaml

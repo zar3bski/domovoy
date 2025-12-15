@@ -1,0 +1,3 @@
+## Compatible Systems
+
+- Debian based

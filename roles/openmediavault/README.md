@@ -7,6 +7,10 @@ The **install** part installs Openmediavault on a bare Debian (sandworm) instanc
 
 The **configure** part sets a RAID volume up, installs a few plugins and sets a node exporter. However, the settings of volumes, services and users should be performed through the interface.
 
+## Compatible Systems
+
+- Debian based
+
 ## Configuration
 
 ```yaml

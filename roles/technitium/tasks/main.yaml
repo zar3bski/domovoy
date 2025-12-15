@@ -1,60 +1,13 @@
 - name: Gathering facts
   ansible.builtin.setup:
 
-- name: Install docker
-  block:
-    - name: Install dependencies
-      ansible.builtin.apt:
-        pkg:
-          - ca-certificates
-
-    - name: Identify distro # noqa: no-changed-when
-      ansible.builtin.shell: ". /etc/os-release && echo $VERSION_CODENAME"
-      register: version
-
-    - name: Identify arch # noqa: no-changed-when
-      ansible.builtin.command: "dpkg --print-architecture"
-      register: arch
-
-    - name: Identify distro # noqa: no-changed-when
-      ansible.builtin.shell: ". /etc/os-release && echo $ID"
-      register: distro
-
-    - name: Copy keyring
-      ansible.builtin.get_url:
-        dest: /etc/apt/keyrings/docker.asc
-        mode: a+r
-        url: https://download.docker.com/linux/ubuntu/gpg
-
-    - name: Add docker repository # noqa: yaml[line-length]
-      ansible.builtin.apt_repository:
-        repo: "deb [arch={{ arch.stdout }} signed-by=/etc/apt/keyrings/docker.asc] \
-               https://download.docker.com/linux/{{ distro.stdout }} {{ version.stdout }} stable"
-        state: present
-        filename: docker
-
-    - name: Install docker
-      ansible.builtin.apt:
-        pkg:
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
-          - docker-buildx-plugin
-          - docker-compose-plugin
-
-
-- name: Install docker
-  ansible.builtin.apt:
-    pkg:
-      - docker-ce
-      - docker-ce-cli
-      - containerd.io
-      - docker-buildx-plugin
-      - docker-compose-plugin
+- name: "Install docker"
+  ansible.builtin.include_tasks:
+    file: "../../docker/tasks/main.yml"
 
 - name: Pull technitium image
   community.docker.docker_image:
-    name: technitium/dns-server:{{technitium_image_tag}}
+    name: technitium/dns-server:{{ technitium_image_tag }}
     source: pull
 
 - name: Disable systemd-resolved
@@ -92,10 +45,19 @@
   community.general.ufw:
     rule: allow
     port: 53
-    
+
+- name: Allow incoming traffic IN 5380
+  community.general.ufw:
+    rule: allow
+    port: 5380
+
 - name: Enable and start service
   ansible.builtin.systemd_service:
     state: restarted
     daemon_reload: true
     enabled: true
     name: technitium.service
+
+- name: "Post install"
+  ansible.builtin.include_tasks:
+    file: "post_tasks/main.yml"

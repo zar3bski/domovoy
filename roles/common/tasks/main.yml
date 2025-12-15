@@ -1,20 +1,15 @@
 - name: Gathering facts
   ansible.builtin.setup:
 
-- name: Update repositories cache
-  ansible.builtin.apt:
-    update_cache: true
+- name: "Include OS specific tasks"
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_os_family | lower }}_tasks.yml"
 
-- name: Upgrade packages
-  ansible.builtin.apt:
-    upgrade: safe
-
-- name: Install common packages
-  ansible.builtin.apt:
-    pkg:
-      - ufw
-      - htop
-      - acl
+- name: Set persistent NIC names
+  ansible.builtin.template:
+    src: templates/70-persistent-net.rules.j2
+    dest: /etc/udev/rules.d/70-persistent-net.rules
+    mode: '0755'
 
 - name: Allow SSH inbound trafic
   community.general.ufw:
@@ -23,26 +18,9 @@
     proto: tcp
   when: knock_ports is not defined
 
-- name: Trust CA certificate
-  block:
-    - name: Copy ca_cert (if any)
-      ansible.builtin.copy:
-        content: '{{ ca_cert }}'
-        dest: /usr/local/share/ca-certificates/Internal_CA.crt
-        owner: root
-        mode: '0700'
-      when: ca_cert is defined
-    - name: Update CA certs
-      ansible.builtin.command:
-        cmd: update-ca-certificates
-
 - name: Set port knocking for SSH inbound trafic
   when: knock_ports is defined
   block:
-    - name: Install knockd
-      ansible.builtin.apt:
-        pkg:
-          - knockd
     - name: Edit conf file
       ansible.builtin.template:
         src: templates/knockd.conf.j2
@@ -76,3 +54,14 @@
   community.general.ufw:
     state: enabled
     logging: 'on'
+
+- name: Enable AppArmor
+  ansible.builtin.systemd_service:
+    state: restarted
+    daemon_reload: true
+    enabled: true
+    name: apparmor
+
+- name: "Post install"
+  ansible.builtin.include_tasks:
+    file: "post_tasks/main.yml"

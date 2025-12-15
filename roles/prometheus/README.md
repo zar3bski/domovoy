@@ -1,8 +1,12 @@
+## Compatible Systems
+
+- Debian based
 
 > This stack is not supposed to be exposed publicly
 
-
 > These 3 services can only live on the same node because they share a **docker network**
+
+## Configuration
 
 ```yaml
 prometheus-servers:

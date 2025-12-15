@@ -1,5 +1,11 @@
 
-## Github runner
+# Github runner
+
+## Compatible Systems
+
+- Debian based
+
+## Configuration
 
 ```yaml
 dmz-servers:
