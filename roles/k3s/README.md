@@ -1,3 +1,4 @@
 ## Compatible Systems
 
-- Debian based
+- Ubuntu
+- Alpine

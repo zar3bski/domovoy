@@ -59,6 +59,8 @@
     - gh-runner
     - role: wireguard
       tags: [vpn]
+    - role: k3s
+      tags: [k8s]
     - nginx
 
 - name: Dev servers
@@ -66,4 +68,5 @@
   hosts: dev-servers
   become: true
   roles:
-    - k3s
+    - role: k3s
+      tags: [k8s]
