@@ -111,6 +111,13 @@
       ansible.builtin.apt:
         pkg:
           - lbzip2
+    - name: Create saved PVC folder
+      ansible.builtin.file: 
+        path: /var/lib/rancher/k3s/saved_storage
+        owner: root 
+        group: root
+        mode: '0640'
+        state: directory
     - name: Copy archive password
       ansible.builtin.template:
         src: templates/archiving_password.j2
