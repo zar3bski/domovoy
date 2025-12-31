@@ -10,22 +10,7 @@
       ansible.builtin.lineinfile:
         path: /etc/default/cpufrequtils
         search_string: "ENABLE"
-        line: 'ENABLE="false"'
-    - name: Set Governor
-      ansible.builtin.lineinfile:
-        path: /etc/default/cpufrequtils
-        search_string: "GOVERNOR"
-        line: 'GOVERNOR="schedutil"'
-    - name: Set min frequency
-      ansible.builtin.lineinfile:
-        path: /etc/default/cpufrequtils
-        search_string: "MIN_SPEED"
-        line: 'MIN_SPEED="408000"'
-    - name: Set max frequency
-      ansible.builtin.lineinfile:
-        path: /etc/default/cpufrequtils
-        search_string: "MAX_SPEED"
-        line: 'MAX_SPEED="2352000"'
+        line: 'ENABLE="true"'
     - name: Restart service
       ansible.builtin.systemd_service:
         state: restarted
