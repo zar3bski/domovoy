@@ -36,17 +36,14 @@ echo "Key file :: ${key}"
 xpath="/config/system/certificates/sslcertificate[uuid='${uuid}']"
 echo "xpath :: ${xpath}"
 
-if ! omv_config_exists "${xpath}"; then
-    echo "Config for ${uuid} does not exist: creating"
-    cert_content=$(awk '{printf "%s\\n", $0}' $cert)
-    key_content=$(awk '{printf "%s\\n", $0}' $key)
+cert_content=$(cat ${cert})
+key_content=$(cat ${key})
 
-    omv_config_add_node_data "/config/system/certificates" "sslcertificate" \
-        "<uuid>${uuid}</uuid><certificate>${cert_content}</certificate><privatekey>${key_content}</privatekey><comment>${subject}</comment>"
-    echo "Config created successfully"
+if ! omv_config_exists "${xpath}"; then
+    echo "Please create the cert chain and its key from the UI before editing"
+    echo "/etc/openmediavault/config.xml to give it UUID ${uuid}: automatic setting broken"
+    exit 1
 else
-    cert_content=$(cat ${cert})
-    key_content=$(cat ${key})
     echo "Updating certificate in database ..."
     omv_config_update "${xpath}/certificate" "$cert_content"
 
