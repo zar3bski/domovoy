@@ -22,12 +22,12 @@ fi
 
 if [ ! -f "${cert}" ]; then
     echo "Cert not found"
-    exit 2
+    exit 1
 fi
 
 if [ ! -f "${key}" ]; then
     echo "Key not found"
-    exit 3
+    exit 1
 fi
 
 echo "Cert file :: ${cert}"
@@ -35,18 +35,18 @@ echo "Key file :: ${key}"
 
 xpath="/config/system/certificates/sslcertificate[uuid='${uuid}']"
 echo "xpath :: ${xpath}"
-echo
 
-cert_content=$(cat ${cert})
-key_content=$(cat ${key})
 if ! omv_config_exists "${xpath}"; then
     echo "Config for ${uuid} does not exist: creating"
-
+    cert_content=$(awk '{printf "%s\\n", $0}' $cert)
+    key_content=$(awk '{printf "%s\\n", $0}' $key)
 
     omv_config_add_node_data "/config/system/certificates" "sslcertificate" \
         "<uuid>${uuid}</uuid><certificate>${cert_content}</certificate><privatekey>${key_content}</privatekey><comment>${subject}</comment>"
     echo "Config created successfully"
 else
+    cert_content=$(cat ${cert})
+    key_content=$(cat ${key})
     echo "Updating certificate in database ..."
     omv_config_update "${xpath}/certificate" "$cert_content"
 
