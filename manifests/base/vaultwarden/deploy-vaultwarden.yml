@@ -14,8 +14,8 @@ spec:
         app: vaultwarden
     spec:
       securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
+        runAsUser: 61000
+        runAsGroup: 61000
       containers:
         - name: vaultwarden
           image: vaultwarden
