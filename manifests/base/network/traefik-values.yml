@@ -1,0 +1,54 @@
+crds: 
+  enabled: true
+hostNetwork: true
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 0
+    maxUnavailable: 1
+deployment: 
+  kind: DaemonSet
+
+  initContainers:
+    - name: ca-loader
+      image: busybox:1.37.0-glibc
+      command: ["sh", "-c", "cp /etc/ssl/ca.crt /data"]
+      volumeMounts:
+        - name: wildcard-domain-tls
+          mountPath: /etc/ssl/ca.crt
+          subPath: ca.crt
+        - name: data
+          mountPath: /data
+  additionalVolumes:
+    - name: wildcard-domain-tls
+      secret:
+        secretName: wildcard-domain-tls
+ports:
+  web:
+    port: 8080
+  traefik:
+    port: 4443
+  websecure: 
+    port: 8443
+    tls:
+      enabled: true
+experimental:
+  plugins:
+    fail2ban:
+      moduleName: github.com/tomMoulard/fail2ban
+      version: v0.8.9
+    traefikoidc:
+      moduleName: github.com/lukaszraczylo/traefikoidc
+      version: v0.8.17
+logs:
+  general:
+    level: "INFO"
+  access:
+    enabled: true
+    fields: 
+      general:
+        names: 
+          StartUTC: drop
+service:
+  spec:
+    externalTrafficPolicy: Local

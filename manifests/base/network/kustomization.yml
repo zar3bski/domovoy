@@ -1,9 +1,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+#- helmchartconfig-traefik.yml
 resources:
+  - build-traefik.yml
   - certificate-wildcard-domain-tls.yml
-  - helmchartconfig-traefik.yml
   - middleware-https-redirect.yml
 
 generatorOptions:
@@ -18,8 +19,8 @@ configMapGenerator:
       annotations:
         reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
         reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "observability,identity,transmission"
-        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "observability,identity,transmission"
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "observability,identity,media"
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "observability,identity,media"
 
 replacements:
   - source:
@@ -35,3 +36,19 @@ replacements:
         fieldPaths:
           - spec.commonName
           - spec.dnsNames.0
+
+
+# Uncomment for manifest generation with
+# kustomize build -o base/network/build-traefik.yml --enable-helm ./base/network
+# 
+#helmCharts:
+#  - name: traefik-crds
+#    repo: https://helm.traefik.io/traefik
+#    releaseName: traefik-crds
+#    namespace: kube-system
+#  - name: traefik
+#    repo: https://helm.traefik.io/traefik
+#    releaseName: traefik
+#    namespace: kube-system
+#    version: v38.0.1
+#    valuesFile: traefik-values.yml
