@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: ca-omv-cluster
+  name: ca-cluster
   namespace: cert-manager
 type: Opaque
 data:
-  tls.crt: {{ (ssl_cert+ca_cert)|b64encode }}
-  tls.key: {{ ssl_key|b64encode }}
+  tls.crt: {{ (cluster_ca_cert+ca_cert)|b64encode }}
+  tls.key: {{ cluster_ca_key|b64encode }}
   ca.crt: {{ ca_cert|b64encode }}

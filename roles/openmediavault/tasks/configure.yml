@@ -84,8 +84,8 @@
 
     - name: Generate kube CA secret manifest
       ansible.builtin.template:
-        src: templates/ca-omv-cluster.yml.j2
-        dest: /etc/ssl/private/ca-omv-cluster.yml
+        src: templates/ca-cluster.yml.j2
+        dest: /etc/ssl/private/ca-cluster.yml
         mode: "0600"
         owner: root
         group: root

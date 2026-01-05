@@ -16,6 +16,45 @@
     file: "{{ ansible_distribution | lower }}-{{ k3s_motherboard_family.stdout | lower }}_tasks.yml"
   when: k3s_motherboard_family is succeeded
 
+- name: Ports setting
+  block:
+    - name: Allow IN Kubernetes API
+      community.general.ufw:
+        rule: allow
+        port: 6443
+    - name: Allow IN HTTPS ingress
+      community.general.ufw:
+        rule: allow
+        port: 8443
+    - name: Allow IN Traefik metrics
+      community.general.ufw:
+        rule: allow
+        port: 9100
+
+- name: Create k8s application service accounts
+  block:
+    - name: Create group k8s-application
+      ansible.builtin.group:
+        name: k8s-application-{{ idx }}
+        gid: 6100{{ idx }}
+      loop: "{{ range(0, 10) | list }}"
+      loop_control:
+        index_var: idx
+    - name: Create user k8s-application
+      ansible.builtin.user:
+        name: k8s-application-{{ idx }}
+        system: true
+        uid: 6100{{ idx }}
+        shell: /sbin/nologin
+        create_home: false
+        home: /nonexistent
+        group: k8s-application-{{ idx }}
+        password_lock: true
+      loop: "{{ range(0, 10) | list }}"
+      loop_control:
+        index_var: idx
+
+
 - name: Install and configure k3s
   block:
     - name: Download installation script
@@ -26,9 +65,15 @@
         group: root
         mode: '0755'
     - name: Installation
-      ansible.builtin.command:
-        argv:
-          - /usr/bin/get-k3s
+      ansible.builtin.shell:
+        executable: /bin/bash
+        cmd: >
+             INSTALL_K3S_EXEC='server
+             --disable=traefik
+             --disable servicelb
+             --tls-san {{ inventory_hostname }}
+             --node-name {{ inventory_hostname }}'
+             /usr/bin/get-k3s
       changed_when: false
 
 - name: Cluster SSL setting
