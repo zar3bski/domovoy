@@ -2,6 +2,7 @@
 
 - Debian based
 - Archlinux
+- Fedora
 
 ## Configuration
 

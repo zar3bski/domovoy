@@ -2,6 +2,7 @@
 
 - Debian based
 - Archlinux
+- Fedora
 
 > On Arch linux, for Apparmor activation after the first playbook execution, you will need to restart the server after the task **Check that apparmor is running** fails before running the playbook again
 

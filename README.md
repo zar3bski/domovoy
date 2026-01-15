@@ -55,16 +55,17 @@ chmod 600 .vault_pass
 
 certs and keys will appear in `.certs`
 
-### Limitations
+### Architectural choices
 
-- Designed for Debian based servers
-- rely on [UFW](https://github.com/jbq/ufw)
+- All firewalling is handled with `nftables` to avoid frontend disparities (e.g. ufw VS firewalld) across the different distributions
+- Distros assumed to use SE-Linux: **Fedora**
+- Distros assumed to use AppArmor: **Debian** (and derivatives), Arch Linux
 
 ## Users across the infra
 
 |  PID | name         | Description                                 |
 | ---: | :----------- | :------------------------------------------ |
-| 1001 | metrics      | account used for every prometheus exporters |
+| 62001| metrics      | account used for every prometheus exporters |
 | 1002 | grafana      |                                             |
 | 1003 | prometheus   |                                             |
 | 1004 | nym          | runs all Nym service                        |

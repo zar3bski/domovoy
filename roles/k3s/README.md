@@ -2,6 +2,7 @@
 
 - Ubuntu
 - Alpine
+- Fedora
 
 ```yaml
   hosts:
