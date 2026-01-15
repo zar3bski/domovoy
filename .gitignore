@@ -9,3 +9,4 @@ inventory.yml
 **/charts/*
 .vault_pass
 vault.yml
+__pycache__
