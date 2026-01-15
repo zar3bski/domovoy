@@ -5,15 +5,16 @@ Requires=docker.service
 [Service]
 User=alertmanager
 TimeoutStartSec=0
+RestartSec=10
 Restart=always
-ExecStartPre=-/usr/bin/docker stop %n
-ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=/usr/bin/docker info
 ExecStart=/usr/bin/docker run --rm --name %n \
     --network=observability \
     --user 1006 \
     -v /home/alertmanager/conf/config.yml:/etc/alertmanager/alertmanager.yml \
     -v /home/alertmanager/data:/alertmanager \
     prom/alertmanager:{{prometheus_alertmanager_image_tag}}
-
+ExecStop=/usr/bin/docker stop %n
+ExecStop=/usr/bin/docker rm %n
 [Install]
 WantedBy=default.target

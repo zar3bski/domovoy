@@ -5,10 +5,11 @@ Requires=docker.service
 
 [Service]
 TimeoutStartSec=0
+RestartSec=10
 Restart=always
+ExecStartPre=/usr/bin/docker info
+ExecStartPre=-/usr/bin/docker network inspect observability
 ExecStartPre=-/usr/bin/docker network create observability
-ExecStartPre=-/usr/bin/docker stop %n
-ExecStartPre=-/usr/bin/docker rm %n
 ExecStart=/usr/bin/docker run --rm --name %n \
     --network=observability \
     --user 1003 \
@@ -19,6 +20,8 @@ ExecStart=/usr/bin/docker run --rm --name %n \
     --add-host={{ hostvars[node].inventory_hostname_short }}:{{ hostvars[node].ansible_default_ipv4.address }} \
 {% endfor %}
     prom/prometheus:{{prometheus_image_tag}}
-
+ExecStop=/usr/bin/docker stop %n
+ExecStop=/usr/bin/docker rm %n
+ExecStop=/usr/bin/docker network rm observability
 [Install]
 WantedBy=default.target

@@ -4,9 +4,9 @@ Requires=docker.service
 
 [Service]
 TimeoutStartSec=0
+RestartSec=10
 Restart=always
-ExecStartPre=-/usr/bin/docker stop %n
-ExecStartPre=-/usr/bin/docker rm %n
+ExecStartPre=/usr/bin/docker info
 ExecStartPre=/usr/bin/docker pull grafana/grafana:{{prometheus_grafana_image_tag}}
 ExecStart=/usr/bin/docker run --rm --name %n \
     --network=observability \
@@ -18,6 +18,7 @@ ExecStart=/usr/bin/docker run --rm --name %n \
     -e GF_SERVER_DOMAIN=grafana.{{inventory_hostname}} \
     -p 3000:3000 \
     grafana/grafana:{{prometheus_grafana_image_tag}}
-
+ExecStop=/usr/bin/docker stop %n
+ExecStop=/usr/bin/docker rm %n
 [Install]
 WantedBy=default.target
