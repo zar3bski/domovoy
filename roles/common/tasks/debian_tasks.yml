@@ -9,7 +9,6 @@
 - name: Install common packages
   ansible.builtin.apt:
     pkg:
-      - ufw
       - htop
       - acl
       - knockd

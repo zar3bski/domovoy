@@ -61,34 +61,41 @@
         dest: /usr/share/wireguard/{{ item.interface }}.peers
         mode: '0744'
 
-    - name: Copy helper file 1
-      ansible.builtin.template:
-        src: templates/add-nat-routing.sh.j2
-        dest: /etc/wireguard/helper/add-nat-routing.sh
-        mode: "0700"
-
-    - name: Copy helper file 2
-      ansible.builtin.template:
-        src: templates/remove-nat-routing.sh.j2
-        dest: /etc/wireguard/helper/remove-nat-routing.sh
-        mode: "0700"
-
     - name: Reload AppArmor
       ansible.builtin.systemd:
         service: apparmor
         enabled: true
         state: restarted
 
-    - name: Allow wireguard traffic to this host
+    - name: Allow wireguard traffic IN to this host
+      tags:
+        - firewall
       with_items: "{{ wireguard.interfaces }}"
       loop_control:
         label: "{{ item.interface }}"
-      community.general.ufw:
-        rule: allow
-        proto: any
-        port: '{{ item.WG_PORT }}'
-        state: 'enabled'
+      nftables_rules:
+        name: "wireguard-{{ item.interface }}"
+        input:
+          - udp dport {{ item.WG_PORT }} accept comment "Accept server {{ item.interface }} IN"
+          - tcp dport 9586 accept comment "Accept wireguard exporter IN"
+      notify:
+        - Restart Nftables
       when: item.WG_PORT is defined
+
+    - name: Allow wireguard traffic IN to this host
+      tags:
+        - firewall
+      with_items: "{{ wireguard.interfaces }}"
+      loop_control:
+        label: "{{ item.interface }}"
+      nftables_rules:
+        name: "wireguard-{{ item.interface }}"
+        output:
+          - ip daddr {{ item.peers.0.Endpoint.split(':')[0] }}
+            udp dport {{ item.peers.0.Endpoint.split(':')[1] }} accept comment "Accept client {{ item.interface }} OUT"
+      notify:
+        - Restart Nftables
+      when: item.WG_PORT is not defined
 
     - name: Start or restart Interface
       with_items: "{{ wireguard.interfaces }}"
@@ -110,11 +117,6 @@
         group: metrics
         url: "https://github.com/zar3bski/blobs/raw/refs/heads/main/binaries/{{ ansible_architecture }}\
              /wireguard-prometheus-exporter/3.6.6/prometheus_wireguard_exporter"
-    - name: Allow wireguard trafic to the exporter
-      community.general.ufw:
-        rule: allow
-        proto: tcp
-        port: '9586'
     - name: Make sudo without password for metrics user
       ansible.builtin.copy:
         dest: /etc/sudoers.d/80-metrics-sudo-wg

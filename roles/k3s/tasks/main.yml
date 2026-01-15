@@ -16,20 +16,19 @@
     file: "{{ ansible_distribution | lower }}-{{ k3s_motherboard_family.stdout | lower }}_tasks.yml"
   when: k3s_motherboard_family is succeeded
 
-- name: Ports setting
+- name: Firewall setting for k3s
+  tags:
+    - firewall
   block:
-    - name: Allow IN Kubernetes API
-      community.general.ufw:
-        rule: allow
-        port: 6443
-    - name: Allow IN HTTPS ingress
-      community.general.ufw:
-        rule: allow
-        port: 8443
-    - name: Allow IN Traefik metrics
-      community.general.ufw:
-        rule: allow
-        port: 9100
+    - name: Allow IN node-exporter port
+      nftables_rules:
+        name: k3s
+        input:
+          - tcp dport 6443 accept comment "Accept Kubernetes API"
+          - tcp dport 8443 accept comment "Accept HTTPS ingress"
+          - tcp dport 9100 accept comment "Accept Traefik metrics"
+      notify:
+        - Restart Nftables
 
 - name: Create k8s application service accounts
   block:
@@ -60,7 +59,7 @@
     - name: Download installation script
       ansible.builtin.get_url:
         url: https://get.k3s.io
-        dest: /usr/bin/get-k3s
+        dest: /usr/local/bin/get-k3s
         owner: root
         group: root
         mode: '0755'
@@ -73,7 +72,7 @@
              --disable servicelb
              --tls-san {{ inventory_hostname }}
              --node-name {{ inventory_hostname }}'
-             /usr/bin/get-k3s
+             /usr/local/bin/get-k3s
       changed_when: false
 
 - name: Cluster SSL setting
@@ -81,7 +80,7 @@
     - name: Generate kube CA secret manifest
       ansible.builtin.template:
         src: templates/ca-cluster.yml.j2
-        dest: /etc/ssl/private/ca-cluster.yml
+        dest: '{% if ansible_os_family == "RedHat" %}/etc/pki/tls/private{% else %}/etc/ssl/private{% endif %}/ca-cluster.yml'
         mode: "0600"
         owner: root
         group: root
@@ -100,5 +99,5 @@
           - kubectl
           - apply
           - -f
-          - /etc/ssl/private/ca-cluster.yml
+          - '{% if ansible_os_family == "RedHat" %}/etc/pki/tls/private{% else %}/etc/ssl/private{% endif %}/ca-cluster.yml'
       changed_when: false

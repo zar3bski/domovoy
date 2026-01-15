@@ -4,3 +4,64 @@
 - name: "OS specific docker installation"
   ansible.builtin.include_tasks:
     file: "{{ ansible_os_family | lower }}_tasks.yml"
+
+- name: Copy Docker daemon configuration
+  ansible.builtin.template:
+    src: ../files/daemon.json
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: '0770'
+
+- name: Set IPV4 forwarding
+  block:
+    - name: Copy sysctl config
+      ansible.builtin.template:
+        src: ../files/99-net-ipv4-forwarding.conf
+        dest: /etc/sysctl.d/99-net-ipv4-forwarding.conf
+        owner: root
+        group: root
+        mode: '0770'
+      register: docker_sysctl
+    - name: Reload sysctl
+      ansible.builtin.command:
+        cmd: sysctl --system
+      when: docker_sysctl.changed  # noqa: no-handler
+      changed_when: false
+
+- name: Firewall setting for docker
+  tags:
+    - firewall
+  block:
+    - name: Allow docker forwarding
+      nftables_rules:
+        name: docker
+        forward:
+          - ip saddr 172.30.0.0/16 accept
+          - ip daddr 172.30.0.0/16 accept
+      notify:
+        - Restart Nftables
+
+- name: Set Reload docker rules after nftables restart
+  block:
+    - name: Create override folder
+      ansible.builtin.file:
+        path: /etc/systemd/system/docker.service.d
+        state: directory
+        owner: root
+        group: root
+        mode: '0770'
+    - name: Copy systemd override
+      ansible.builtin.template:
+        src: ../files/override.conf
+        dest: /etc/systemd/system/docker.service.d/override.conf
+        owner: root
+        group: root
+        mode: '0770'
+
+- name: Restart docker service
+  ansible.builtin.systemd_service:
+    state: restarted
+    daemon_reload: true
+    enabled: true
+    name: docker

@@ -1,0 +1,5 @@
+- name: Install common packages
+  ansible.builtin.dnf:
+    name:
+      - python3-libdnf5
+    state: present

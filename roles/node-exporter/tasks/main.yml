@@ -2,35 +2,42 @@
   ansible.builtin.setup:
 
 - name: Install node exporter
-  tags:
-    - observability
   block:
-    - name: Create a node exporter user
+    - name: Create group metrics
+      ansible.builtin.group:
+        name: metrics
+        gid: 62001
+    - name: Create user metrics
       ansible.builtin.user:
         name: metrics
-        create_home: true
-        shell: /bin/rbash  # Restricted shell
+        system: true
+        uid: 62001
+        shell: /sbin/nologin
+        create_home: false
+        home: /nonexistent
+        group: metrics
+        password_lock: true
     - name: Download binary
       ansible.builtin.get_url:
-        dest: /home/metrics
+        dest: /tmp
         mode: '0755'
         owner: metrics
         group: metrics
         url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}\
-              /node_exporter-{{ node_exporter_version }}.linux-{{ 'arm64' if ansible_architecture == 'aarch64' else ansible_architecture }}.tar.gz"
+              /node_exporter-{{  node_exporter_version }}.linux-{{ 'arm64' if ansible_architecture == 'aarch64' else ansible_architecture }}.tar.gz"
     - name: Decompress archive
       ansible.builtin.unarchive:
-        src: "/home/metrics/node_exporter-{{ node_exporter_version }}.linux\
+        src: "/tmp/node_exporter-{{ node_exporter_version }}.linux\
               -{{ 'arm64' if ansible_architecture == 'aarch64' else ansible_architecture }}.tar.gz"
         remote_src: true
-        dest: /home/metrics/
+        dest: /tmp
     - name: Move binary
       ansible.builtin.copy:
-        dest: /usr/bin/node_exporter
-        src: "/home/metrics/node_exporter-{{ node_exporter_version }}.linux\
+        dest: /usr/local/bin/node_exporter
+        src: "/tmp/node_exporter-{{ node_exporter_version }}.linux\
               -{{ 'arm64' if ansible_architecture == 'aarch64' else ansible_architecture }}/node_exporter"
         remote_src: true
-        mode: "0755"
+        mode: "0751"
     - name: Create systemd conf file
       ansible.builtin.template:
         src: templates/node-exporter.service.j2
@@ -39,23 +46,23 @@
     - name: Create node-exporter web config
       ansible.builtin.template:
         src: templates/node-exporter.web.config.j2
-        dest: /home/metrics/node-exporter.web.config
+        dest: /etc/node-exporter.web.config
         mode: '0750'
         owner: metrics
         group: metrics
-    - name: Check if ufw is installed
-      ansible.builtin.stat:
-        path: /usr/sbin/ufw
-      register: which_res
-    - name: Allow inbound trafic to node_exporter
-      community.general.ufw:
-        rule: limit
-        port: "{{ node_exporter_port }}"
-        proto: tcp
-      when: which_res.stat.exists
     - name: Enable and start service
       ansible.builtin.systemd_service:
         state: restarted
         daemon_reload: true
         enabled: true
         name: node-exporter
+
+- name: Allow IN node-exporter port
+  tags:
+    - firewall
+  nftables_rules:
+    name: node-exporter
+    input:
+      - tcp dport {{ node_exporter_port }} accept comment "Accept Node-exporter IN"
+  notify:
+    - Restart Nftables

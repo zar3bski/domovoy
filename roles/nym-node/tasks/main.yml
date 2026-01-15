@@ -27,10 +27,15 @@
   when: ansible_architecture == "aarch64"
 
 - name: Allow Nym trafic to this host
-  community.general.ufw:
-    rule: allow
-    proto: any
-    port: '{{ item }}'
+  tags:
+    - firewall
+  nftables_rules:
+    name: nym
+    input:
+      - tcp dport '{{ item }}' accept comment "Accept Nym-node TCP IN"
+      - udp dport '{{ item }}' accept comment "Accept Nym-node UDP IN"
+  notify:
+    - Restart Nftables
   loop:
     - 1789
     - 1790

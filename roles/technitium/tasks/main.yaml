@@ -28,7 +28,7 @@
     dest: /etc/systemd/system/technitium.service
     mode: '0700'
 
-- name: Set system's DNS servers globally 
+- name: Set system's DNS servers globally
   ansible.builtin.lineinfile:
     path: "/etc/resolv.conf"
     line: 'nameserver {{ item }}'
@@ -41,15 +41,21 @@
     - "{{ ansible_facts['default_ipv4']['address'] }}"
     - "8.8.8.8"
 
-- name: Allow IN ipv4 and ipv6 to 53
-  community.general.ufw:
-    rule: allow
-    port: 53
-
-- name: Allow incoming traffic IN 5380
-  community.general.ufw:
-    rule: allow
-    port: 5380
+- name: Firewall setting for node exporter
+  tags:
+    - firewall
+  block:
+    - name: Allow IN dns port
+      nftables_rules:
+        name: dns
+        input:
+          - udp dport 53 accept comment "Accept DNS IN"
+          - tcp dport 53 accept comment "Accept DNS TCP IN"
+          - tcp dport 5380 accept comment "Accept Technitium Admin Console IN"
+        output:
+          - tcp dport 53 accept comment "Accept DNS TCP OUT"
+      notify:
+        - Restart Nftables
 
 - name: Enable and start service
   ansible.builtin.systemd_service:

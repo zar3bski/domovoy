@@ -39,6 +39,16 @@
     owner: prometheus
     group: prometheus
 
+- name: Allow OUT prometheus port
+  tags:
+    - firewall
+  nftables_rules:
+    name: prometheus
+    output:
+      - tcp dport {{ node_exporter_port }} accept comment "Accept prometheus -> node_exporter OUT"
+  notify:
+    - Restart Nftables
+
 - name: Create prometheus service
   block:
     - name: Create systemd conf file

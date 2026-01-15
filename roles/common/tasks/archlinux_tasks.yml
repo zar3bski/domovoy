@@ -9,27 +9,11 @@
       - acl
       - apparmor
       - htop
-      - iptables
       - kernel-modules-hook
       - knockd
       - uboot-tools
-      - ufw
       - audit
     state: present
-
-- name: Disable iptables service
-  ansible.builtin.systemd_service:
-    state: stopped
-    daemon_reload: true
-    enabled: false
-    name: iptables
-
-- name: Start ufw service
-  ansible.builtin.systemd_service:
-    state: restarted
-    daemon_reload: true
-    enabled: true
-    name: ufw
 
 - name: Trust CA certificate
   block:

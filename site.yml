@@ -9,6 +9,9 @@
   pre_tasks:
     - name: Import pre_tasks
       ansible.builtin.import_tasks: 'roles/common/knocking.yml'
+  handlers:
+    - name: Import common handlers
+      ansible.builtin.import_tasks: 'roles/common/handlers/main.yml'
   roles:
     - common
     - nginx
@@ -22,7 +25,6 @@
 - name: NAS servers
   hosts: nas-servers
   become: true
-  gather_facts: false
   vars_files:
     - ./vault.yml
   vars:
@@ -30,15 +32,19 @@
   pre_tasks:
     - name: Import pre_tasks
       ansible.builtin.import_tasks: 'roles/common/knocking.yml'
+  handlers:
+    - name: Import common handlers
+      ansible.builtin.import_tasks: 'roles/common/handlers/main.yml'
   roles:
-    - openmediavault
+    - common
     - role: node-exporter
       tags: [observability]
+    - role: k3s
+      tags: [k8s]
 
 - name: Lan servers
   hosts: lan-servers
   become: true
-  gather_facts: false
   vars_files:
     - ./vault.yml
   vars:
@@ -46,6 +52,9 @@
   pre_tasks:
     - name: Import pre_tasks
       ansible.builtin.import_tasks: 'roles/common/knocking.yml'
+  handlers:
+    - name: Import common handlers
+      ansible.builtin.import_tasks: 'roles/common/handlers/main.yml'
   roles:
     - common
     - role: node-exporter
@@ -59,8 +68,8 @@
     - gh-runner
     - role: wireguard
       tags: [vpn]
-    - role: k3s
-      tags: [k8s]
+    #- role: k3s
+    #  tags: [k8s]
     - nginx
 
 - name: Dev servers

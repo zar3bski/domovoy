@@ -6,9 +6,14 @@
     file: "{{ ansible_os_family | lower }}_tasks.yml"
 
 - name: Allow incoming traffic IN 443
-  community.general.ufw:
-    rule: allow
-    port: https
+  tags:
+    - firewall
+  nftables_rules:
+    name: nginx
+    input:
+      - tcp dport 443 accept comment "Accept HTTPS IN"
+  notify:
+    - Restart Nftables
 
 - name: Copy Nginx sites conf
   ansible.builtin.template:

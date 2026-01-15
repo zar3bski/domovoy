@@ -5,18 +5,91 @@
   ansible.builtin.include_tasks:
     file: "{{ ansible_os_family | lower }}_tasks.yml"
 
-- name: Set persistent NIC names
-  ansible.builtin.template:
-    src: templates/70-persistent-net.rules.j2
-    dest: /etc/udev/rules.d/70-persistent-net.rules
-    mode: '0755'
+- name: NIC name setting
+  when: nics is defined
+  block:
+    - name: Task name
+      ansible.builtin.stat:
+        path: /etc/udev/rules.d/70-persistent-net.rules
+      register: common_udev_nic_file
+    - name: Set persistent NIC names
+      ansible.builtin.template:
+        src: templates/70-persistent-net.rules.j2
+        dest: /etc/udev/rules.d/70-persistent-net.rules
+        mode: '0755'
+    - name: Please reboot
+      ansible.builtin.debug:
+        msg: >
+          NIC name changed on {{ ansible_host }}, please
+          reboot it before running the playbook again
+      when: not common_udev_nic_file.stat.exists
+    - name: Gracefully stop playbook
+      ansible.builtin.meta: end_play
+      when: not common_udev_nic_file.stat.exists
 
-- name: Allow SSH inbound trafic
-  community.general.ufw:
-    rule: limit
-    port: ssh
-    proto: tcp
-  when: knock_ports is not defined
+- name: Nftables setting
+  tags:
+    - firewall
+  block:
+    - name: Install nftables
+      ansible.builtin.package:
+        name: nftables
+        state: present
+    - name: Create rules folder
+      ansible.builtin.file:
+        path: /etc/nftables.d
+        owner: root
+        group: root
+        mode: '0770'
+        state: directory
+    - name: Load conf from standard location on RedHat systems
+      when: ansible_facts["os_family"] == "RedHat"
+      ansible.builtin.lineinfile:
+        path: /etc/sysconfig/nftables.conf
+        line: 'include "/etc/nftables.conf"'
+    - name: Remove custom conf location on RedHat systems
+      when: ansible_facts["os_family"] == "RedHat"
+      ansible.builtin.file:
+        path: /etc/nftables
+        state: absent
+    - name: Copy main nftables conf
+      ansible.builtin.template:
+        src: templates/nftables.conf.j2
+        dest: /etc/nftables.conf
+        owner: root
+        group: root
+        mode: '0770'
+    - name: Allow DNS, SSH, HTTP, HTTPS
+      nftables_rules:
+        name: base
+        input:
+          - '{% if knock_ports is not defined %}tcp dport 22 accept comment "Accept SSH IN"{% endif %}'
+        output:
+          - udp dport 53 accept comment "Accept DNS OUT"
+          - tcp dport 53 accept comment "Accept DNS OUT"
+          - tcp dport 443 accept comment "Accept HTTPS OUT"
+          - tcp dport 80 accept comment "Accept HTTP OUT"
+          - udp dport 123 accept comment "Accept Network Time Protocol OUT"
+          - udp dport 5353 accept comment "Accept Avahi OUT"
+    - name: Enable and reload nftables
+      ansible.builtin.systemd_service:
+        state: restarted
+        daemon_reload: true
+        enabled: true
+        name: nftables
+    - name: Disable iptables and other frontends
+      loop:
+        - iptables
+        - ufw
+        - firewalld
+      ansible.builtin.systemd_service:
+        name: "{{ item }}"
+        enabled: false
+        state: stopped
+      register: common_stop_firewall_service
+      failed_when:
+        - common_stop_firewall_service.failed == true
+        - '"Could not find the requested service" not in common_stop_firewall_service.msg'
 
 - name: Set port knocking for SSH inbound trafic
   when: knock_ports is defined
@@ -50,18 +123,47 @@
     line: '{{ item }}'
   loop: "{{ ssh_keys | list }}"
 
-- name: Set logging
-  community.general.ufw:
-    state: enabled
-    logging: 'on'
+- name: Set AppArmor
+  when: (ansible_os_family == "Debian" or ansible_os_family == "Archlinux")
+  block:
+    - name: Install apparmor
+      ansible.builtin.package:
+        name: apparmor
+        state: present
+    - name: Enable AppArmor
+      ansible.builtin.systemd_service:
+        state: restarted
+        daemon_reload: true
+        enabled: true
+        name: apparmor
+    - name: Get apparmor status
+      ansible.builtin.systemd_service:
+        name: apparmor
+      register: common_apparmor_status
+    - name: Check that apparmor is running
+      ansible.builtin.assert:
+        that: common_apparmor_status['status']['ActiveState'] == 'active'
 
-- name: Enable AppArmor
-  ansible.builtin.systemd_service:
-    state: restarted
-    daemon_reload: true
-    enabled: true
-    name: apparmor
-
-- name: "Post install"
-  ansible.builtin.include_tasks:
-    file: "post_tasks/main.yml"
+- name: Set SE-Linux
+  when: (ansible_os_family == "RedHat")
+  block:
+    - name: Get SE-Linux status
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          sestatus | grep "SELinux status" | awk '{print $NF}'
+      register: common_selinux_status
+      changed_when: false
+    - name: Check enabled
+      ansible.builtin.assert:
+        that: common_selinux_status.stdout == "enabled"
+    - name: Get SE-Linux mode
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          sestatus | grep "Current mode" | awk '{print $NF}'
+      register: common_selinux_mode
+      changed_when: false
+    - name: Check enabled
+      ansible.builtin.assert:
+        that: common_selinux_mode.stdout == 'enforcing'

@@ -1,0 +1,43 @@
+#!/usr/sbin/nft -f
+
+flush ruleset
+
+define LAN_CIDR4 = 192.168.0.0/16
+define WAN_IF = "eth0"
+
+table inet filter {
+    chain input {
+        type filter hook input priority 0; policy drop;
+        # Allow loopback traffic.
+        iifname lo accept
+        ct state established,related accept
+        icmp type echo-request limit rate 5/second accept  # Allow ping
+
+        include "/etc/nftables.d/input.*.rules"
+
+        log prefix "nftables-INPUT: " #trace dropped traffic (use journalctl -k --grep="INPUT")
+        counter drop #count and drop
+    }
+    chain forward {
+        type filter hook forward priority 0; policy drop;
+        ip saddr $LAN_CIDR4 ip daddr $LAN_CIDR4 icmp type { echo-reply, echo-request} accept comment "allow icmp"
+        include "/etc/nftables.d/forward.*.rules"
+
+        ct state established,related accept
+        counter drop #count and drop
+    }
+    chain output {
+        type filter hook output priority 0; policy drop;
+        # Allow loopback traffic.
+        oifname lo accept
+        ct state established,related accept
+        icmp type echo-request counter accept
+        icmpv6 type echo-request counter accept
+
+        include "/etc/nftables.d/output.*.rules"
+
+        log prefix "nftables-OUTPUT: " #trace dropped traffic (use journalctl -k --grep="OUTPUT")
+        counter drop #count and drop
+    }
+
+}

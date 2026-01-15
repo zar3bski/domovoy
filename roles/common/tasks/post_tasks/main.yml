@@ -1,8 +1,0 @@
-- name: Get apparmor status
-  ansible.builtin.systemd_service:
-    name: apparmor
-  register: apparmor_status
-
-- name: Check that apparmor is running
-  ansible.builtin.assert:
-    that: apparmor_status['status']['ActiveState'] == 'active'
