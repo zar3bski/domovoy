@@ -42,10 +42,12 @@
       when: ansible_facts['distribution'] != "Ubuntu"
     - name: Make sure sure 'iptables' points to nftables
       ansible.builtin.shell:
+        executable: /bin/bash
         cmd: if [[ "$(iptables -V)" == *"nf_tables"* ]]; then echo 'all good'; else echo 'iptables does not use nftables'; exit 1; fi
       changed_when: false
     - name: Make sure sure 'ip6tables' points to nftables
       ansible.builtin.shell:
+        executable: /bin/bash
         cmd: if [[ "$(ip6tables -V)" == *"nf_tables"* ]]; then echo 'all good'; else echo 'ip6tables does not use nftables'; exit 1; fi
       changed_when: false
     - name: Create rules folder
