@@ -29,10 +29,10 @@
       - iifname "cni0" ip daddr {{ ansible_facts['default_ipv4']['address'] }} accept comment "K3S to host communication"
     forward:
       - ip saddr 10.42.0.0/15 ip daddr 10.42.0.0/15 accept comment "K3S internal communication IPv4"
-      - iifname "cni0" oifname "cni0" ip6 nexthdr icmpv6 icmpv6 type {133,134,135,136}
-        accept comment "K3S internal dicovery IPv6"
+      - iifname "cni0" oifname "cni0" accept comment "K3s internal communication IPv4"
     output:
       - ip saddr 10.42.0.0/15 ip daddr 10.42.0.0/15 accept comment "K3S internal communication"
+      - icmpv6 type {135,143} accept comment "K3S outgoing icmpv6"
   notify:
     - Restart Nftables
 
