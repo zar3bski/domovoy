@@ -6,6 +6,11 @@ define LAN_CIDR4 = 192.168.0.0/16
 define WAN_IF = "eth0"
 
 table inet filter {
+    set local4 {
+        type ipv4_addr
+        elements = { 127.0.0.1, {{ ansible_facts['default_ipv4']['address'] }} } 
+    }
+
     chain input {
         type filter hook input priority 0; policy drop;
         # Allow loopback traffic.
@@ -24,12 +29,14 @@ table inet filter {
         include "/etc/nftables.d/forward.*.rules"
 
         ct state established,related accept
+        log prefix "nftables-FORWARD: "
         counter drop #count and drop
     }
     chain output {
         type filter hook output priority 0; policy drop;
         # Allow loopback traffic.
         oifname lo accept
+        ip saddr @local4 ip daddr @local4 accept
         ct state established,related accept
         icmp type echo-request counter accept
         icmpv6 type echo-request counter accept

@@ -35,6 +35,19 @@
       ansible.builtin.package:
         name: nftables
         state: present
+    - name: Install iptables-nft
+      ansible.builtin.package:
+        name: iptables-nft
+        state: present
+      when: ansible_facts['distribution'] != "Ubuntu"
+    - name: Make sure sure 'iptables' points to nftables
+      ansible.builtin.shell:
+        cmd: if [[ "$(iptables -V)" == *"nf_tables"* ]]; then echo 'all good'; else echo 'iptables does not use nftables'; exit 1; fi
+      changed_when: false
+    - name: Make sure sure 'ip6tables' points to nftables
+      ansible.builtin.shell:
+        cmd: if [[ "$(ip6tables -V)" == *"nf_tables"* ]]; then echo 'all good'; else echo 'ip6tables does not use nftables'; exit 1; fi
+      changed_when: false
     - name: Create rules folder
       ansible.builtin.file:
         path: /etc/nftables.d
@@ -77,9 +90,8 @@
         daemon_reload: true
         enabled: true
         name: nftables
-    - name: Disable iptables and other frontends
+    - name: Disable firewall frontends
       loop:
-        - iptables
         - ufw
         - firewalld
       ansible.builtin.systemd_service:
