@@ -7,12 +7,12 @@ resources:
   - css-bitwarden-files.yml
 # Uncomment for manifest generation
 #
-# kustomize build -o external-secret-operator/build.yml --enable-helm ./external-secret-operator
+# kustomize build -o base/external-secret-operator/build.yml --enable-helm ./base/external-secret-operator
 #
 #helmCharts:
 #  - name: external-secrets
 #    repo: https://charts.external-secrets.io
 #    releaseName: helm-chart
 #    namespace: external-secrets
-#    version: 0.18.0
+#    version: 1.2.1
 
