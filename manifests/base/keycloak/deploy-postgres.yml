@@ -15,6 +15,9 @@ spec:
       labels:
         app: postgres
     spec:
+      securityContext:
+        runAsUser: 61001
+        runAsGroup: 61001
       containers:
         - name: postgres
           image: postgres

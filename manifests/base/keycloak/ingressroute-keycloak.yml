@@ -13,3 +13,7 @@ spec:
         - name: keycloak
           namespace: identity
           port: 8080
+  tls:
+    secretName: domain-tls
+    domains:
+      - main: identity.enki.sin:8443
