@@ -1,8 +1,10 @@
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
-metadata: # TODO: labels and annotations
+metadata:
   name: ca-clusterissuer
   namespace: cert-manager
+  labels:
+    app.kubernetes.io/part-of: domovoy
 spec:
   ca:
-    secretName: ca-omv-cluster
+    secretName: ca-cluster

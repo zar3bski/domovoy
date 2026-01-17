@@ -2,4 +2,19 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
+  - build-cert-manager.yml
   - clusterissuer-ca.yml
+
+# Uncomment for manifest generation with
+# kustomize build -o base/cert-manager/build-cert-manager.yml --enable-helm ./base/cert-manager
+# 
+#helmCharts:
+#  - name: cert-manager
+#    repo: https://charts.jetstack.io
+#    releaseName: helm-chart
+#    namespace: cert-manager
+#    version: v1.19.2
+#    valuesInline:
+#      crds:
+#        enabled: true
+
