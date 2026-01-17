@@ -4,7 +4,7 @@ kind: Kustomization
 images:
   - name: saved-path-provisioner
     newName: rancher/local-path-provisioner
-    newTag: v0.0.31
+    newTag: v0.0.34
 
 resources:
   - clusterrole-saved-path-provisioner.yml
