@@ -1,0 +1,11 @@
+resources:
+  - ../../../base/vaultwarden
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+secretGenerator:
+- name: vault-secrets
+  namespace: vaultwarden
+  envs:
+  - secret.env

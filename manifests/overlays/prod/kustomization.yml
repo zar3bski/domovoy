@@ -6,6 +6,7 @@ resources:
   - ../../base/storage
   - ../../base/cert-manager
   - ./seafile
+  - ./vaultwarden
   - ../../base/keycloak
   - ../../base/observability
   - ../../base/media

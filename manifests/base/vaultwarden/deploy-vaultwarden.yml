@@ -16,6 +16,7 @@ spec:
       securityContext:
         runAsUser: 61000
         runAsGroup: 61000
+        fsGroup: 61000
       containers:
         - name: vaultwarden
           image: vaultwarden
@@ -27,10 +28,17 @@ spec:
               cpu: 200m
               memory: 800Mi
           env:
+            - name: LOG_LEVEL
+              value: TRACE
             - name: TZ
               value: Europe/Paris
             - name: SHOW_PASSWORD_HINT
               value: "false"
+            - name: ADMIN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vault-secrets
+                  key: ADMIN_TOKEN
             - name: DOMAIN
               value: https://vault.enki.sin:8443
           volumeMounts:
