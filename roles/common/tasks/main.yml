@@ -83,6 +83,7 @@
           - udp dport 53 accept comment "Accept DNS OUT"
           - tcp dport 53 accept comment "Accept DNS OUT"
           - tcp dport 443 accept comment "Accept HTTPS OUT"
+          - udp dport 67 accept comment "Accept DHCP OUT"
           - tcp dport 80 accept comment "Accept HTTP OUT"
           - udp dport 123 accept comment "Accept Network Time Protocol OUT"
           - udp dport 5353 accept comment "Accept Avahi OUT"
