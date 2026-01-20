@@ -81,10 +81,9 @@ def run_module():
 
     # general logic
     for chain in ["input", "forward", "output"]:
+        path = f"/etc/nftables.d/{chain}.{module.params['name']}.rules"
         if module.params[chain] != []:
             edit = False
-            path = f"/etc/nftables.d/{chain}.{module.params['name']}.rules"
-
             if os.path.exists(path) == False: 
                 edit = True
             else:
@@ -97,7 +96,11 @@ def run_module():
                     file.write("\n".join(module.params[chain])+"\n")
                     result["message"] += f"{path} updated\n"
                     result["changed"] = True
-                
+        else:
+            if os.path.exists(path):
+                os.remove(path)
+                result["message"] += f"{path} remove\n"
+                result["changed"] = True
 
     if result["changed"] == True:
         pass  # TODO: reload service from here
