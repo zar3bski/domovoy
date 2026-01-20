@@ -67,7 +67,7 @@
         enabled: true
         state: restarted
 
-    - name: Allow wireguard traffic IN to this host
+    - name: Allow wireguard traffic IN (SERVER MODE)
       tags:
         - firewall
       with_items: "{{ wireguard.interfaces }}"
@@ -78,11 +78,15 @@
         input:
           - udp dport {{ item.WG_PORT }} accept comment "Accept server {{ item.interface }} IN"
           - tcp dport 9586 accept comment "Accept wireguard exporter IN"
+        forward:
+          - iifname {{ item.interface }} oifname eth0 accept
+        postrouting:
+          - iifname {{ item.interface }} oifname eth0 masquerade
       notify:
         - Restart Nftables
       when: item.WG_PORT is defined
 
-    - name: Allow wireguard traffic IN to this host
+    - name: Allow wireguard traffic OUT (CLIENT MODE)
       tags:
         - firewall
       with_items: "{{ wireguard.interfaces }}"

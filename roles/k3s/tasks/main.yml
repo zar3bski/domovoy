@@ -34,14 +34,11 @@
       - tcp dport 8443 accept comment "Accept HTTPS ingress"
       - tcp dport 9100 accept comment "Accept Traefik metrics"
       - iifname "cni0" ip daddr {{ ansible_facts['default_ipv4']['address'] }} accept comment "K3S to host communication"
-      - icmpv6 type {134,135,136} ip6 saddr fe80::/10 iifname "eth0" accept comment "icmpv6 from local link"
     forward:
-      - ip saddr 10.42.0.0/15 ip daddr 10.42.0.0/15 accept comment "K3S internal communication IPv4"
-      - iifname "cni0" oifname "cni0" accept comment "K3s internal communication IPv4"
-      - udp dport 53 iifname "cni0" oifname "eth0" accept comment "K3s allow access to HostDNS"
+      - iifname "cni0" accept comment "K3s forward from cni0"
+      - oifname "cni0" accept comment "K3s forward to cni0"
     output:
       - ip saddr 10.42.0.0/15 ip daddr 10.42.0.0/15 accept comment "K3S internal communication"
-      - icmpv6 type {133,135,136,143} ip6 daddr {fe80::/10,ff02::/16} accept comment "K3S icmpv6 to local link"
   notify:
     - Restart Nftables
 

@@ -52,8 +52,6 @@
           - udp dport 53 accept comment "Accept DNS IN"
           - tcp dport 53 accept comment "Accept DNS TCP IN"
           - tcp dport 5380 accept comment "Accept Technitium Admin Console IN"
-        output:
-          - tcp dport 53 accept comment "Accept DNS TCP OUT"
       notify:
         - Restart Nftables
 

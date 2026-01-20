@@ -74,11 +74,16 @@
         owner: root
         group: root
         mode: '0770'
+      notify:
+        - Restart Nftables
     - name: Allow DNS, SSH, HTTP, HTTPS
       nftables_rules:
         name: base
         input:
           - '{% if knock_ports is not defined %}tcp dport 22 accept comment "Accept SSH IN"{% endif %}'
+          - icmpv6 type {133,134,135,136,143} ip6 saddr {fe80::/10,ff02::/16} accept comment "ICMPv6 from local link"
+          - icmpv6 type {133,134,135,136,143} ip6 daddr {fe80::/10,ff02::/16} accept comment "ICMPv6 to local link"
+          - ip6 daddr fe80::/64 udp dport dhcpv6-client accept comment "DHCPv6 packets received at a link-local"
         output:
           - udp dport 53 accept comment "Accept DNS OUT"
           - tcp dport 53 accept comment "Accept DNS OUT"
@@ -87,9 +92,14 @@
           - tcp dport 80 accept comment "Accept HTTP OUT"
           - udp dport 123 accept comment "Accept Network Time Protocol OUT"
           - udp dport 5353 accept comment "Accept Avahi OUT"
+          - icmpv6 type {133,134,135,136,143} ip6 saddr {fe80::/10,ff02::/16} accept comment "ICMPv6 from local link"
+          - icmpv6 type {133,134,135,136,143} ip6 daddr {fe80::/10,ff02::/16} accept comment "ICMPv6 to local link"
+          - ip daddr {{ lan_cidr4 }} accept comment "LAN OUT"
+      notify:
+        - Restart Nftables
     - name: Enable and reload nftables
       ansible.builtin.systemd_service:
-        state: restarted
+        state: started
         daemon_reload: true
         enabled: true
         name: nftables

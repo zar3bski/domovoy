@@ -2,14 +2,14 @@
 
 flush ruleset
 
-define LAN_CIDR4 = 192.168.0.0/16
+define LAN_CIDR4 = {{ lan_cidr4 }}
 define WAN_IF = "eth0"
 
 table inet filter {
     set local4 {
         type ipv4_addr
         elements = { 127.0.0.1, {{ ansible_facts['default_ipv4']['address'] }} } 
-}
+    }
 
     chain input {
         type filter hook input priority 0; policy drop;
@@ -20,7 +20,7 @@ table inet filter {
         include "/etc/nftables.d/input.*.rules"
 
         ct state established,related accept
-        log prefix "nftables-INPUT: " #trace dropped traffic (use journalctl -k --grep="INPUT")
+        log prefix "NFTABLES-INPUT: " #trace dropped traffic (use journalctl -k --grep="INPUT")
         counter drop #count and drop
     }
     chain forward {
@@ -29,7 +29,7 @@ table inet filter {
         include "/etc/nftables.d/forward.*.rules"
 
         ct state established,related accept
-        log prefix "nftables-FORWARD: "
+        log prefix "NFTABLES-FORWARD: "
         counter drop #count and drop
     }
     chain output {
@@ -43,8 +43,13 @@ table inet filter {
         include "/etc/nftables.d/output.*.rules"
 
         ct state established,related accept
-        log prefix "nftables-OUTPUT: " #trace dropped traffic (use journalctl -k --grep="OUTPUT")
+        log prefix "NFTABLES-OUTPUT: " #trace dropped traffic (use journalctl -k --grep="OUTPUT")
         counter drop #count and drop
     }
-
+}
+table inet nat {
+    chain postrouting {
+        type nat hook postrouting priority 100; policy accept;
+        include "/etc/nftables.d/postrouting.*.rules"
+    }
 }

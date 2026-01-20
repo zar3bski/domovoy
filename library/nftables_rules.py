@@ -16,7 +16,7 @@ short_description: Set individual nftables rules
 # i.e. the version is of the form "2.5.0" and not "2.4".
 version_added: "1.0.0"
 
-description: Set individual nftables rules in /etc/nftables.d/{input|forward|output}.{name}.rules
+description: Set individual nftables rules in /etc/nftables.d/{input|forward|output|postrouting}.{name}.rules
 
 options:
     name:
@@ -34,6 +34,11 @@ options:
         required: false
         type: list
     output:
+        description:
+            - osef
+        required: false
+        type: list
+    postrouting:
         description:
             - osef
         required: false
@@ -62,6 +67,7 @@ def run_module():
         input=dict(type="list", elements="str", required=False, default=[]),
         forward=dict(type="list", elements="str", required=False, default=[]),
         output=dict(type="list", elements="str", required=False, default=[]),
+        postrouting=dict(type="list", elements="str", required=False, default=[]),
     )
     module = AnsibleModule(argument_spec=module_args, supports_check_mode=True)
 
@@ -80,7 +86,7 @@ def run_module():
         module.exit_json(**result)
 
     # general logic
-    for chain in ["input", "forward", "output"]:
+    for chain in ["input", "forward", "output", "postrouting"]:
         path = f"/etc/nftables.d/{chain}.{module.params['name']}.rules"
         if module.params[chain] != []:
             edit = False
