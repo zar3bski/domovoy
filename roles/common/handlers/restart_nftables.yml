@@ -1,0 +1,22 @@
+- name: Restart Nftables
+  ansible.builtin.systemd_service:
+    state: restarted
+    daemon_reload: true
+    enabled: true
+    name: nftables
+- name: List services
+  ansible.builtin.service_facts:
+- name: Restart docker.service
+  ansible.builtin.systemd_service:
+    state: restarted
+    daemon_reload: true
+    enabled: true
+    name: docker.service
+  when: ansible_facts['services']['docker.service'] is defined
+- name: Restart k3s.service
+  ansible.builtin.systemd_service:
+    state: restarted
+    daemon_reload: true
+    enabled: true
+    name: k3s.service
+  when: ansible_facts['services']['k3s.service'] is defined
