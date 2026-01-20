@@ -1,0 +1,62 @@
+- name: Create /srv if not exists
+  ansible.builtin.file:
+    path: /srv
+    owner: root
+    group: root
+    mode: '0770'
+    state: directory
+
+- name: Mount existing additional BTRFS
+  when: storage.btrfs is defined
+  block:
+    - name: Check btrfs installation
+      ansible.builtin.shell:
+        cmd: btrfs version
+        executable: /bin/sh
+      changed_when: false
+    - name: Create mount points
+      ansible.builtin.file:
+        path: '/srv/{{ item.name }}'
+        owner: root
+        group: root
+        mode: '0775'
+        state: directory
+      loop: '{{ storage.btrfs }}'
+    - name: Edit fstab
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
+        regexp: '^UUID={{ item.uuid }} '
+        line: >
+          UUID={{ item.uuid }} /srv/{{ item.name }} btrfs defaults{% if item.ssd is defined and item.ssd == true %}
+          ,ssd,discard{% endif %},compress=zstd,nodev,nosuid,noexec,nofail,x-systemd.automount 0 0
+      loop: '{{ storage.btrfs }}'
+      notify: Mount Partitions
+    - name: Cron defragment device
+      ansible.builtin.cron:
+        name: defragment {{ item.name }}
+        weekday: "0"
+        minute: "3"
+        hour: "3"
+        user: root
+        job: "/usr/bin/btrfs filesystem defragment -r -czstd /srv/{{ item.name }}"
+        cron_file: btrfs_defragment_{{ item.name }}
+      loop: '{{ storage.btrfs }}'
+    - name: Cron btrfs scrub
+      ansible.builtin.cron:
+        name: scrub {{ item.name }}
+        month: '*'
+        day: "25"
+        minute: "0"
+        hour: "0"
+        user: root
+        job: "/usr/bin/btrfs start scrub /srv/{{ item.name }}"
+        cron_file: btrfs_scrub_{{ item.name }}
+      loop: '{{ storage.btrfs }}'
+    - name: 'Disk Power Management: install hdparm'
+      ansible.builtin.package:
+        name: hdparm
+    - name: 'Disk Power Management: setting'
+      ansible.builtin.include_tasks: hdparm-management.yml
+      loop: '{{ storage.btrfs }}'
+      loop_control:
+        loop_var: btrfs_volume

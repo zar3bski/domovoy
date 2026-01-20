@@ -1,0 +1,35 @@
+- name: 'Disk Power Management: identify physical devices'
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      btrfs filesystem show {{ btrfs_volume.uuid }} | awk '/devid/ {print $NF}' |
+       xargs  -I{} udevadm info --query=all --name={}   |
+       grep 'S: disk/by-id/wwn-' | sed 's:.*/::'
+  register: storage_btrfs_disk_array_uuid
+  changed_when: false
+- name: 'Disk Power Management: physical devices identified'
+  ansible.builtin.debug:
+    msg: "{{ storage_btrfs_disk_array_uuid.stdout_lines }}"
+- name: 'Disk Power Management: Set Power Management setting' # noqa: command-instead-of-shell
+  ansible.builtin.shell:
+    cmd: |
+      hdparm \
+      {% if btrfs_volume.power_setting is defined %}
+       -B {{ btrfs_volume.power_setting }} \
+      {% endif %}
+      {% if btrfs_volume.timeout is defined %}
+       -S {{ btrfs_volume.timeout }} \
+      {% endif %}
+       /dev/disk/by-id/{{ device }}
+  changed_when: false
+  loop: '{{ storage_btrfs_disk_array_uuid.stdout_lines }}'
+  loop_control:
+    loop_var: device
+- name: Set persistent udev rules for hdparm options
+  ansible.builtin.template:
+    src: templates/69-hdparm.rules.j2
+    dest: /etc/udev/rules.d/69-hdparm.rules
+    owner: root
+    group: root
+    mode: '0770'
+

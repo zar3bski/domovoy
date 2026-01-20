@@ -1,0 +1,3 @@
+{% for device in storage_btrfs_disk_array_uuid.stdout_lines %}
+ACTION=="add", SUBSYSTEM=="block", KERNEL=="sd[a-z]", RUN+="/usr/bin/hdparm {% if btrfs_volume.power_setting is defined %}-B {{ btrfs_volume.power_setting }} {% endif %}{% if btrfs_volume.timeout is defined %}-S {{ btrfs_volume.timeout }} {% endif %} /dev/disk/by-id/{{ device }}"
+{% endfor %}

@@ -41,6 +41,10 @@
       tags: [observability]
     - role: k3s
       tags: [k8s]
+    - role: storage
+      tags: [storage]
+    - role: nfs
+      tags: [filesharing]
 
 - name: Lan servers
   hosts: lan-servers
@@ -68,8 +72,6 @@
     - gh-runner
     - role: wireguard
       tags: [vpn]
-    #- role: k3s
-    #  tags: [k8s]
     - nginx
 
 - name: Dev servers

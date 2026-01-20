@@ -1,0 +1,4 @@
+/srv/{{ nfs.volume }}-exports   192.168.1.0/24(ro,all_squash,fsid=0,insecure,no_subtree_check,sync)
+{% for folder in nfs.shared_ro%}
+/srv/{{ nfs.volume }}-exports/{{ folder }}  192.168.1.0/24(ro,nohide,all_squash,insecure,no_subtree_check,sync)
+{% endfor %}

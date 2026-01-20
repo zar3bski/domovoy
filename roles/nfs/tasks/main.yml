@@ -1,0 +1,51 @@
+- name: Install Nfs
+  ansible.builtin.package:
+    name: nfs-utils
+- name: Allow IN nfs port
+  tags:
+    - firewall
+  nftables_rules:
+    name: nfs
+    input:
+      - tcp dport 2049 accept comment "Accept nfs IN"
+  notify:
+    - Restart Nftables
+- name: Create exports folder
+  ansible.builtin.file:
+    path: /srv/{{ nfs.volume }}-exports
+    owner: root
+    group: root
+    mode: '0775'
+    state: directory
+- name: Create mount points
+  ansible.builtin.file:
+    path: /srv/{{ nfs.volume }}-exports/{{ item }}
+    owner: root
+    group: users
+    mode: '0775'
+    state: directory
+  ignore_errors: true # noqa: ignore-errors
+  loop: "{{ nfs.shared_ro }}"
+- name: Edit Fstab
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    regexp: "^/srv/{{ nfs.volume }}/{{ item }}"
+    line: "/srv/{{ nfs.volume }}/{{ item }} /srv/{{ nfs.volume }}-exports/{{ item }} none
+      bind,ro,nofail,x-systemd.automount,x-systemd.requires-mounts-for=/srv/{{ nfs.volume }}  0  0"
+  loop: "{{ nfs.shared_ro }}"
+  notify:
+    - Mount Partitions
+- name: Create exports config
+  ansible.builtin.template:
+    src: templates/main.exports.j2
+    dest: /etc/exports.d/main.exports
+    owner: root
+    group: root
+    mode: '0770'
+- name: Start and enable nfs-server.service
+  ansible.builtin.systemd_service:
+    state: restarted
+    daemon_reload: true
+    enabled: true
+    name: nfs-server.service
+

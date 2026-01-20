@@ -11,7 +11,7 @@ ExecStart=/usr/local/bin/node_exporter \
    --collector.interrupts \
    --collector.processes \
    --collector.tcpstat \
-{% if monitor_btrfs is defined and monitor_btrfs is true %}
+{% if storage.btrfs is defined %}
    --collector.btrfs \
 {% endif %}
    --web.listen-address=:{{ node_exporter_port }}
