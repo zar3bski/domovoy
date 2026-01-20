@@ -42,23 +42,6 @@
       notify:
         - Restart Nftables
 
-- name: Set Reload docker rules after nftables restart
-  block:
-    - name: Create override folder
-      ansible.builtin.file:
-        path: /etc/systemd/system/docker.service.d
-        state: directory
-        owner: root
-        group: root
-        mode: '0770'
-    - name: Copy systemd override
-      ansible.builtin.template:
-        src: ../files/override.conf
-        dest: /etc/systemd/system/docker.service.d/override.conf
-        owner: root
-        group: root
-        mode: '0770'
-
 - name: Restart docker service
   ansible.builtin.systemd_service:
     state: restarted
