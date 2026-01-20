@@ -14,7 +14,7 @@ images:
     newTag: "10.11"
   - name: seafile
     newName: seafileltd/seafile-mc
-    newTag: "13.0.11"
+    newTag: "13.0.15"
   - name: redis
     newName: redis
     newTag: "8.2.1-alpine"

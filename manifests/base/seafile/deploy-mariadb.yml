@@ -13,6 +13,10 @@ spec:
       labels:
         app: mariadb
     spec:
+      securityContext:
+        runAsUser: 61002
+        runAsGroup: 61002
+        fsGroup: 61002
       containers:
         - name: mariadb
           image: mariadb
