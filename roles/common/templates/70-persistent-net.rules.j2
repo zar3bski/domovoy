@@ -1,5 +1,5 @@
-# Modify ATTR{address} with MAC of the network interface and NAME paramter with the new desired name.
+# Set previsible network interface names
 
 {% for nic in nics %}
-SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="{{nic.mac}}", NAME="{{nic.name}}" 
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="{{nic.mac}}", NAME="{{nic.name}}" 
 {% endfor %}
