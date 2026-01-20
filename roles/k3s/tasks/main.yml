@@ -16,6 +16,13 @@
     file: "{{ ansible_distribution | lower }}-{{ k3s_motherboard_family.stdout | lower }}_tasks.yml"
   when: k3s_motherboard_family is succeeded
 
+- name: Copy helper scripts
+  ansible.builtin.copy:
+    src: files/k3s-list-unused-pvc.sh
+    dest: /usr/local/bin/k3s-list-unused-pvc
+    owner: root
+    group: root
+    mode: '0771'
 
 - name: K3s firewall tuning
   tags:
