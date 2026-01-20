@@ -13,22 +13,46 @@ A working **traefik** Ingress controler with its associated CRDs and a default *
 
 ## First deployment
 
-### Import cluster root CA
+### Deploy cert-manager
 
 From the node, **as root**, run
 
 ```shell
-kubectl apply -f /etc/ssl/private/ca-omv-cluster.yml
+kubectl apply -f /etc/ssl/private/ca-cluster.yml
 ```
 
-> To renew the cluster CA, you will need to run `roles/openmediavault` to generate the yml and re-execute the command 
+and install cert-manager
+
+```shell
+kubectl apply -k base/cert-manager
+```
+
+> Because this module also install CRDS, you might get an error about `base/cert-manager/clusterissuer-ca.yml`. Wait a while, re-run the command and it should be OK
+
+Make sure that the cluster issuer is available 
+
+```shell
+kubectl describe clusterissuer ca-clusterissuer -n cert-manager
+```
+
+### Deploy custom storage class 
+
+```shell
+kubectl apply -k ./base/storage
+```
+
+### Deploy traefik
+
+```shell
+kubectl apply -k base/network
+```
 
 ### Deploy the vault
 
 1. Create the namespace
 
 ```shell
-kubectl apply -f ./overlays/prod/vaultwarden/ns-vaultwarden.yml
+kubectl apply -f ./base/vaultwarden/ns-vaultwarden.yml
 ```
 
 2. Create manually the following **secret** 
@@ -45,7 +69,7 @@ data:
   SVC_USER: c2VjcmV0LW1hbmFnZXI=
   SVC_PASSWORD: <some_password_in_base64>
   BW_USERNAME: c2VjcmV0LW1hbmFnZXJAaW5mcmEubGFu
-  BW_PASSWORD: <some_password_in_base64>
+  BW_PASSWORD: <some_password_in_base64> # in case of reused PVC, use the previous password
 kind: Secret
 metadata:
   name: bitwarden-cli
@@ -75,7 +99,7 @@ All infra secrets are pulled by a vaultwarden service account identified by **se
 1. Create the namespace
 
 ```shell
-kubectl apply -f ./overlays/prod/external-secret-operator/ns-external-secrets.yml
+kubectl apply -f ./base/external-secret-operator/ns-external-secrets.yml
 ```
 
 2. Create the secret to access bitwarden-cli
@@ -104,7 +128,7 @@ EOF
 3. Deploy the **external-secret-operator**
 
 ```shell
-kubectl apply -k ./overlays/prod/external-secret-operator
+kubectl apply -k ./base/external-secret-operator
 ```
 
 ### Create the various .env
