@@ -15,14 +15,14 @@ spec:
         app: loki
     spec:
       securityContext:
-        fsGroup: 472
-        supplementalGroups:
-          - 0
+        runAsUser: 61003
+        runAsGroup: 61003
+        fsGroup: 61003
       containers:
         - name: loki-reverse-proxy
           image: loki-reverse-proxy
           ports:
-            - containerPort: 80
+            - containerPort: 8080
               name: http-loki-auth
               protocol: TCP
           resources:

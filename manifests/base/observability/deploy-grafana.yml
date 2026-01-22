@@ -15,9 +15,9 @@ spec:
         app: grafana
     spec:
       securityContext:
-        fsGroup: 472
-        supplementalGroups:
-          - 0
+        runAsUser: 61003
+        runAsGroup: 61003
+        fsGroup: 61003
       initContainers:
         - name: internal-ca-loader
           image: internal-ca-loader

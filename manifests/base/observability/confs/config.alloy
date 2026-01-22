@@ -18,48 +18,6 @@ loki.write "default" {
   }
 }
 
-/// Local logs ///
-   /// Cron Logs ///
-local.file_match "cron_logs" {
-  path_targets = [
-  {
-      __path__  = "/var/host-logs/cron.log",
-      job       = "node/cron",
-      node_name = sys.env("HOSTNAME"),
-      cluster   = "enki",
-  }]
-}
-
-loki.source.file "cron_logs" {
-  targets    = local.file_match.cron_logs.targets
-  forward_to = [loki.write.default.receiver]
-}
-   /// Syslog ///
-local.file_match "syslog" {
-  path_targets = [{
-      __path__  = "/var/host-logs/syslog",
-      job       = "node/syslog",
-      node_name = sys.env("HOSTNAME"),
-      cluster   = "enki",
-  }]
-}
-
-loki.process "syslog" {
-    forward_to = [loki.write.default.receiver]
-    // extract unit name from syslog
-    stage.regex{
-      expression = "^[0-9\\-T:\\.\\+]*\\s\\w*\\s(?<_unit>\\w*)"
-      labels_from_groups = true
-    }
-}
-
-loki.source.file "syslog" {
-  targets = local.file_match.syslog.targets
-  forward_to = [loki.process.syslog.receiver]
-}
-
-/// END Local logs ///
-
 /// K8S logs ///
 
 discovery.kubernetes "pod" {

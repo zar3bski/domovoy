@@ -39,6 +39,8 @@
     - common
     - role: node-exporter
       tags: [observability]
+    - role: alloy
+      tags: [observability]
     - role: k3s
       tags: [k8s]
     - role: storage

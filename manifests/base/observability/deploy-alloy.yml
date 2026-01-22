@@ -36,9 +36,6 @@ spec:
             - mountPath: /etc/alloy/config.alloy
               name: alloy-config
               subPath: config.alloy
-            - mountPath: /var/host-logs
-              name: host-logs
-              readOnly: true
             - mountPath: /var/secrets/PASSWORD
               name: loki-secrets
               subPath: PASSWORD
@@ -46,10 +43,6 @@ spec:
         - name: alloy-config
           configMap:
             name: alloy-config  
-        - name: host-logs
-          hostPath: 
-            path: /var/log
-            type: Directory
         - name: loki-secrets
           secret:
             secretName: loki-secrets
