@@ -1,0 +1,32 @@
+- name: Install dependencies
+  ansible.builtin.apt:
+    pkg:
+      - gpg
+
+- name: Import Grafana keyring
+  block:
+    - name: Copy gpg key
+      ansible.builtin.get_url:
+        dest: /tmp/grafana.key
+        mode: a+r
+        url: https://apt.grafana.com/gpg.key
+    - name: Check whether keyrings has already been imported
+      ansible.builtin.stat:
+        path: /etc/apt/keyrings/grafana.gpg
+      register: alloy_pgp_exists
+    - name: Import key
+      ansible.builtin.command: "gpg --dearmor --yes --output '/etc/apt/keyrings/grafana.gpg' /tmp/grafana.key"
+      when: not alloy_pgp_exists.stat.exists
+      changed_when: false
+
+- name: Add grafana repository # noqa: yaml[line-length]
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/grafana.gpg] \
+           https://apt.grafana.com stable main"
+    state: present
+    filename: grafana.list
+
+- name: Install alloy
+  ansible.builtin.apt:
+    pkg:
+      - alloy

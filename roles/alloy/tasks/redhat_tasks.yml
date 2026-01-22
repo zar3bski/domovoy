@@ -1,0 +1,28 @@
+- name: Install dependencies
+  ansible.builtin.dnf:
+    pkg:
+      - gpg
+
+- name: Import Grafana keyring
+  block:
+    - name: Copy gpg key
+      ansible.builtin.get_url:
+        dest: /tmp/grafana.key
+        mode: a+r
+        url: https://apt.grafana.com/gpg.key
+    - name: Import key
+      ansible.builtin.rpm_key:
+        key: /tmp/grafana.key
+    - name: Set Grafana package repository
+      ansible.builtin.copy:
+        dest: /etc/yum.repos.d/grafana.repo
+        src: files/grafana.repo.yum
+        owner: root
+        group: root
+        mode: '0770'
+
+- name: Install alloy
+  ansible.builtin.yum:
+    update_cache: true
+    name: alloy
+    state: present

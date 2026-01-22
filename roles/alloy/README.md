@@ -3,6 +3,7 @@
 ## Compatible Systems
 
 - Debian based
+- RedHat based
 
 ## Configuration
 
