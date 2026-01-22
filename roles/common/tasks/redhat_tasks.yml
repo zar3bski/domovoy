@@ -3,3 +3,16 @@
     name:
       - python3-libdnf5
     state: present
+
+- name: Trust CA certificate
+  block:
+    - name: Copy ca_cert (if any)
+      ansible.builtin.copy:
+        content: '{{ ca_cert }}'
+        dest: /etc/pki/ca-trust/source/anchors/Internal_CA.crt
+        owner: root
+        mode: '0700'
+      when: ca_cert is defined
+    - name: Update CA certs
+      ansible.builtin.command:
+        cmd: update-ca-trust
