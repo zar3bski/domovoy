@@ -4,6 +4,7 @@ kind: Kustomization
 #- helmchartconfig-traefik.yml
 resources:
   - build-traefik.yml
+  - cm-coredns-custom.yml
   - certificate-wildcard-domain-tls.yml
   - middleware-https-redirect.yml
 
