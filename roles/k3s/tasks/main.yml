@@ -65,6 +65,14 @@
       loop_control:
         index_var: idx
 
+- name: Settings inotify
+  block:
+    - name: Set inotify.max_user_instances
+      ansible.posix.sysctl:
+        name: fs.inotify.max_user_instances
+        value: '256'
+        sysctl_file: /etc/sysctl.d/81-inotify.conf
+        reload: true
 
 - name: Install and configure k3s
   block:
