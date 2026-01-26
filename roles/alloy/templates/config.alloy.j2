@@ -8,6 +8,18 @@ local.file "loki_password" {
   is_secret = true
 }
 
+loki.relabel "journal" {
+  forward_to = []
+  rule {
+    source_labels = ["__journal__systemd_unit"]
+    target_label  = "unit"
+  }
+  rule {
+    source_labels = ["__journal__syslog_identifier"]
+    target_label  = "syslog"
+  }
+}
+
 loki.write "default" {
   endpoint {
     url = "{{ alloy.loki_url }}/api/v1/push"
@@ -20,5 +32,6 @@ loki.write "default" {
 
 loki.source.journal "journalctl" {
   forward_to    = [loki.write.default.receiver]
+  relabel_rules = loki.relabel.journal.rules
   labels        = {node_name = "{{ inventory_hostname }}"}
 }
