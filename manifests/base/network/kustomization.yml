@@ -40,8 +40,7 @@ replacements:
 
 
 # Uncomment for manifest generation with
-# kustomize build -o base/network/build-traefik.yml --enable-helm ./base/network
-# 
+# kustomize build -o base/network/build-traefik.yml --enable-helm ./base/network 
 #helmCharts:
 #  - name: traefik-crds
 #    repo: https://helm.traefik.io/traefik

@@ -11,18 +11,31 @@ deployment:
 
   initContainers:
     - name: ca-loader
-      image: busybox:1.37.0-glibc
-      command: ["sh", "-c", "cp /etc/ssl/ca.crt /data"]
+      image: docker.io/traefik:v3.6.5
+      command: 
+        - "sh"
+        - "-c"
+        - "cat /etc/ssl/ca.crt >> /etc/ssl/certs-custom/ca-certificates.crt &&
+           cat /etc/ssl/certs/ca-certificates.crt >> /etc/ssl/certs-custom/ca-certificates.crt"
       volumeMounts:
         - name: wildcard-domain-tls
           mountPath: /etc/ssl/ca.crt
           subPath: ca.crt
-        - name: data
-          mountPath: /data
+        - name: ca-certificates
+          mountPath: /etc/ssl/certs-custom/
+          
   additionalVolumes:
     - name: wildcard-domain-tls
       secret:
         secretName: wildcard-domain-tls
+    - name: ca-certificates
+      emptyDir: {}
+
+additionalVolumeMounts:
+  - name: ca-certificates
+    mountPath: /etc/ssl/certs/ca-certificates.crt
+    subPath: ca-certificates.crt
+
 ports:
   web:
     port: 8080

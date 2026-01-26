@@ -4114,20 +4114,24 @@ spec:
           name: tmp
         - mountPath: /plugins-storage
           name: plugins
+        - mountPath: /etc/ssl/certs/ca-certificates.crt
+          name: ca-certificates
+          subPath: ca-certificates.crt
       hostNetwork: true
       initContainers:
       - command:
         - sh
         - -c
-        - cp /etc/ssl/ca.crt /data
-        image: busybox:1.37.0-glibc
+        - cat /etc/ssl/ca.crt >> /etc/ssl/certs-custom/ca-certificates.crt && cat
+          /etc/ssl/certs/ca-certificates.crt >> /etc/ssl/certs-custom/ca-certificates.crt
+        image: docker.io/traefik:v3.6.5
         name: ca-loader
         volumeMounts:
         - mountPath: /etc/ssl/ca.crt
           name: wildcard-domain-tls
           subPath: ca.crt
-        - mountPath: /data
-          name: data
+        - mountPath: /etc/ssl/certs-custom/
+          name: ca-certificates
       securityContext:
         runAsGroup: 65532
         runAsNonRoot: true
@@ -4142,6 +4146,8 @@ spec:
       - name: wildcard-domain-tls
         secret:
           secretName: wildcard-domain-tls
+      - emptyDir: {}
+        name: ca-certificates
       - emptyDir: {}
         name: plugins
   updateStrategy:
