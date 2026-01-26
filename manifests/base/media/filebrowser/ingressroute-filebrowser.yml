@@ -17,6 +17,6 @@ spec:
           namespace: media
           port: 80
   tls:
-    secretName: domain-tls
+    secretName: domain-tls-filebrowser
     domains:
       - main: browser.enki.sin

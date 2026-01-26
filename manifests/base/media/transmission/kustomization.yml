@@ -24,9 +24,9 @@ resources:
 configMapGenerator:
   - name: transmission-variables
     namespace: media
-    envs:
-      - .transmission.env
-
+    literals:
+      - TRANSMISSION_DOMAIN=dl.enki.sin
+      - TRANSMISSION_MATCH=Host(`dl.enki.sin`) && PathPrefix(`/`)
 
 replacements:
   - source:

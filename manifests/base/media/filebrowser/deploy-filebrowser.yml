@@ -15,7 +15,8 @@ spec:
     spec:
       securityContext:
         runAsUser: 1000
-        runAsGroup: 33333
+        runAsGroup: 61003
+        fsGroup: 100
       initContainers:
         - name: internal-ca-loader
           image: internal-ca-loader
@@ -66,7 +67,7 @@ spec:
       volumes:
         - name: domain-tls
           secret:
-            secretName: domain-tls
+            secretName: domain-tls-filebrowser
         - name: ca-certificates
         - name: transmission-downloads
           persistentVolumeClaim:
@@ -76,4 +77,4 @@ spec:
             secretName: filebrowser-config
         - name: server-media-files
           hostPath: # FIXME: variabilise
-            path: /srv/dev-disk-by-uuid-7dfc0a29-4dea-4dc7-a911-986ee7f35be6/
+            path: /srv/volume1/

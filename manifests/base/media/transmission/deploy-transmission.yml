@@ -14,8 +14,8 @@ spec:
         app: transmission
     spec:
       securityContext:
-        runAsUser: 65534
-        runAsGroup: 33333
+        runAsUser: 61003
+        runAsGroup: 61003
       initContainers:
         - name: volume-rights-setter
           image: busybox:1.37.0-glibc
@@ -23,7 +23,7 @@ spec:
             - /bin/sh
           args:
             - -c
-            - chown -R 65534:33333 /downloads
+            - chown -R 61003:61003 /downloads
             - chmod 775 /downloads
           volumeMounts:
             - name: transmission-downloads

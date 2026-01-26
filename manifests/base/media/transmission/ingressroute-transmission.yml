@@ -20,6 +20,6 @@ spec:
           namespace: media
           port: 80
   tls:
-    secretName: domain-tls
+    secretName: domain-tls-transmission
     domains:
       - main: <TRANSMISSION_DOMAIN>

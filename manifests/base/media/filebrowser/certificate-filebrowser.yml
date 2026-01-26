@@ -4,7 +4,7 @@ metadata:
   name: filebrowser
   namespace: media
 spec:
-  secretName: domain-tls
+  secretName: domain-tls-filebrowser
   commonName: browser.enki.sin
   dnsNames:
     - browser.enki.sin
