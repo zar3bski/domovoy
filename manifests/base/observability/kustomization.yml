@@ -25,7 +25,7 @@ resources:
   - certificate-observability.yml
   - clusterrole-cluster-monitor.yml
   - clusterrolebinding-cluster-monitor.yml
-  - cm-grafana.yml
+  - cm-grafana-config.yml
   - deploy-alloy.yml
   - deploy-grafana.yml
   - deploy-loki.yml
