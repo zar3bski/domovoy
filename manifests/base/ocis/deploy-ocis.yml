@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ocis
+  namespace: ocis
+  labels:
+    app: ocis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ocis
+  template:
+    metadata:
+      labels:
+        app: ocis
+    spec:
+      securityContext:
+        runAsUser: 61004
+        runAsGroup: 61004
+        fsGroup: 61004
+      initContainers:
+        - name: ocis-init
+          image: ocis-image
+          command: 
+            - "/bin/sh"
+            - "-c"
+            - "cp /init/* /etc/ocis"
+          volumeMounts:
+            - mountPath: /etc/ocis
+              name: ocis-config
+            - mountPath: /init
+              name: ocis-init-config
+      containers:
+        - name: ocis
+          image: ocis-image
+          command:
+            - "/bin/sh"
+            - "-c"
+            - "ocis init || true; exec ocis server" # TODO: cleaner init container
+          env:
+            ####
+            #- name: OCIS_OIDC_ISSUER
+            #  value: https://identity.enki.sin:8443/realms/chaos-computer-clan
+            ####
+            - name: OCIS_ADD_RUN_SERVICES
+              value: ""  #"notifications"
+            - name: OCIS_URL
+              value: https://ocis.enki.sin:8443
+            - name: OCIS_LOG_LEVEL
+              value: warn
+            - name: OCIS_LOG_COLOR
+              value: "false"
+            - name: OCIS_LOG_PRETTY
+              value: "false"
+            - name: PROXY_TLS
+              value: "false"
+            - name: GATEWAY_GRPC_ADDR
+              value: 0.0.0.0:9142
+            - name: OCIS_INSECURE
+              value: "false"
+            - name: PROXY_ENABLE_BASIC_AUTH
+              value: "true"
+            - name: IDM_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ocis-secrets
+                  key: ADMIN_PASSWORD
+            - name: IDM_CREATE_DEMO_USERS
+              value: "true"
+            - name: MICRO_REGISTRY_ADDRESS
+              value: 127.0.0.1:9233
+            - name: NATS_NATS_HOST
+              value: 0.0.0.0
+            - name: NATS_NATS_PORT
+              value: "9233"
+            - name: PROXY_CSP_CONFIG_FILE_LOCATION
+              value: /etc/ocis/csp.yaml
+            - name: COLLABORA_DOMAIN
+              value: collabora.enki.sin # VARIABLE
+            - name: ONLYOFFICE_DOMAIN
+              value: office.enki.sin # VARIABLE
+            - name: COMPANION_DOMAIN
+              value: companion.enki.sin # VARIABLE
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 2000m
+              memory: 2.5Gi
+          ports:
+            - name: grpc
+              containerPort: 9142
+            - name: api
+              containerPort: 9233
+            - name: web
+              containerPort: 9200
+          #readinessProbe:  # TODO: work on probes
+          #  httpGet:
+          #    path: /health/ready
+          #    port: 9000
+          #  initialDelaySeconds: 30
+          volumeMounts:
+            - mountPath: /etc/ocis
+              name: ocis-config
+            - mountPath: /var/lib/ocis
+              name: ocis-data
+            - mountPath: /etc/ssl/certs/Internal_CA.crt
+              name: domain-tls
+              subPath: ca.crt
+      volumes:
+        - name: ocis-init-config
+          configMap:
+            name: ocis-config
+        - name: ocis-data
+          persistentVolumeClaim:
+            claimName: ocis-data
+        - name: ocis-config
+          persistentVolumeClaim:
+            claimName: ocis-config
+        - name: domain-tls
+          secret:
+            secretName: domain-tls

@@ -1,0 +1,16 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ocis
+  namespace: ocis
+spec:
+  secretName: domain-tls
+  commonName: office.enki.sin:8443
+  dnsNames:
+    - office.enki.sin:8443
+    - office.enki.sin
+    - ocis.enki.sin:8443
+    - ocis.enki.sin
+  issuerRef:
+    name: ca-clusterissuer
+    kind: ClusterIssuer

@@ -1,0 +1,30 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+images:
+  - name: ocis-image
+    newName: owncloud/ocis
+    newTag: 7.3.1
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+configMapGenerator:
+  - name: ocis-config
+    namespace: ocis
+    files:
+      - configs/app-registry.yaml
+      - configs/apps.yaml
+      - configs/csp.yaml
+
+resources:
+  - certificate-ocis.yml
+  #- deploy-collaboration.yml
+  - deploy-ocis.yml
+  - es-ocis-secrets.yml
+  - ingressroute-ocis.yml
+  - ns-ocis.yml
+  - pvc-ocis-config.yml
+  - pvc-ocis-data.yml
+#  - svc-collaboration.yml
+  - svc-ocis.yml

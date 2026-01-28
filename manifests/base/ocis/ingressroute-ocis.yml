@@ -1,0 +1,28 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ocis
+  namespace: ocis
+spec:
+  entryPoints:
+    - websecure
+  routes:
+#    - kind: Rule
+#      match: Host(`office.enki.sin`) && PathPrefix(`/`)
+#      services:
+#        - name: collaboration
+#          namespace: ocis
+#          port: 9300
+    - kind: Rule
+      match: Host(`ocis.enki.sin`) && PathPrefix(`/`)
+      services:
+        - name: ocis
+          namespace: ocis
+          port: 9200
+  tls:
+    secretName: domain-tls
+    domains:
+      - main: office.enki.sin:8443
+        sans:
+          - ocis.enki.sin
+          - ocis.enki.sin:8443
