@@ -123,3 +123,38 @@
           - -f
           - '{% if ansible_os_family == "RedHat" %}/etc/pki/tls/private{% else %}/etc/ssl/private{% endif %}/ca-cluster.yml'
       changed_when: false
+
+- name: Set saved PVC archiving
+  when: k3s.pvc_archive_password is defined and storage.btrfs is defined
+  block:
+    - name: Create archive folder on persistent storage
+      ansible.builtin.file:
+        path: /srv/{{ storage.btrfs.0.name }}/saved-pvc
+        owner: root
+        group: root
+        mode: '0770'
+        state: directory
+    - name: Copy archive password
+      ansible.builtin.template:
+        src: templates/archiving_password.j2
+        dest: /root/.archive_password
+        owner: root
+        group: root
+        mode: "0600"
+    - name: Copy archiving script
+      ansible.builtin.copy:
+        src: ./files/k3s-archive-saved-pvc.sh
+        dest: /usr/local/bin/k3s-archive-saved-pvc
+        owner: root
+        group: root
+        mode: "0500"
+    - name: Cron archive PVC
+      ansible.builtin.cron:
+        name: Archive PVC on {{ storage.btrfs.0.name }}
+        month: '*'
+        day: "5"
+        minute: "0"
+        hour: "3"
+        user: root
+        job: "/usr/local/bin/k3s-archive-saved-pvc /srv/{{ storage.btrfs.0.name }}/saved-pvc"
+        cron_file: archive_pvc_on_{{ storage.btrfs.0.name }}
