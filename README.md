@@ -96,10 +96,6 @@ see [roles/nginx/README.md](roles/nginx/README.md) for details
 
 see [roles/gh-runner/README.md](roles/gh-runner/README.md) for details
 
-### Open Media Vault
-
-see [roles/openmediavault/README.md](roles/openmediavault/README.md) for details
-
 ### Technitium
 
 see [roles/technitium/README.md](roles/technitium/README.md) for details
