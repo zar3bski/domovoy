@@ -16,6 +16,8 @@ if [ -z "${DESTINATION}" ]; then
     exit 1
 fi
 
+umask 007
+
 # get execution date
 today=$(date +'%Y-%m-%d')
 # find all PVC handled by the storageClassName 'saved-local-path'

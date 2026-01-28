@@ -147,7 +147,7 @@
         dest: /usr/local/bin/k3s-archive-saved-pvc
         owner: root
         group: root
-        mode: "0500"
+        mode: "0700"
     - name: Cron archive PVC
       ansible.builtin.cron:
         name: Archive PVC on {{ storage.btrfs.0.name }}
