@@ -1,0 +1,23 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: vikunja
+  namespace: vikunja
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`tasks.enki.sin`) && PathPrefix(`/`)
+      observability:
+        accessLogs: true
+        metrics: true
+        tracing: true
+      services:
+        - name: vikunja
+          namespace: vikunja
+          port: 80
+  tls:
+    secretName: domain-tls
+    domains:
+      - main: tasks.enki.sin:8443

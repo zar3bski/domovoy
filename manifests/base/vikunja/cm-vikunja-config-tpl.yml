@@ -1,0 +1,21 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: vikunja-config-tpl
+  namespace: vikunja
+data:
+  config.yml: |
+    auth:
+      openid:
+        enabled: true
+        providers:
+          keycloak:
+            name: keycloak
+            usernamefallback: false
+            emailfallback: true
+            authurl: "{{ .ISSUER }}"
+            logouturl: "{{ .LOGOUT }}"
+            clientid: "{{ .CLIENT_ID }}"
+            clientsecret: "{{ .CLIENT_SECRET }}"
+            scope: openid profile email
+            forceuserinfo: true

@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vikunja
+  namespace: vikunja
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vikunja
+  template:
+    metadata:
+      labels:
+        app: vikunja
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 61005
+        fsGroup: 61005
+      initContainers:
+        - name: ca-cert-updater
+          securityContext:
+            runAsUser: 0
+          image: cert-updater
+          volumeMounts:
+            - mountPath: /etc/ssl/updated-certs
+              name: updated-certs
+            - mountPath: /etc/ssl/internal-ca.crt
+              name: domain-tls
+              subPath: ca.crt
+          command: ["/bin/sh", "-c"]
+          args: 
+            - touch /etc/ssl/updated-certs/ca-certificates.crt;
+              cat /etc/ssl/internal-ca.crt >> /etc/ssl/updated-certs/ca-certificates.crt;
+              cat /etc/ssl/certs/ca-certificates.crt >> /etc/ssl/updated-certs/ca-certificates.crt;
+      containers:
+        - name: vikunja
+          image: vikunja
+          resources:
+            requests:
+              cpu: 50m
+              memory: 50Mi
+            limits:
+              cpu: 200m
+              memory: 200Mi
+          env:
+            - name: VIKUNJA_SERVICE_PUBLICURL
+              value: https://tasks.enki.sin:8443
+          ports:
+            - containerPort: 3456
+          volumeMounts:
+            - name: vikunja-data
+              mountPath: /app/vikunja/files
+              subPath: files
+            - name: vikunja-data
+              mountPath: /db
+              subPath: db
+            - name: vikunja-config
+              mountPath: /app/vikunja/config.yml
+              subPath: config.yml
+            - name: updated-certs
+              mountPath: /etc/ssl/certs/ca-certificates.crt
+              subPath: ca-certificates.crt
+      volumes:
+        - name: vikunja-data
+          persistentVolumeClaim:
+            claimName: vikunja-data
+        - name: vikunja-config
+          secret: 
+            secretName: vikunja-config
+        - name: domain-tls
+          secret: 
+            secretName: domain-tls
+        - name: updated-certs
+          emptyDir: {}

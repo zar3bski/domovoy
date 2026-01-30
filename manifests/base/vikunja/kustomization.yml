@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+images:
+  - name: vikunja
+    newName: vikunja/vikunja
+    newTag: 1.0.0
+  - name: cert-updater
+    newName: alpine
+    newTag: 3.23.3
+
+resources:
+  - certificate-vikunja.yml
+  - cm-vikunja-config-tpl.yml
+  - deploy-vikunja.yml
+  - es-vikunja.yml
+  - ingressroute-vikunja.yml
+  - ns-vikunja.yml
+  - pvc-vikunja-data.yml
+  - svc-vikunja.yml

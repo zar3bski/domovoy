@@ -1,0 +1,38 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: vikunja-secrets
+  namespace: vikunja
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: bitwarden-fields
+    kind: ClusterSecretStore
+  target:
+    name: vikunja-config
+    template:
+      engineVersion: v2
+      templateFrom:
+      - target: Data
+        configMap:
+          name: vikunja-config-tpl
+          items:
+          - key: config.yml
+            templateAs: Values
+  data:
+    - secretKey: CLIENT_ID
+      remoteRef:
+        key: app-vikunja-secrets
+        property: client_id
+    - secretKey: CLIENT_SECRET
+      remoteRef: 
+        key: app-vikunja-secrets
+        property: client_secret
+    - secretKey: ISSUER
+      remoteRef: 
+        key: cluster-oidc
+        property: issuer
+    - secretKey: LOGOUT
+      remoteRef: 
+        key: cluster-oidc
+        property: endsession_endpoint
