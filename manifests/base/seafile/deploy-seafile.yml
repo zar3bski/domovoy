@@ -104,7 +104,7 @@ spec:
               mountPath: "/etc/ssl/certs"
       initContainers:
         - name: debian-update-ca-certs
-          image: seafileltd/seafile-mc:12.0.11
+          image: seafile
           command: ["/bin/bash", "-c"]
           args: # update cert and apply nonsensical rights required by seafile non-root mode
             - update-ca-certificates;
