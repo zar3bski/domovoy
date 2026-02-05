@@ -24,18 +24,18 @@
         owner: metrics
         group: metrics
         url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}\
-              /node_exporter-{{  node_exporter_version }}.linux-{{ 'arm64' if ansible_architecture == 'aarch64' else ansible_architecture }}.tar.gz"
+              /node_exporter-{{  node_exporter_version }}.linux-{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}.tar.gz"
     - name: Decompress archive
       ansible.builtin.unarchive:
         src: "/tmp/node_exporter-{{ node_exporter_version }}.linux\
-              -{{ 'arm64' if ansible_architecture == 'aarch64' else ansible_architecture }}.tar.gz"
+              -{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}.tar.gz"
         remote_src: true
         dest: /tmp
     - name: Move binary
       ansible.builtin.copy:
         dest: /usr/local/bin/node_exporter
         src: "/tmp/node_exporter-{{ node_exporter_version }}.linux\
-              -{{ 'arm64' if ansible_architecture == 'aarch64' else ansible_architecture }}/node_exporter"
+              -{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}/node_exporter"
         remote_src: true
         mode: "0751"
     - name: Create systemd conf file
