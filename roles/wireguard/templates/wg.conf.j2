@@ -20,6 +20,10 @@ AllowedIPs = {{ peer.AllowedIPs }}
 {% if peer.PersistentKeepalive is defined %}
 PersistentKeepalive = {{ peer.PersistentKeepalive }}
 {% endif %}
+{% if peer.PresharedKey is defined %}
+PresharedKey = {{ peer.PresharedKey }}
+{% endif %}
+
 
 {% if peer.Endpoint is defined %}
 Endpoint = {{ peer.Endpoint }}

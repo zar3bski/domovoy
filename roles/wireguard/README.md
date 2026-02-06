@@ -24,6 +24,7 @@ wireguard-servers:
             peers: 
               - name: some_dude
                 PublicKey: <key>
+                PresharedKey: <key> # Optional (post-quantum era)
                 AllowedIPs: 10.10.10.2/32
           - interface: wg1 # Interface conf for client
             IP: 69.69.69.2/24
