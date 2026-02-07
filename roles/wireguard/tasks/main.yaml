@@ -61,12 +61,6 @@
         dest: /usr/share/wireguard/{{ item.interface }}.peers
         mode: '0744'
 
-    - name: Reload AppArmor
-      ansible.builtin.systemd:
-        service: apparmor
-        enabled: true
-        state: restarted
-
     - name: Allow wireguard traffic IN (SERVER MODE)
       tags:
         - firewall
@@ -78,6 +72,7 @@
         input:
           - udp dport {{ item.WG_PORT }} accept comment "Accept server {{ item.interface }} IN"
           - tcp dport 9586 accept comment "Accept wireguard exporter IN"
+          - iifname {{ item.interface }} ip daddr {{ ansible_facts['default_ipv4']['address'] }} accept comment "Accept {{ item.interface }} to lan address"
         forward:
           - iifname {{ item.interface }} oifname eth0 accept
         postrouting:
