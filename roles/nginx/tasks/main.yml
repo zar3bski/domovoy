@@ -15,6 +15,16 @@
   notify:
     - Restart Nftables
 
+- name: Remove Nginx default sites enabled conf
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Remove Nginx default sites available conf
+  ansible.builtin.file:
+    path: /etc/nginx/sites-available/default
+    state: absent
+
 - name: Copy Nginx sites conf
   ansible.builtin.template:
     src: templates/sites.conf.j2
@@ -37,5 +47,3 @@
     daemon_reload: true
     enabled: true
     name: nginx
-
-

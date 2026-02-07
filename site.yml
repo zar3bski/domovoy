@@ -74,7 +74,8 @@
     - gh-runner
     - role: wireguard
       tags: [vpn]
-    - nginx
+    - name: nginx
+      tags: [proxy]
 
 - name: Dev servers
   tags: dev
