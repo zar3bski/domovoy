@@ -8,6 +8,6 @@ resources:
   - ./seafile
   - ./vaultwarden
   - ./network
-  - ../../base/keycloak
+  - ./keycloak
   - ../../base/observability
   - ./media
