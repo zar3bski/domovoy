@@ -1,0 +1,57 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../../base/observability
+  - ../network
+  - es-cluster-oidc-endpoints.yml
+  - es-grafana-secrets.yml
+  - es-loki-secrets.yml
+
+replacements:
+  - source:
+      kind: ConfigMap
+      name: cluster-routes-and-domains
+      fieldPath: data.GRAFANA_ROOT_URL
+    targets:
+      - select:
+          kind: Deployment
+          name: grafana
+        fieldPaths:
+          - spec.template.spec.containers.[name=grafana].env.[name=GF_SERVER_ROOT_URL].value
+  - source:
+      kind: ConfigMap
+      name: cluster-routes-and-domains
+      fieldPath: data.GRAFANA_MATCH
+    targets:
+      - select:
+          kind: IngressRoute
+          name: observability
+        fieldPaths:
+          - spec.routes.0.match
+  - source:
+      kind: ConfigMap
+      name: cluster-routes-and-domains
+      fieldPath: data.LOKI_MATCH
+    targets:
+      - select:
+          kind: IngressRoute
+          name: observability
+        fieldPaths:
+          - spec.routes.1.match
+  - source:
+      kind: ConfigMap
+      name: cluster-routes-and-domains
+      fieldPath: data.GRAFANA_DOMAIN
+    targets:
+      - select:
+          kind: IngressRoute
+          name: observability
+        fieldPaths:
+          - spec.tls.domains.0.main
+      - select:
+          kind: Certificate
+          name: observability
+        fieldPaths:
+          - spec.commonName
+          - spec.dnsNames.0

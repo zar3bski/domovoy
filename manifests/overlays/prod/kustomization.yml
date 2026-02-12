@@ -3,11 +3,14 @@ kind: Kustomization
 
 resources:
   - ./external-secret-operator
-  - ../../base/storage
+  - ../../base/storage # TODO
   - ./cert-manager
-  - ./seafile
-  - ./vaultwarden
-  - ./network
+  - ./seafile # TODO
+  - ./vaultwarden # TODO
+  - ./network # TODO
   - ./keycloak
-  - ../../base/observability
+  - .observability
   - ./media
+  - ./ocis # TODO
+  - ./vikunja # TODO
+  - ./searxng # verifier()

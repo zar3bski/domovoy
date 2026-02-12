@@ -14,7 +14,6 @@ spec:
       labels:
         app: alloy
     spec:
-      hostname: enki-alloy
       serviceAccountName: alloy
       securityContext:
         fsGroup: 473
@@ -31,8 +30,13 @@ spec:
             limits:
               cpu: 200m
               memory: 400Mi
-          env: []
-          volumeMounts: 
+          env:
+            - name: CLUSTER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-secrets
+                  key: CLUSTER_NAME
+          volumeMounts:
             - mountPath: /etc/alloy/config.alloy
               name: alloy-config
               subPath: config.alloy
@@ -42,7 +46,7 @@ spec:
       volumes:
         - name: alloy-config
           configMap:
-            name: alloy-config  
+            name: alloy-config
         - name: loki-secrets
           secret:
             secretName: loki-secrets
