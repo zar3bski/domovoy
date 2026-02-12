@@ -5,10 +5,9 @@ metadata:
   namespace: media
 spec:
   secretName: domain-tls-filebrowser
-  commonName: browser.enki.sin
+  commonName: <FILEBROWSER_DOMAIN>
   dnsNames:
-    - browser.enki.sin
-    - browser.enki.sin:8443
+    - <FILEBROWSER_DOMAIN>
   issuerRef:
     name: ca-clusterissuer
     kind: ClusterIssuer

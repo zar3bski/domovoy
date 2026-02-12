@@ -1,13 +1,32 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+images:
+  - name: filebrowser
+    newName: gtstef/filebrowser
+    newTag: 1.0.1-stable-slim
+  - name: internal-ca-loader
+    newName: alpine/openssl
+    newTag: "3.3.3"
+  - name: transmission
+    newName: lscr.io/linuxserver/transmission
+    newTag: 4.0.6-r4-ls296
+
 generatorOptions:
   disableNameSuffixHash: true
 
 resources:
-  - es-cluster-variables.yml
+  - certificate-filebrowser.yml
+  - certificate-transmission.yml
+  - deploy-filebrowser.yml
+  - deploy-transmission.yml
+  - ingressroute-filebrowser.yml
+  - ingressroute-transmission.yml
+  - middleware-oidc-transmission.yml
   - ns-media.yml
   - pv-downloads.yml
+  - pvc-transmission-config.yml
   - pvc-transmission-downloads.yml
-  - transmission
-  - filebrowser
+  - svc-filebrowser.yml
+  - svc-transmission-torrent.yml
+  - svc-transmission.yml

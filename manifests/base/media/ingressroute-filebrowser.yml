@@ -8,7 +8,7 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`browser.enki.sin`) && PathPrefix(`/`)
+      match: <FILEBROWSER_MATCH>
       observability:
         accessLogs: true
         metrics: true
@@ -19,4 +19,4 @@ spec:
   tls:
     secretName: domain-tls-filebrowser
     domains:
-      - main: browser.enki.sin
+      - main: <FILEBROWSER_DOMAIN>
