@@ -1,0 +1,20 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: searxng
+  namespace: searxng
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: <SEARXNG_MATCH>
+      services:
+        - name: searxng
+          namespace: searxng
+          port: 80
+  tls:
+    secretName: domain-tls
+    domains:
+      - main: <SEARXNG_DOMAIN>
+

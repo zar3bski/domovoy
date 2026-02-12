@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: searxng
+  name: searxng
+  namespace: searxng
+spec:
+  selector:
+    matchLabels:
+      app: searxng
+  template:
+    metadata:
+      labels:
+        app: searxng
+    spec:
+      securityContext:
+        runAsUser: 61006
+        runAsGroup: 61006
+        fsGroup: 61006
+      containers:
+        - name: searxng
+          image: searxng
+          ports:
+            - containerPort: 8080
+              name: http-searxng
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 50m
+              memory: 100Mi
+            limits:
+              cpu: 400m
+              memory: 400Mi
+          env:
+            - name: SEARXNG_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: searxng-secrets
+                  key: SECRET_KEY
+          volumeMounts:
+            - mountPath: /etc/searxng
+              name: searxng-config
+            - mountPath: /var/cache/searxng
+              name: searxng-data
+      volumes:
+        - name: searxng-config
+          configMap:
+            name: searxng
+        - name: searxng-data
+          persistentVolumeClaim:
+            claimName: searxng

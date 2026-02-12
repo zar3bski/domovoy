@@ -1,0 +1,41 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../../base/searxng
+  - ../network
+  - es-searxng-secrets.yml
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+replacements:
+  - source:
+      kind: ConfigMap
+      name: cluster-routes-and-domains
+      fieldPath: data.SEARXNG_DOMAIN
+    targets:
+      - select:
+          kind: Certificate
+          name: searxng
+          namespace: searxng
+        fieldPaths:
+          - spec.commonName
+          - spec.dnsNames.0
+      - select:
+          kind: IngressRoute
+          name: searxng
+          namespace: searxng
+        fieldPaths:
+          - spec.tls.domains.0.main
+  - source:
+      kind: ConfigMap
+      name: cluster-routes-and-domains
+      fieldPath: data.SEARXNG_MATCH
+    targets:
+      - select:
+          kind: IngressRoute
+          name: searxng
+          namespace: searxng
+        fieldPaths:
+          - spec.routes.0.match

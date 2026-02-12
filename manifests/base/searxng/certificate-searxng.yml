@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: searxng
+  namespace: searxng
+spec:
+  secretName: domain-tls
+  commonName: <SEARXNG_DOMAIN>
+  dnsNames:
+    - <SEARXNG_DOMAIN>
+  issuerRef:
+    name: ca-clusterissuer
+    kind: ClusterIssuer
