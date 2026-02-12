@@ -16,4 +16,4 @@ spec:
   tls:
     secretName: domain-tls
     domains:
-      - main: identity.enki.sin:8443
+      - main: <KEYCLOAK_DOMAIN>

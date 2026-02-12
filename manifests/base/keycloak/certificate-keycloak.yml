@@ -5,10 +5,9 @@ metadata:
   namespace: identity
 spec:
   secretName: domain-tls
-  commonName: identity.enki.sin:8443
+  commonName: <KEYCLOAK_DOMAIN>
   dnsNames:
-    - identity.enki.sin:8443
-    - identity.enki.sin
+    - <KEYCLOAK_DOMAIN>
   issuerRef:
     name: ca-clusterissuer
     kind: ClusterIssuer

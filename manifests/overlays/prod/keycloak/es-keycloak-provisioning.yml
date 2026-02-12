@@ -38,6 +38,10 @@ spec:
       remoteRef:
         key: app-keycloak-provisioning
         property: client-filebrowser.json
+    - secretKey: client-vikunja.json
+      remoteRef:
+        key: app-keycloak-provisioning
+        property: client-vikunja.json
     - secretKey: realm-export.json
       remoteRef:
         key: app-keycloak-provisioning

@@ -20,36 +20,14 @@ resources:
   - cm-keycloak-main.yml
   - deploy-keycloak.yml
   - deploy-postgres.yml
-  - es-keycloak-secrets.yml
-  - es-keycloak-provisioning.yml
-  - es-postgres-secrets.yml
   - ingressroute-keycloak.yml
   - ns-identity.yml
   - pvc-postgres.yml
   - svc-keycloak.yml
   - svc-postgres.yml
 
-
 configMapGenerator:
-  - name: keycloak-variables
-    namespace: identity
-    envs:
-      - .keycloack.env
   - name: keycloak-provisioning
     namespace: identity
     files:
       - provisioning/provisioning.py
-
-replacements:
-  - source:
-      kind: ConfigMap
-      version: v1
-      name: keycloak-variables
-      namespace: identity
-      fieldPath: data.KEYCLOAK_MATCH
-    targets:
-      - select:
-          kind: IngressRoute
-          name: keycloak
-        fieldPaths:
-          - spec.routes.0.match
