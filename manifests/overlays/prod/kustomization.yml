@@ -12,5 +12,5 @@ resources:
   - .observability
   - ./media
   - ./ocis # TODO
-  - ./vikunja # TODO
-  - ./searxng # verifier()
+  - ./vikunja
+  - ./searxng

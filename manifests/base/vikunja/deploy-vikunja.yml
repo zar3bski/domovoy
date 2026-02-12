@@ -29,7 +29,7 @@ spec:
               name: domain-tls
               subPath: ca.crt
           command: ["/bin/sh", "-c"]
-          args: 
+          args:
             - touch /etc/ssl/updated-certs/ca-certificates.crt;
               cat /etc/ssl/internal-ca.crt >> /etc/ssl/updated-certs/ca-certificates.crt;
               cat /etc/ssl/certs/ca-certificates.crt >> /etc/ssl/updated-certs/ca-certificates.crt;
@@ -45,7 +45,7 @@ spec:
               memory: 200Mi
           env:
             - name: VIKUNJA_SERVICE_PUBLICURL
-              value: https://tasks.enki.sin:8443
+              value: <VIKUNJA_URL>
           ports:
             - containerPort: 3456
           volumeMounts:
@@ -66,10 +66,10 @@ spec:
           persistentVolumeClaim:
             claimName: vikunja-data
         - name: vikunja-config
-          secret: 
+          secret:
             secretName: vikunja-config
         - name: domain-tls
-          secret: 
+          secret:
             secretName: domain-tls
         - name: updated-certs
           emptyDir: {}

@@ -1,0 +1,49 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../../base/vikunja
+  - ../network
+  - es-vikunja.yml
+
+replacements:
+  - source:
+      kind: ConfigMap
+      name: cluster-routes-and-domains
+      fieldPath: data.VIKUNJA_DOMAIN
+    targets:
+      - select:
+          kind: Certificate
+          name: vikunja
+          namespace: vikunja
+        fieldPaths:
+          - spec.commonName
+          - spec.dnsNames.0
+      - select:
+          kind: IngressRoute
+          name: vikunja
+          namespace: vikunja
+        fieldPaths:
+          - spec.tls.domains.0.main
+  - source:
+      kind: ConfigMap
+      name: cluster-routes-and-domains
+      fieldPath: data.VIKUNJA_MATCH
+    targets:
+      - select:
+          kind: IngressRoute
+          name: vikunja
+          namespace: vikunja
+        fieldPaths:
+          - spec.routes.0.match
+  - source:
+      kind: ConfigMap
+      name: cluster-routes-and-domains
+      fieldPath: data.VIKUNJA_URL
+    targets:
+      - select:
+          kind: Deployment
+          name: vikunja
+          namespace: vikunja
+        fieldPaths:
+          - spec.template.spec.containers.[name=vikunja].env.[name=VIKUNJA_SERVICE_PUBLICURL].value

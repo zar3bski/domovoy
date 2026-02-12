@@ -5,10 +5,9 @@ metadata:
   namespace: vikunja
 spec:
   secretName: domain-tls
-  commonName: tasks.enki.sin
+  commonName: <VIKUNJA_DOMAIN>
   dnsNames:
-    - tasks.enki.sin
-    - tasks.enki.sin:8443
+    - <VIKUNJA_DOMAIN>
   issuerRef:
     name: ca-clusterissuer
     kind: ClusterIssuer

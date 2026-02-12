@@ -8,7 +8,7 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`tasks.enki.sin`) && PathPrefix(`/`)
+      match: <VIKUNJA_MATCH>
       observability:
         accessLogs: true
         metrics: true
@@ -20,4 +20,4 @@ spec:
   tls:
     secretName: domain-tls
     domains:
-      - main: tasks.enki.sin:8443
+      - main: <VIKUNJA_DOMAIN>

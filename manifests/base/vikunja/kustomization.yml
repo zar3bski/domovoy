@@ -16,7 +16,6 @@ resources:
   - certificate-vikunja.yml
   - cm-vikunja-config-tpl.yml
   - deploy-vikunja.yml
-  - es-vikunja.yml
   - ingressroute-vikunja.yml
   - ns-vikunja.yml
   - pvc-vikunja-data.yml
