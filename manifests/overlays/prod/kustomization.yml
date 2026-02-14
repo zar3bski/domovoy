@@ -3,7 +3,7 @@ kind: Kustomization
 
 resources:
   - ./external-secret-operator
-  - ../../base/storage # TODO
+  - ./storage
   - ./cert-manager
   - ./seafile # TODO
   - ./vaultwarden

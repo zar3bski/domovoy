@@ -1,0 +1,10 @@
+resources:
+  - ../../../base/storage
+
+images:
+  - name: saved-path-provisioner
+    newName: rancher/local-path-provisioner
+    newTag: v0.0.34
+
+generatorOptions:
+  disableNameSuffixHash: true
