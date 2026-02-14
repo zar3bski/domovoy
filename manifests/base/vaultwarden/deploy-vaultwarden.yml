@@ -40,7 +40,7 @@ spec:
                   name: vault-secrets
                   key: ADMIN_TOKEN
             - name: DOMAIN
-              value: https://vault.enki.sin:8443
+              value: <VAULTWARDEN_URL>
           volumeMounts:
             - name: vaultwarden-data
               mountPath: /data
@@ -120,5 +120,5 @@ spec:
           persistentVolumeClaim:
             claimName: vaultwarden-data
         - name: domain-tls
-          secret: 
+          secret:
             secretName: domain-tls

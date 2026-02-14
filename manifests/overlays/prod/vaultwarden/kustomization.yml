@@ -1,11 +1,54 @@
 resources:
   - ../../../base/vaultwarden
+  - ../network
 
 generatorOptions:
   disableNameSuffixHash: true
 
 secretGenerator:
-- name: vault-secrets
-  namespace: vaultwarden
-  envs:
-  - secret.env
+  - name: vault-secrets
+    namespace: vaultwarden
+    envs:
+      - secret.env
+
+replacements:
+  - source:
+      kind: ConfigMap
+      name: cluster-routes-and-domains
+      fieldPath: data.VAULTWARDEN_DOMAIN
+    targets:
+      - select:
+          kind: Certificate
+          name: vaultwarden
+          namespace: vaultwarden
+        fieldPaths:
+          - spec.commonName
+          - spec.dnsNames.0
+      - select:
+          kind: IngressRoute
+          name: vaultwarden
+          namespace: vaultwarden
+        fieldPaths:
+          - spec.tls.domains.0.main
+  - source:
+      kind: ConfigMap
+      name: cluster-routes-and-domains
+      fieldPath: data.VAULTWARDEN_MATCH
+    targets:
+      - select:
+          kind: IngressRoute
+          name: vaultwarden
+          namespace: vaultwarden
+        fieldPaths:
+          - spec.routes.0.match
+  - source:
+      kind: ConfigMap
+      name: cluster-routes-and-domains
+      fieldPath: data.VAULTWARDEN_URL
+    targets:
+      - select:
+          kind: Deployment
+          name: vaultwarden
+          namespace: vaultwarden
+        fieldPaths:
+          - spec.template.spec.containers.[name=vaultwarden].env.[name=DOMAIN].value

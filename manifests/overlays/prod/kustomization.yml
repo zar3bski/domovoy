@@ -6,7 +6,7 @@ resources:
   - ../../base/storage # TODO
   - ./cert-manager
   - ./seafile # TODO
-  - ./vaultwarden # TODO
+  - ./vaultwarden
   - ./network # TODO
   - ./keycloak
   - .observability

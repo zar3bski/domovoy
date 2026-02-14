@@ -5,10 +5,9 @@ metadata:
   namespace: vaultwarden
 spec:
   secretName: domain-tls
-  commonName: vault.enki.sin
+  commonName: <VAULTWARDEN_DOMAIN>
   dnsNames:
-    - vault.enki.sin
-    - vault.enki.sin:8443
+    - <VAULTWARDEN_DOMAIN>
   issuerRef:
     name: ca-clusterissuer
     kind: ClusterIssuer
