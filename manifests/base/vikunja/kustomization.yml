@@ -7,7 +7,7 @@ generatorOptions:
 images:
   - name: vikunja
     newName: vikunja/vikunja
-    newTag: 1.0.0
+    newTag: 1.1.0
   - name: cert-updater
     newName: alpine
     newTag: 3.23.3

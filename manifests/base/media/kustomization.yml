@@ -10,7 +10,7 @@ images:
     newTag: "3.3.3"
   - name: transmission
     newName: lscr.io/linuxserver/transmission
-    newTag: 4.0.6-r4-ls296
+    newTag: 4.1.0
 
 generatorOptions:
   disableNameSuffixHash: true
