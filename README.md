@@ -8,7 +8,7 @@ Home infrastructure for nerds envisioning to live off grid. Most daily services 
 ### Create a virtual environment and activate it
 
 ```shell
-python -m venv .ASI_VENV
+python -m venv --copies .ASI_VENV
 source ./.ASI_VENV/bin/activate
 ```
 
