@@ -1,0 +1,642 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/instance: openbao
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openbao
+    helm.sh/chart: openbao-0.26.1
+  name: openbao
+  namespace: openbao
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/instance: openbao
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openbao-agent-injector
+  name: openbao-agent-injector
+  namespace: openbao
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/instance: openbao
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openbao-agent-injector
+  name: openbao-agent-injector-clusterrole
+rules:
+- apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - mutatingwebhookconfigurations
+  verbs:
+  - get
+  - list
+  - watch
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/instance: openbao
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openbao-agent-injector
+  name: openbao-agent-injector-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: openbao-agent-injector-clusterrole
+subjects:
+- kind: ServiceAccount
+  name: openbao-agent-injector
+  namespace: openbao
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/instance: openbao
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openbao
+    helm.sh/chart: openbao-0.26.1
+  name: openbao-server-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+- kind: ServiceAccount
+  name: openbao
+  namespace: openbao
+---
+apiVersion: v1
+data:
+  extraconfig-from-values.hcl: |2-
+
+    ui = true
+    log_level = "info"
+
+    initialize "identity" {
+      request "add-superuser-policy" {
+        operation = "update"
+        path = "sys/policies/acl/superuser"
+        data = {
+          policy = "path \"*\" { capabilities = [\"create\", \"read\", \"update\", \"delete\", \"list\", \"sudo\"] }"
+        }
+      }
+
+      request "enable-userpass" {
+        operation = "update"
+        path = "sys/auth/userpass"
+        data = {
+          type = "userpass"
+          description = "Username/password authentication"
+        }
+      }
+
+      request "userpass-add-admin" {
+        operation = "update"
+        path = "auth/userpass/users/admin"
+        data = {
+          "password" = {
+             eval_type = "string"
+             eval_source = "file"
+             path = "/var/run/secrets/openbao/admin_password"
+          }
+          policies = ["superuser"]
+        }
+      }
+    }
+
+    initialize "cluster-access" {
+      request "add-cluster_reader-policy" {
+        operation = "update"
+        path = "sys/policies/acl/cluster_reader"
+        data = {
+          policy = "path \"cluster/\" { capabilities = [\"read\", \"list\"] }"
+        }
+      }
+
+      request "enable-kubernetes-auth-method" {
+        operation = "update"
+        path = "sys/auth/kubernetes"
+        data = {
+          type = "kubernetes",
+          description = "Login with a kube service account from a trusted cluster"
+        }
+      }
+
+      request "configure-kube-auth" {
+        operation = "update"
+        path = "auth/kubernetes/config"
+        data = {
+          kubernetes_host = "https://kubernetes.default.svc.cluster.local"
+        }
+      }
+
+      request "bind-cluster_reader-to_kube-auth" {
+        operation = "update"
+        path = "auth/kubernetes/role/cluster_reader"
+        data = {
+          bound_service_account_names = "external-secret-manager"
+          bound_service_account_namespaces = "external-secrets"
+          alias_name_source = "serviceaccount_name"
+          token_policies = ["cluster_reader"]
+        }
+      }
+    }
+
+    initialize "secrets-collections" {
+      request "create-cluster-secret-collection" {
+        operation = "update"
+        path = "sys/mounts/cluster"
+        data = {
+          type = "kv"
+          options = {
+            version = "2"
+          }
+        }
+      }
+    }
+
+
+    listener "tcp" {
+      tls_disable = 1
+      address = "[::]:8200"
+      cluster_address = "[::]:8201"
+      # TODO: use certs to use TLS
+      # tls_cert_file
+      # tls_key_file
+    }
+
+    audit "file" "to-stdout" {
+      description = "This audit device should never fail."
+      options {
+        file_path = "/dev/stdout"
+        log_raw = "true"
+      }
+    }
+
+    #storage "raft"
+    storage "file" {
+        path = "/data"
+      }
+
+    # openbao.org/docs/configuration/seal/
+    seal "static" {
+      current_key_id = "20260314-1"
+      current_key = "file:///data/secrets/unseal-20260314-1.key"
+    }
+    #service_registration "kubernetes" {}
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: openbao
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openbao
+    helm.sh/chart: openbao-0.26.1
+  name: openbao-config
+  namespace: openbao
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: openbao
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openbao
+    helm.sh/chart: openbao-0.26.1
+  name: openbao
+  namespace: openbao
+spec:
+  ports:
+  - appProtocol: HTTP
+    name: http
+    port: 8200
+    targetPort: 8200
+  - name: https-internal
+    port: 8201
+    targetPort: 8201
+  publishNotReadyAddresses: true
+  selector:
+    app.kubernetes.io/instance: openbao
+    app.kubernetes.io/name: openbao
+    component: server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: openbao
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openbao-agent-injector
+  name: openbao-agent-injector-svc
+  namespace: openbao
+spec:
+  ports:
+  - name: https
+    port: 443
+    targetPort: 8080
+  selector:
+    app.kubernetes.io/instance: openbao
+    app.kubernetes.io/name: openbao-agent-injector
+    component: webhook
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: openbao
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openbao
+    helm.sh/chart: openbao-0.26.1
+    openbao-internal: "true"
+  name: openbao-internal
+  namespace: openbao
+spec:
+  clusterIP: None
+  ports:
+  - appProtocol: HTTP
+    name: http
+    port: 8200
+    targetPort: 8200
+  - name: https-internal
+    port: 8201
+    targetPort: 8201
+  publishNotReadyAddresses: true
+  selector:
+    app.kubernetes.io/instance: openbao
+    app.kubernetes.io/name: openbao
+    component: server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/instance: openbao
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openbao-agent-injector
+    component: webhook
+  name: openbao-agent-injector
+  namespace: openbao
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: openbao
+      app.kubernetes.io/name: openbao-agent-injector
+      component: webhook
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: openbao
+        app.kubernetes.io/name: openbao-agent-injector
+        component: webhook
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app.kubernetes.io/instance: openbao
+                app.kubernetes.io/name: openbao-agent-injector
+                component: webhook
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - args:
+        - agent-inject
+        - 2>&1
+        env:
+        - name: AGENT_INJECT_LISTEN
+          value: :8080
+        - name: AGENT_INJECT_LOG_LEVEL
+          value: info
+        - name: AGENT_INJECT_VAULT_ADDR
+          value: http://openbao.openbao.svc:8200
+        - name: AGENT_INJECT_VAULT_AUTH_PATH
+          value: auth/kubernetes
+        - name: AGENT_INJECT_VAULT_IMAGE
+          value: quay.io/openbao/openbao:2.5.1
+        - name: AGENT_INJECT_TLS_AUTO
+          value: openbao-agent-injector-cfg
+        - name: AGENT_INJECT_TLS_AUTO_HOSTS
+          value: openbao-agent-injector-svc,openbao-agent-injector-svc.openbao,openbao-agent-injector-svc.openbao.svc
+        - name: AGENT_INJECT_LOG_FORMAT
+          value: standard
+        - name: AGENT_INJECT_REVOKE_ON_SHUTDOWN
+          value: "false"
+        - name: AGENT_INJECT_CPU_REQUEST
+          value: 250m
+        - name: AGENT_INJECT_CPU_LIMIT
+          value: 500m
+        - name: AGENT_INJECT_MEM_REQUEST
+          value: 64Mi
+        - name: AGENT_INJECT_MEM_LIMIT
+          value: 128Mi
+        - name: AGENT_INJECT_DEFAULT_TEMPLATE
+          value: map
+        - name: AGENT_INJECT_TEMPLATE_CONFIG_EXIT_ON_RETRY_FAILURE
+          value: "true"
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        image: docker.io/hashicorp/vault-k8s:1.7.2
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /health/ready
+            port: 8080
+            scheme: HTTPS
+          initialDelaySeconds: 5
+          periodSeconds: 2
+          successThreshold: 1
+          timeoutSeconds: 5
+        name: sidecar-injector
+        readinessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /health/ready
+            port: 8080
+            scheme: HTTPS
+          initialDelaySeconds: 5
+          periodSeconds: 2
+          successThreshold: 1
+          timeoutSeconds: 5
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        startupProbe:
+          failureThreshold: 12
+          httpGet:
+            path: /health/ready
+            port: 8080
+            scheme: HTTPS
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 5
+      hostNetwork: false
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 100
+      serviceAccountName: openbao-agent-injector
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/instance: openbao
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openbao
+  name: openbao
+  namespace: openbao
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: openbao
+      app.kubernetes.io/name: openbao
+      component: server
+  serviceName: openbao-internal
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: openbao
+        app.kubernetes.io/name: openbao
+        component: server
+        helm.sh/chart: openbao-0.26.1
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app.kubernetes.io/instance: openbao
+                app.kubernetes.io/name: openbao
+                component: server
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - args:
+        - "cp /openbao/config/extraconfig-from-values.hcl /tmp/storageconfig.hcl;\n[
+          -n \"${HOST_IP}\" ] && sed -Ei \"s|HOST_IP|${HOST_IP?}|g\" /tmp/storageconfig.hcl;\n[
+          -n \"${POD_IP}\" ] && sed -Ei \"s|POD_IP|${POD_IP?}|g\" /tmp/storageconfig.hcl;\n[
+          -n \"${HOSTNAME}\" ] && sed -Ei \"s|HOSTNAME|${HOSTNAME?}|g\" /tmp/storageconfig.hcl;\n[
+          -n \"${API_ADDR}\" ] && sed -Ei \"s|API_ADDR|${API_ADDR?}|g\" /tmp/storageconfig.hcl;\n[
+          -n \"${TRANSIT_ADDR}\" ] && sed -Ei \"s|TRANSIT_ADDR|${TRANSIT_ADDR?}|g\"
+          /tmp/storageconfig.hcl;\n[ -n \"${RAFT_ADDR}\" ] && sed -Ei \"s|RAFT_ADDR|${RAFT_ADDR?}|g\"
+          /tmp/storageconfig.hcl;\n/usr/local/bin/docker-entrypoint.sh bao server
+          -config=/tmp/storageconfig.hcl \n"
+        command:
+        - /bin/sh
+        - -ec
+        env:
+        - name: HOST_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: BAO_K8S_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: BAO_K8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: BAO_ADDR
+          value: http://127.0.0.1:8200
+        - name: BAO_API_ADDR
+          value: http://$(POD_IP):8200
+        - name: SKIP_CHOWN
+          value: "true"
+        - name: SKIP_SETCAP
+          value: "true"
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: BAO_CLUSTER_ADDR
+          value: https://$(HOSTNAME).openbao-internal:8201
+        - name: HOME
+          value: /home/openbao
+        image: quay.io/openbao/openbao:2.5.1
+        imagePullPolicy: IfNotPresent
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - sleep 5 && kill -SIGTERM $(pidof bao)
+        name: openbao
+        ports:
+        - containerPort: 8200
+          name: http
+        - containerPort: 8201
+          name: https-internal
+        - containerPort: 8202
+          name: http-rep
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -ec
+            - bao status -tls-skip-verify
+          failureThreshold: 2
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 3
+        securityContext:
+          allowPrivilegeEscalation: false
+        volumeMounts:
+        - mountPath: /openbao/config
+          name: config
+        - mountPath: /data
+          name: openbao-data
+        - mountPath: /var/run/secrets/openbao
+          name: openbao-secrets
+          readOnly: true
+        - mountPath: /home/openbao
+          name: home
+      hostNetwork: false
+      initContainers:
+      - args:
+        - mkdir -p /data/secrets && cat /var/run/key > /data/secrets/unseal-20260314-1.key
+        command:
+        - ash
+        - -c
+        image: alpine
+        name: key-injector
+        volumeMounts:
+        - mountPath: /data
+          name: openbao-data
+        - mountPath: /var/run/key
+          name: openbao-secrets
+          readOnly: true
+          subPath: static_seal_key
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 100
+      serviceAccountName: openbao
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - configMap:
+          name: openbao-config
+        name: config
+      - name: openbao-data
+        persistentVolumeClaim:
+          claimName: openbao-data
+      - name: openbao-secrets
+        secret:
+          secretName: openbao-secrets
+      - emptyDir: {}
+        name: home
+  updateStrategy:
+    type: OnDelete
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    helm.sh/hook: test
+  name: openbao-server-test
+  namespace: openbao
+spec:
+  containers:
+  - command:
+    - /bin/sh
+    - -c
+    - |
+      echo "Checking for sealed info in 'bao status' output"
+      ATTEMPTS=10
+      n=0
+      until [ "$n" -ge $ATTEMPTS ]
+      do
+        echo "Attempt" $n...
+        bao status -format yaml | grep -E '^sealed: (true|false)' && break
+        n=$((n+1))
+        sleep 5
+      done
+      if [ $n -ge $ATTEMPTS ]; then
+        echo "timed out looking for sealed info in 'bao status' output"
+        exit 1
+      fi
+
+      exit 0
+    env:
+    - name: VAULT_ADDR
+      value: http://openbao.openbao.svc:8200
+    image: quay.io/openbao/openbao:2.5.1
+    imagePullPolicy: IfNotPresent
+    name: openbao-server-test
+    volumeMounts:
+    - mountPath: /data
+      name: openbao-data
+    - mountPath: /var/run/secrets/openbao
+      name: openbao-secrets
+      readOnly: true
+  restartPolicy: Never
+  volumes:
+  - name: openbao-data
+    persistentVolumeClaim:
+      claimName: openbao-data
+  - name: openbao-secrets
+    secret:
+      secretName: openbao-secrets
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  labels:
+    app.kubernetes.io/instance: openbao
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: openbao-agent-injector
+  name: openbao-agent-injector-cfg
+webhooks:
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    caBundle: ""
+    service:
+      name: openbao-agent-injector-svc
+      namespace: openbao
+      path: /mutate
+  failurePolicy: Ignore
+  matchPolicy: Exact
+  name: vault.hashicorp.com
+  objectSelector:
+    matchExpressions:
+    - key: app.kubernetes.io/name
+      operator: NotIn
+      values:
+      - openbao-agent-injector
+  rules:
+  - apiGroups:
+    - ""
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - pods
+  sideEffects: None
+  timeoutSeconds: 30

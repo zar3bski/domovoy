@@ -5,6 +5,9 @@ resources:
   - build.yml
   - css-bitwarden-fields.yml
   - css-bitwarden-files.yml
+  - css-openbao-vault.yml
+  - sa-external-secret-manager.yml
+
 # Uncomment for manifest generation
 #
 # kustomize build -o base/external-secret-operator/build.yml --enable-helm ./base/external-secret-operator

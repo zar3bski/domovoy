@@ -1,0 +1,18 @@
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: openbao-vault
+  namespace: external-secrets
+spec:
+  provider:
+    vault:
+      server: "http://openbao.openbao.svc.cluster.local:8200" # TODO: HTTPS
+      path: "cluster/"
+      version: "v2"
+      auth:
+        kubernetes:
+          mountPath: "kubernetes"
+          role: "cluster_reader"
+          serviceAccountRef:
+            name: "external-secret-manager"
+            namespace: "external-secrets"

@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: debugpod
+  namespace: external-secrets
+spec:
+  serviceAccountName: external-secret-manager
+  hostPID: true
+  containers:
+    - name: debugcontainer
+      image: alpine:3.20
+      stdin: true
+      tty: true
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: dev-mount
+          mountPath: /dev
+  volumes:
+    - name: dev-mount
+      hostPath:
+        path: /dev
+#nodeSelector:
+#  kubernetes.io/hostname: [nodename]

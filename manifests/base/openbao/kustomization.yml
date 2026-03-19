@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+resources:
+  - clusterrolebinding-openbao-token-reviewers.yml
+  - ns-openbao.yml
+  - pvc-openbao-data.yml
+  - openbao-build.yml
+
+# Uncomment for manifest generation
+#
+# kustomize build -o base/openbao/openbao-build.yml --enable-helm ./base/openbao
+#
+#helmCharts:
+#  - name: openbao
+#    repo: https://openbao.github.io/openbao-helm
+#    releaseName: openbao
+#    namespace: openbao
+#    version: 0.26.1
+#    valuesFile: values.yml

@@ -1,0 +1,23 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: test
+  namespace: external-secrets
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: openbao-vault
+    kind: ClusterSecretStore
+  target:
+    name: test
+    deletionPolicy: Delete
+    creationPolicy: Owner
+  data:
+    - secretKey: field1
+      remoteRef:
+        key: test
+        property: field1
+    - secretKey: grafana_admin
+      remoteRef:
+        key: application/grafana
+        property: admin_password
