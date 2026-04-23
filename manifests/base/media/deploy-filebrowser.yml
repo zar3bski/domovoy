@@ -24,10 +24,11 @@ spec:
             - /bin/sh
           args:
             - -c
-            - mkdir -p /etc/ssl/internal-certs;
-              touch /etc/ssl/internal-certs/ca-certificates.crt;
-              cat /etc/ssl/certs/ca-certificates.crt >> /etc/ssl/internal-certs/ca-certificates.crt;
-              cat /internal-ca.crt >> /etc/ssl/internal-certs/ca-certificates.crt;
+            - mkdir -p /etc/ssl/internal-certs; touch
+              /etc/ssl/internal-certs/ca-certificates.crt; cat
+              /etc/ssl/certs/ca-certificates.crt >>
+              /etc/ssl/internal-certs/ca-certificates.crt; cat /internal-ca.crt
+              >> /etc/ssl/internal-certs/ca-certificates.crt;
           volumeMounts:
             - name: ca-certificates
               mountPath: /etc/ssl/internal-certs
@@ -56,7 +57,10 @@ spec:
             - mountPath: /srv/local/videos
               name: server-media-files
               subPath: videos
-            - mountPath: /home/filebrowser/config.yaml
+            - mountPath: /home/filebrowser/data
+              name: filebrowser-data
+              subPath: database.db
+            - mountPath: /home/filebrowser/data/config.yaml
               name: filebrowser-config
               subPath: filebrowser.yml
             - name: ca-certificates
@@ -69,12 +73,16 @@ spec:
           secret:
             secretName: domain-tls-filebrowser
         - name: ca-certificates
+        - name: filebrowser-data
+          persistentVolumeClaim:
+            claimName: filebrowser-data
         - name: transmission-downloads
           persistentVolumeClaim:
             claimName: transmission-downloads
         - name: filebrowser-config
-          secret: 
+          secret:
             secretName: filebrowser-config
         - name: server-media-files
-          hostPath: # FIXME: variabilise
+          hostPath:
+            # FIXME: variabilise
             path: /srv/volume1/

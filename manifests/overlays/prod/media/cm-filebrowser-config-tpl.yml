@@ -6,6 +6,7 @@ metadata:
 data:
   filebrowser.yml: |
     server:                            # base URL for the server, the subpath that the server is running on.
+      database: "database.db"
       logging:
         - levels: "warning|error"             # separated list of log levels to enable. (eg. "info|warning|error|debug")
           apiLevels: "warning|error"          # separated list of log levels to enable for the API. (eg. "info|warning|error")
@@ -29,7 +30,6 @@ data:
           userIdentifier: "preferred_username"# the field value to use as the username. Default is "preferred_username", can also be "email" or "username", or "phone"
           disableVerifyTLS: false             # disable TLS verification for the OIDC provider. This is insecure and should only be used for testing.
           logoutRedirectUrl: "{{ .ENDSESSION_ENDPOINT }}" # if provider logout url is provided, filebrowser will also redirect to logout url. Custom logout query params are respected.
-          createUser: true                    # create user if not exists
           adminGroup: "admin"                 # if set, users in this group will be granted admin privileges.
       adminUsername: "{{ .ADMIN_USERNAME }}"  # the username of the admin user. If not set, the default is "admin".
       adminPassword: "{{ .ADMIN_PASSWORD }}"  # the password of the admin user. If not set, the default is "admin".
