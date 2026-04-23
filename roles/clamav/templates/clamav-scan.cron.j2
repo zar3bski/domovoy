@@ -1,0 +1,5 @@
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+
+{{ item.frequency }} clamscan --infected --suppress-ok-results --recursive yes {{ item.path }}

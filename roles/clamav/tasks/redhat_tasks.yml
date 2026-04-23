@@ -1,0 +1,6 @@
+- name: Install clamav
+  ansible.builtin.dnf:
+    name:
+      - clamav
+      - clamav-freshclam
+    state: present

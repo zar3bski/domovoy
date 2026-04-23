@@ -1,0 +1,21 @@
+- name: Gathering facts
+  ansible.builtin.setup:
+
+- name: "Include OS specific tasks"
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_os_family | lower }}_tasks.yml"
+
+- name: Create CRON update malware database
+  ansible.builtin.template:
+    src: templates/clamav-update-base.cron.j2
+    dest: /etc/cron.d/clamav-update-base.cron
+
+- name: Create CRON tasks for folder scans
+  when: clamav is defined
+  ansible.builtin.template:
+    src: clamav-scan.cron.j2
+    dest: /etc/cron.d/clamav-scan-{{ item.path | hash('md5') }}.cron
+    owner: root
+    group: root
+    mode: "0600"
+  loop: "{{ clamav }}"

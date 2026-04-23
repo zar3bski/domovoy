@@ -8,19 +8,19 @@
     node_exporter_port: 9101
   pre_tasks:
     - name: Import pre_tasks
-      ansible.builtin.import_tasks: 'roles/common/knocking.yml'
+      ansible.builtin.import_tasks: "roles/common/knocking.yml"
   handlers:
     - name: Import common handlers
-      ansible.builtin.import_tasks: 'roles/common/handlers/main.yml'
+      ansible.builtin.import_tasks: "roles/common/handlers/main.yml"
   roles:
     - common
     - nginx
     - role: node-exporter
-      tags: [observability]
+      tags: [ observability ]
     - role: wireguard
-      tags: [vpn]
+      tags: [ vpn ]
     - role: technitium
-      tags: [dns]
+      tags: [ dns ]
 
 - name: NAS servers
   hosts: nas-servers
@@ -31,22 +31,24 @@
     node_exporter_port: 9101
   pre_tasks:
     - name: Import pre_tasks
-      ansible.builtin.import_tasks: 'roles/common/knocking.yml'
+      ansible.builtin.import_tasks: "roles/common/knocking.yml"
   handlers:
     - name: Import common handlers
-      ansible.builtin.import_tasks: 'roles/common/handlers/main.yml'
+      ansible.builtin.import_tasks: "roles/common/handlers/main.yml"
   roles:
     - common
     - role: node-exporter
-      tags: [observability]
+      tags: [ observability ]
     - role: alloy
-      tags: [observability]
+      tags: [ observability ]
+    - role: clamav
+      tags: [ antivirus ]
     - role: k3s
-      tags: [k8s]
+      tags: [ k8s ]
     - role: storage
-      tags: [storage]
+      tags: [ storage ]
     - role: nfs
-      tags: [filesharing]
+      tags: [ filesharing ]
 
 - name: Lan servers
   hosts: lan-servers
@@ -57,25 +59,25 @@
     node_exporter_port: 9101
   pre_tasks:
     - name: Import pre_tasks
-      ansible.builtin.import_tasks: 'roles/common/knocking.yml'
+      ansible.builtin.import_tasks: "roles/common/knocking.yml"
   handlers:
     - name: Import common handlers
-      ansible.builtin.import_tasks: 'roles/common/handlers/main.yml'
+      ansible.builtin.import_tasks: "roles/common/handlers/main.yml"
   roles:
     - common
     - role: node-exporter
-      tags: [observability]
+      tags: [ observability ]
     - role: technitium
-      tags: [dns]
+      tags: [ dns ]
     - role: alloy
-      tags: [observability]
+      tags: [ observability ]
     - role: prometheus
-      tags: [observability]
+      tags: [ observability ]
     - gh-runner
     - role: wireguard
-      tags: [vpn]
+      tags: [ vpn ]
     - name: nginx
-      tags: [proxy]
+      tags: [ proxy ]
 
 - name: Dev servers
   tags: dev
@@ -83,4 +85,4 @@
   become: true
   roles:
     - role: k3s
-      tags: [k8s]
+      tags: [ k8s ]
