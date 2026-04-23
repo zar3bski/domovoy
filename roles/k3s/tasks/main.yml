@@ -13,7 +13,8 @@
 
 - name: "Include OS/Motherboard specific tasks"
   ansible.builtin.include_tasks:
-    file: "{{ ansible_distribution | lower }}-{{ k3s_motherboard_family.stdout | lower }}_tasks.yml"
+    file: "{{ ansible_distribution | lower }}-{{ k3s_motherboard_family.stdout |
+      lower }}_tasks.yml"
   when: k3s_motherboard_family is succeeded
 
 - name: Copy helper scripts
@@ -22,7 +23,7 @@
     dest: /usr/local/bin/k3s-list-unused-pvc
     owner: root
     group: root
-    mode: '0771'
+    mode: "0771"
 
 - name: K3s firewall tuning
   tags:
@@ -33,12 +34,14 @@
       - tcp dport 6443 accept comment "Accept Kubernetes API"
       - tcp dport 8443 accept comment "Accept HTTPS ingress"
       - tcp dport 9100 accept comment "Accept Traefik metrics"
-      - iifname "cni0" ip daddr {{ ansible_facts['default_ipv4']['address'] }} accept comment "K3S to host communication"
+      - iifname "cni0" ip daddr {{ ansible_facts['default_ipv4']['address'] }}
+        accept comment "K3S to host communication"
     forward:
       - iifname "cni0" accept comment "K3s forward from cni0"
       - oifname "cni0" accept comment "K3s forward to cni0"
     output:
-      - ip saddr 10.42.0.0/15 ip daddr 10.42.0.0/15 accept comment "K3S internal communication"
+      - ip saddr 10.42.0.0/15 ip daddr 10.42.0.0/15 accept comment "K3S internal
+        communication"
   notify:
     - Restart Nftables
 
@@ -70,7 +73,7 @@
     - name: Set inotify.max_user_instances
       ansible.posix.sysctl:
         name: fs.inotify.max_user_instances
-        value: '256'
+        value: "256"
         sysctl_file: /etc/sysctl.d/81-inotify.conf
         reload: true
 
@@ -82,19 +85,15 @@
         dest: /usr/local/bin/get-k3s
         owner: root
         group: root
-        mode: '0755'
+        mode: "0755"
     - name: Installation
       ansible.builtin.shell:
         executable: /bin/bash
         cmd: >
-             INSTALL_K3S_EXEC='server
-             --disable=traefik
-             --disable servicelb
-             --tls-san {{ inventory_hostname }}
-             --node-name {{ inventory_hostname }}
-             --cluster-cidr=10.42.0.0/16
-             --service-cidr=10.43.0.0/16'
-             /usr/local/bin/get-k3s
+          INSTALL_K3S_EXEC='server --disable=traefik --disable servicelb
+          --tls-san {{ inventory_hostname }} --node-name {{ inventory_hostname
+          }} --cluster-cidr=10.42.0.0/16 --service-cidr=10.43.0.0/16'
+          /usr/local/bin/get-k3s
       changed_when: false
 
 - name: Cluster SSL setting
@@ -102,7 +101,8 @@
     - name: Generate kube CA secret manifest
       ansible.builtin.template:
         src: templates/ca-cluster.yml.j2
-        dest: '{% if ansible_os_family == "RedHat" %}/etc/pki/tls/private{% else %}/etc/ssl/private{% endif %}/ca-cluster.yml'
+        dest: "{% if ansible_os_family == \"RedHat\" %}/etc/pki/tls/private{% else
+          %}/etc/ssl/private{% endif %}/ca-cluster.yml"
         mode: "0600"
         owner: root
         group: root
@@ -121,7 +121,8 @@
           - kubectl
           - apply
           - -f
-          - '{% if ansible_os_family == "RedHat" %}/etc/pki/tls/private{% else %}/etc/ssl/private{% endif %}/ca-cluster.yml'
+          - "{% if ansible_os_family == \"RedHat\" %}/etc/pki/tls/private{% else
+            %}/etc/ssl/private{% endif %}/ca-cluster.yml"
       changed_when: false
 
 - name: Set saved PVC archiving
@@ -132,7 +133,7 @@
         path: /srv/{{ storage.btrfs.0.name }}/saved-pvc
         owner: root
         group: root
-        mode: '0770'
+        mode: "0770"
         state: directory
     - name: Copy archive password
       ansible.builtin.template:
@@ -149,12 +150,9 @@
         group: root
         mode: "0700"
     - name: Cron archive PVC
-      ansible.builtin.cron:
-        name: Archive PVC on {{ storage.btrfs.0.name }}
-        month: '*'
-        day: "5"
-        minute: "0"
-        hour: "3"
-        user: root
-        job: "/usr/local/bin/k3s-archive-saved-pvc /srv/{{ storage.btrfs.0.name }}/saved-pvc"
-        cron_file: archive_pvc_on_{{ storage.btrfs.0.name }}
+      ansible.builtin.template:
+        src: templates/archive_pvc.cron.j2
+        dest: /etc/cron.d/archive_pvc.cron
+        mode: "0600"
+        owner: root
+        group: root

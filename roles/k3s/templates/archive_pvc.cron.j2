@@ -1,0 +1,5 @@
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin
+MAILTO=root
+
+0 3 5 * * /usr/local/bin/k3s-archive-saved-pvc /srv/{{ storage.btrfs.0.name }}/saved-pvc
