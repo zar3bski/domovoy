@@ -25,6 +25,18 @@
     group: root
     mode: "0771"
 
+- name: Copy CA bundler script
+  ansible.builtin.copy:
+    src: files/k3s-generate-internal-tls-bundle.sh
+    dest: /usr/local/k3s-generate-internal-tls-bundle
+    owner: root
+    group: root
+    mode: "0770"
+
+- name: Generate internal CA bundle
+  ansible.builtin.command:
+    cmd: /usr/local/k3s-generate-internal-tls-bundle
+
 - name: K3s firewall tuning
   tags:
     - firewall
