@@ -1,5 +1,6 @@
 global:
   namespace: "openbao"
+  tlsDisable: false
 server:
   standalone:
     enabled: true
@@ -44,7 +45,7 @@ server:
           operation = "update"
           path = "sys/policies/acl/cluster_reader"
           data = {
-            policy = "path \"cluster/\" { capabilities = [\"read\", \"list\"] }"
+            policy = "path \"cluster/*\" { capabilities = [\"read\", \"list\"] }"
           }
         }
 
@@ -92,12 +93,10 @@ server:
 
 
       listener "tcp" {
-        tls_disable = 1
         address = "[::]:8200"
         cluster_address = "[::]:8201"
-        # TODO: use certs to use TLS
-        # tls_cert_file
-        # tls_key_file
+        tls_cert_file = "/var/run/secrets/openbao-tls/tls.crt"
+        tls_key_file = "/var/run/secrets/openbao-tls/tls.key"
       }
 
       audit "file" "to-stdout" {
@@ -121,7 +120,8 @@ server:
       #service_registration "kubernetes" {}
   ha:
     enabled: false
-  dataStorage: # externaly handled
+  dataStorage:
+    # externaly handled
     enabled: false
   volumes:
     - name: openbao-data
@@ -130,19 +130,24 @@ server:
     - name: openbao-secrets
       secret:
         secretName: openbao-secrets
+    - name: openbao-internal-tls
+      secret:
+        secretName: openbao-internal-tls
   volumeMounts:
     - name: openbao-data
       mountPath: /data
     - name: openbao-secrets
       mountPath: /var/run/secrets/openbao
       readOnly: true
+    - name: openbao-internal-tls
+      mountPath: /var/run/secrets/openbao-tls
   extraInitContainers:
     - name: key-injector
       image: alpine
-      command: [ash, -c]
+      command: [ ash, -c ]
       args:
-        - mkdir -p /data/secrets &&
-          cat /var/run/key > /data/secrets/unseal-20260314-1.key
+        - mkdir -p /data/secrets && cat /var/run/key >
+          /data/secrets/unseal-20260314-1.key
       volumeMounts:
         - name: openbao-data
           mountPath: /data

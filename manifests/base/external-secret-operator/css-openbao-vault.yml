@@ -6,7 +6,7 @@ metadata:
 spec:
   provider:
     vault:
-      server: "http://openbao.openbao.svc.cluster.local:8200" # TODO: HTTPS
+      server: "https://openbao.openbao.svc.cluster.local:8200"
       path: "cluster/"
       version: "v2"
       auth:
@@ -16,3 +16,8 @@ spec:
           serviceAccountRef:
             name: "external-secret-manager"
             namespace: "external-secrets"
+      caProvider:
+        type: ConfigMap
+        namespace: external-secrets
+        name: kube-root-ca.crt
+        key: ca.crt

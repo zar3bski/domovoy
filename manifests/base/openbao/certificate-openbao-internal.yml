@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: openbao-internal-tls
+  namespace: openbao
+spec:
+  secretName: openbao-internal-tls
+  commonName: openbao.openbao.svc.cluster.local
+  dnsNames:
+    - openbao.openbao.svc.cluster.local
+  issuerRef:
+    name: ca-clusterissuer-internal
+    kind: ClusterIssuer

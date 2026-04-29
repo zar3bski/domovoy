@@ -5,6 +5,7 @@ generatorOptions:
   disableNameSuffixHash: true
 
 resources:
+  - certificate-openbao-internal.yml
   - clusterrolebinding-openbao-token-reviewers.yml
   - ns-openbao.yml
   - pvc-openbao-data.yml

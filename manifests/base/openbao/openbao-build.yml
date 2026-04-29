@@ -117,7 +117,7 @@ data:
         operation = "update"
         path = "sys/policies/acl/cluster_reader"
         data = {
-          policy = "path \"cluster/\" { capabilities = [\"read\", \"list\"] }"
+          policy = "path \"cluster/*\" { capabilities = [\"read\", \"list\"] }"
         }
       }
 
@@ -165,12 +165,10 @@ data:
 
 
     listener "tcp" {
-      tls_disable = 1
       address = "[::]:8200"
       cluster_address = "[::]:8201"
-      # TODO: use certs to use TLS
-      # tls_cert_file
-      # tls_key_file
+      tls_cert_file = "/var/run/secrets/openbao-tls/tls.crt"
+      tls_key_file = "/var/run/secrets/openbao-tls/tls.key"
     }
 
     audit "file" "to-stdout" {
@@ -214,8 +212,8 @@ metadata:
   namespace: openbao
 spec:
   ports:
-  - appProtocol: HTTP
-    name: http
+  - appProtocol: HTTPS
+    name: https
     port: 8200
     targetPort: 8200
   - name: https-internal
@@ -260,8 +258,8 @@ metadata:
 spec:
   clusterIP: None
   ports:
-  - appProtocol: HTTP
-    name: http
+  - appProtocol: HTTPS
+    name: https
     port: 8200
     targetPort: 8200
   - name: https-internal
@@ -316,7 +314,7 @@ spec:
         - name: AGENT_INJECT_LOG_LEVEL
           value: info
         - name: AGENT_INJECT_VAULT_ADDR
-          value: http://openbao.openbao.svc:8200
+          value: https://openbao.openbao.svc:8200
         - name: AGENT_INJECT_VAULT_AUTH_PATH
           value: auth/kubernetes
         - name: AGENT_INJECT_VAULT_IMAGE
@@ -458,9 +456,9 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         - name: BAO_ADDR
-          value: http://127.0.0.1:8200
+          value: https://127.0.0.1:8200
         - name: BAO_API_ADDR
-          value: http://$(POD_IP):8200
+          value: https://$(POD_IP):8200
         - name: SKIP_CHOWN
           value: "true"
         - name: SKIP_SETCAP
@@ -485,11 +483,11 @@ spec:
         name: openbao
         ports:
         - containerPort: 8200
-          name: http
+          name: https
         - containerPort: 8201
           name: https-internal
         - containerPort: 8202
-          name: http-rep
+          name: https-rep
         readinessProbe:
           exec:
             command:
@@ -511,6 +509,8 @@ spec:
         - mountPath: /var/run/secrets/openbao
           name: openbao-secrets
           readOnly: true
+        - mountPath: /var/run/secrets/openbao-tls
+          name: openbao-internal-tls
         - mountPath: /home/openbao
           name: home
       hostNetwork: false
@@ -546,6 +546,9 @@ spec:
       - name: openbao-secrets
         secret:
           secretName: openbao-secrets
+      - name: openbao-internal-tls
+        secret:
+          secretName: openbao-internal-tls
       - emptyDir: {}
         name: home
   updateStrategy:
@@ -582,7 +585,7 @@ spec:
       exit 0
     env:
     - name: VAULT_ADDR
-      value: http://openbao.openbao.svc:8200
+      value: https://openbao.openbao.svc:8200
     image: quay.io/openbao/openbao:2.5.1
     imagePullPolicy: IfNotPresent
     name: openbao-server-test
@@ -592,6 +595,8 @@ spec:
     - mountPath: /var/run/secrets/openbao
       name: openbao-secrets
       readOnly: true
+    - mountPath: /var/run/secrets/openbao-tls
+      name: openbao-internal-tls
   restartPolicy: Never
   volumes:
   - name: openbao-data
@@ -600,6 +605,9 @@ spec:
   - name: openbao-secrets
     secret:
       secretName: openbao-secrets
+  - name: openbao-internal-tls
+    secret:
+      secretName: openbao-internal-tls
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
