@@ -81,6 +81,24 @@
         - Restart Nftables
       when: item.WG_PORT is defined
 
+    - name: Allow IPv4 forwarding (SERVER MODE)
+      block:
+        - name: Allow IPv4 forwarding
+          ansible.builtin.lineinfile:
+            path: /etc/sysctl.conf
+            create: true
+            line: net.ipv4.ip_forward = 1
+            owner: root
+            group: root
+            mode: '0755'
+          register: wireguard_ipv4_forwarding
+        - name: Reload sysctl
+          ansible.builtin.command:
+            cmd: sysctl -p
+          register: wireguard_sysctl
+          changed_when: wireguard_sysctl.rc != 1
+          when: wireguard_ipv4_forwarding is changed # noqa: no-handler
+
     - name: Allow wireguard traffic OUT (CLIENT MODE)
       tags:
         - firewall
