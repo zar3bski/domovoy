@@ -5,15 +5,21 @@
 # Produces a ready to use secret at /etc/ssl/private/ca-cluster-internal.yml, 
 # ready to be loaded into the cluster
 
-umask 027
-
 TMP_FOLDER=/tmp/$(openssl rand -hex 8)
 CA_CRT_LOCATION=/var/lib/rancher/k3s/server/tls/server-ca.crt
 CA_KEY_LOCATION=/var/lib/rancher/k3s/server/tls/server-ca.key
+DESTINATION=$1
+
+if [ -z "${DESTINATION}" ]; then
+    printf "usage: \n
+    k3s-generate-internal-tls-bundle <destination_file>\n"
+    exit 1
+fi
+
+umask 027
 
 mkdir $TMP_FOLDER
 cd $TMP_FOLDER
-
 
 openssl genrsa -out intermediary.key 4096
 openssl req -new -key intermediary.key -out intermediary.csr -subj "/CN=k3s-ca-internal/O=CCC"
@@ -25,7 +31,7 @@ CA_B64=$(cat $CA_CRT_LOCATION | base64 -w0)
 KEY_B64=$(cat intermediary.key | base64 -w0)
 CRT_B64=$(cat intermediary.crt | base64 -w0)
 
-cat >/etc/ssl/private/ca-cluster-internal.yml <<EOL
+cat >$DESTINATION <<EOL
 apiVersion: v1
 kind: Secret
 metadata:
@@ -39,3 +45,5 @@ EOL
 
 cd /
 rm -r $TMP_FOLDER
+
+exit 0

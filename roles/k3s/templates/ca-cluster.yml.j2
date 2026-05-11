@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: ca-cluster
-  namespace: cert-manager
+  namespace: kube-system
 type: Opaque
 data:
   tls.crt: {{ (cluster_ca_cert+ca_cert)|b64encode }}

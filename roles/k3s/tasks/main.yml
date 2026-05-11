@@ -25,18 +25,6 @@
     group: root
     mode: "0771"
 
-- name: Copy CA bundler script
-  ansible.builtin.copy:
-    src: files/k3s-generate-internal-tls-bundle.sh
-    dest: /usr/local/k3s-generate-internal-tls-bundle
-    owner: root
-    group: root
-    mode: "0770"
-
-- name: Generate internal CA bundle
-  ansible.builtin.command:
-    cmd: /usr/local/k3s-generate-internal-tls-bundle
-
 - name: K3s firewall tuning
   tags:
     - firewall
@@ -110,11 +98,24 @@
 
 - name: Cluster SSL setting
   block:
+    - name: Copy CA bundler script
+      ansible.builtin.copy:
+        src: files/k3s-generate-internal-tls-bundle.sh
+        dest: /usr/local/k3s-generate-internal-tls-bundle
+        owner: root
+        group: root
+        mode: "0770"
+    - name: Generate internal CA bundle
+      ansible.builtin.command:
+        argv:
+          - /usr/local/k3s-generate-internal-tls-bundle
+          - '{% if ansible_os_family == "RedHat" %}/etc/pki/tls/private{% else %}
+            /etc/ssl/private{% endif %}/ca-cluster-internal.yml'
     - name: Generate kube CA secret manifest
       ansible.builtin.template:
         src: templates/ca-cluster.yml.j2
-        dest: "{% if ansible_os_family == \"RedHat\" %}/etc/pki/tls/private{% else
-          %}/etc/ssl/private{% endif %}/ca-cluster.yml"
+        dest: '{% if ansible_os_family == "RedHat" %}/etc/pki/tls/private{% else
+          %}/etc/ssl/private{% endif %}/ca-cluster.yml'
         mode: "0600"
         owner: root
         group: root
@@ -133,8 +134,17 @@
           - kubectl
           - apply
           - -f
-          - "{% if ansible_os_family == \"RedHat\" %}/etc/pki/tls/private{% else
-            %}/etc/ssl/private{% endif %}/ca-cluster.yml"
+          - '{% if ansible_os_family == "RedHat" %}/etc/pki/tls/private{% else
+            %}/etc/ssl/private{% endif %}/ca-cluster.yml'
+      changed_when: false
+    - name: Kubectl apply ca-cluster-internal.yml
+      ansible.builtin.command:
+        argv:
+          - kubectl
+          - apply
+          - -f
+          - '{% if ansible_os_family == "RedHat" %}/etc/pki/tls/private{% else
+            %}/etc/ssl/private{% endif %}/ca-cluster-internal.yml'
       changed_when: false
 
 - name: Set saved PVC archiving
