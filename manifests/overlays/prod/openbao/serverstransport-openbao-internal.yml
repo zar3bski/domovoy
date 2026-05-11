@@ -1,0 +1,10 @@
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: openbao-internal
+  namespace: openbao
+spec:
+  serverName: openbao.openbao.svc.cluster.local
+  insecureSkipVerify: false
+  rootCAsSecrets:
+    - openbao-internal-tls

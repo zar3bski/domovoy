@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: openbao
+  namespace: openbao
+spec:
+  secretName: domain-tls
+  commonName: bao.enki.sin
+  dnsNames:
+    - bao.enki.sin
+  issuerRef:
+    name: ca-clusterissuer
+    kind: ClusterIssuer

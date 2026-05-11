@@ -1,0 +1,21 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: openbao
+  namespace: openbao
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`bao.enki.sin`) && PathPrefix(`/`)
+      services:
+        - name: openbao
+          namespace: openbao
+          port: 8200
+          scheme: https
+          serversTransport: openbao-internal
+  tls:
+    secretName: domain-tls
+    domains:
+      - main: bao.enki.sin

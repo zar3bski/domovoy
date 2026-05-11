@@ -4,17 +4,21 @@ kind: Kustomization
 resources:
   - build-cert-manager.yml
   - clusterissuer-ca.yml
+  - clusterissuer-internal-ca.yml
+  - ns-cert-manager.yml
+
+# todo: generer ca-cluster-internal programmatiquement à partir de: 
+#    - /var/lib/rancher/k3s/server/tls/server-ca.crt
+#    - /var/lib/rancher/k3s/server/tls/server-ca.crt
+
 
 # Uncomment for manifest generation with
-# kustomize build -o base/cert-manager/build-cert-manager.yml --enable-helm ./base/cert-manager
-# 
+# kustomize build -o base/cert-manager/build-cert-manager.yml --enable-helm ./base/cert-manager/
+#
 #helmCharts:
 #  - name: cert-manager
 #    repo: https://charts.jetstack.io
 #    releaseName: helm-chart
 #    namespace: cert-manager
-#    version: v1.19.2
-#    valuesInline:
-#      crds:
-#        enabled: true
-
+#    version: v1.20.2
+#    valuesFile: ./cert-manager-values.yml

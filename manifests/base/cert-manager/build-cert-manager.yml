@@ -1,16 +1,14 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  annotations:
-    helm.sh/resource-policy: keep
   labels:
     app: cert-manager
     app.kubernetes.io/component: crds
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: certificaterequests.cert-manager.io
 spec:
   group: cert-manager.io
@@ -320,6 +318,10 @@ spec:
                 type: string
             type: object
         type: object
+    selectableFields:
+    - jsonPath: .spec.issuerRef.group
+    - jsonPath: .spec.issuerRef.kind
+    - jsonPath: .spec.issuerRef.name
     served: true
     storage: true
     subresources:
@@ -328,16 +330,14 @@ spec:
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  annotations:
-    helm.sh/resource-policy: keep
   labels:
     app: cert-manager
     app.kubernetes.io/component: crds
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: certificates.cert-manager.io
 spec:
   group: cert-manager.io
@@ -792,9 +792,6 @@ spec:
                       will be generated whenever a re-issuance occurs.
                       Default is `Always`.
                       The default was changed from `Never` to `Always` in cert-manager >=v1.18.0.
-                      The new default can be disabled by setting the
-                      `--feature-gates=DefaultPrivateKeyRotationPolicyAlways=false` option on
-                      the controller component.
                     enum:
                     - Never
                     - Always
@@ -1155,6 +1152,10 @@ spec:
                 type: integer
             type: object
         type: object
+    selectableFields:
+    - jsonPath: .spec.issuerRef.group
+    - jsonPath: .spec.issuerRef.kind
+    - jsonPath: .spec.issuerRef.name
     served: true
     storage: true
     subresources:
@@ -1163,16 +1164,14 @@ spec:
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  annotations:
-    helm.sh/resource-policy: keep
   labels:
     app: cert-manager
     app.kubernetes.io/component: crds
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: challenges.acme.cert-manager.io
 spec:
   group: acme.cert-manager.io
@@ -1456,6 +1455,22 @@ spec:
                               The TenantID of the Azure Service Principal used to authenticate with Azure DNS.
                               If set, ClientID and ClientSecret must also be set.
                             type: string
+                          zoneType:
+                            description: |-
+                              ZoneType determines which type of Azure DNS zone to use.
+
+                              Valid values are:
+                                - AzurePublicZone  (default): Use a public Azure DNS zone.
+                                - AzurePrivateZone: Use an Azure Private DNS zone.
+
+                              If not specified, AzurePublicZone is used.
+
+                              Support for Azure Private DNS zones is currently
+                              experimental and may change in future releases.
+                            enum:
+                            - AzurePublicZone
+                            - AzurePrivateZone
+                            type: string
                         required:
                         - resourceGroupName
                         - subscriptionID
@@ -1583,7 +1598,7 @@ spec:
                             description: |-
                               The IP address or hostname of an authoritative DNS server supporting
                               RFC2136 in the form host:port. If the host is an IPv6 address it must be
-                              enclosed in square brackets (e.g [2001:db8::1]) ; port is optional.
+                              enclosed in square brackets (e.g [2001:db8::1]); port is optional.
                               This field is required.
                             type: string
                           protocol:
@@ -1636,8 +1651,8 @@ spec:
                             description: |-
                               The AccessKeyID is used for authentication.
                               Cannot be set when SecretAccessKeyID is set.
-                              If neither the Access Key nor Key ID are set, we fall-back to using env
-                              vars, shared credentials file or AWS Instance metadata,
+                              If neither the Access Key nor Key ID are set, we fall back to using env
+                              vars, shared credentials file, or AWS Instance metadata,
                               see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
                             type: string
                           accessKeyIDSecretRef:
@@ -1645,8 +1660,8 @@ spec:
                               The SecretAccessKey is used for authentication. If set, pull the AWS
                               access key ID from a key within a Kubernetes Secret.
                               Cannot be set when AccessKeyID is set.
-                              If neither the Access Key nor Key ID are set, we fall-back to using env
-                              vars, shared credentials file or AWS Instance metadata,
+                              If neither the Access Key nor Key ID are set, we fall back to using env
+                              vars, shared credentials file, or AWS Instance metadata,
                               see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
                             properties:
                               key:
@@ -1738,8 +1753,8 @@ spec:
                           secretAccessKeySecretRef:
                             description: |-
                               The SecretAccessKey is used for authentication.
-                              If neither the Access Key nor Key ID are set, we fall-back to using env
-                              vars, shared credentials file or AWS Instance metadata,
+                              If neither the Access Key nor Key ID are set, we fall back to using env
+                              vars, shared credentials file, or AWS Instance metadata,
                               see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
                             properties:
                               key:
@@ -3186,9 +3201,10 @@ spec:
                                         operator:
                                           description: |-
                                             Operator represents a key's relationship to the value.
-                                            Valid operators are Exists and Equal. Defaults to Equal.
+                                            Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
                                             Exists is equivalent to wildcard for value, so that a pod can
                                             tolerate all taints of a particular category.
+                                            Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
                                           type: string
                                         tolerationSeconds:
                                           description: |-
@@ -4489,9 +4505,10 @@ spec:
                                         operator:
                                           description: |-
                                             Operator represents a key's relationship to the value.
-                                            Valid operators are Exists and Equal. Defaults to Equal.
+                                            Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
                                             Exists is equivalent to wildcard for value, so that a pod can
                                             tolerate all taints of a particular category.
+                                            Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
                                           type: string
                                         tolerationSeconds:
                                           description: |-
@@ -4639,6 +4656,10 @@ spec:
         - metadata
         - spec
         type: object
+    selectableFields:
+    - jsonPath: .spec.issuerRef.group
+    - jsonPath: .spec.issuerRef.kind
+    - jsonPath: .spec.issuerRef.name
     served: true
     storage: true
     subresources:
@@ -4647,16 +4668,14 @@ spec:
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  annotations:
-    helm.sh/resource-policy: keep
   labels:
     app: cert-manager
     app.kubernetes.io/component: crds
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: clusterissuers.cert-manager.io
 spec:
   group: cert-manager.io
@@ -5056,6 +5075,22 @@ spec:
                                     The TenantID of the Azure Service Principal used to authenticate with Azure DNS.
                                     If set, ClientID and ClientSecret must also be set.
                                   type: string
+                                zoneType:
+                                  description: |-
+                                    ZoneType determines which type of Azure DNS zone to use.
+
+                                    Valid values are:
+                                      - AzurePublicZone  (default): Use a public Azure DNS zone.
+                                      - AzurePrivateZone: Use an Azure Private DNS zone.
+
+                                    If not specified, AzurePublicZone is used.
+
+                                    Support for Azure Private DNS zones is currently
+                                    experimental and may change in future releases.
+                                  enum:
+                                  - AzurePublicZone
+                                  - AzurePrivateZone
+                                  type: string
                               required:
                               - resourceGroupName
                               - subscriptionID
@@ -5184,7 +5219,7 @@ spec:
                                   description: |-
                                     The IP address or hostname of an authoritative DNS server supporting
                                     RFC2136 in the form host:port. If the host is an IPv6 address it must be
-                                    enclosed in square brackets (e.g [2001:db8::1]) ; port is optional.
+                                    enclosed in square brackets (e.g [2001:db8::1]); port is optional.
                                     This field is required.
                                   type: string
                                 protocol:
@@ -5237,8 +5272,8 @@ spec:
                                   description: |-
                                     The AccessKeyID is used for authentication.
                                     Cannot be set when SecretAccessKeyID is set.
-                                    If neither the Access Key nor Key ID are set, we fall-back to using env
-                                    vars, shared credentials file or AWS Instance metadata,
+                                    If neither the Access Key nor Key ID are set, we fall back to using env
+                                    vars, shared credentials file, or AWS Instance metadata,
                                     see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
                                   type: string
                                 accessKeyIDSecretRef:
@@ -5246,8 +5281,8 @@ spec:
                                     The SecretAccessKey is used for authentication. If set, pull the AWS
                                     access key ID from a key within a Kubernetes Secret.
                                     Cannot be set when AccessKeyID is set.
-                                    If neither the Access Key nor Key ID are set, we fall-back to using env
-                                    vars, shared credentials file or AWS Instance metadata,
+                                    If neither the Access Key nor Key ID are set, we fall back to using env
+                                    vars, shared credentials file, or AWS Instance metadata,
                                     see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
                                   properties:
                                     key:
@@ -5339,8 +5374,8 @@ spec:
                                 secretAccessKeySecretRef:
                                   description: |-
                                     The SecretAccessKey is used for authentication.
-                                    If neither the Access Key nor Key ID are set, we fall-back to using env
-                                    vars, shared credentials file or AWS Instance metadata,
+                                    If neither the Access Key nor Key ID are set, we fall back to using env
+                                    vars, shared credentials file, or AWS Instance metadata,
                                     see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
                                   properties:
                                     key:
@@ -6810,9 +6845,10 @@ spec:
                                               operator:
                                                 description: |-
                                                   Operator represents a key's relationship to the value.
-                                                  Valid operators are Exists and Equal. Defaults to Equal.
+                                                  Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
                                                   Exists is equivalent to wildcard for value, so that a pod can
                                                   tolerate all taints of a particular category.
+                                                  Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
                                                 type: string
                                               tolerationSeconds:
                                                 description: |-
@@ -8137,9 +8173,10 @@ spec:
                                               operator:
                                                 description: |-
                                                   Operator represents a key's relationship to the value.
-                                                  Valid operators are Exists and Equal. Defaults to Equal.
+                                                  Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
                                                   Exists is equivalent to wildcard for value, so that a pod can
                                                   tolerate all taints of a particular category.
+                                                  Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
                                                 type: string
                                               tolerationSeconds:
                                                 description: |-
@@ -8397,8 +8434,8 @@ spec:
                             properties:
                               audiences:
                                 description: |-
-                                  TokenAudiences is an optional list of extra audiences to include in the token passed to Vault. The default token
-                                  consisting of the issuer's namespace and name is always included.
+                                  TokenAudiences is an optional list of extra audiences to include in the token passed to Vault.
+                                  The default audiences are always included in the token.
                                 items:
                                   type: string
                                 type: array
@@ -8529,17 +8566,17 @@ spec:
                 type: object
               venafi:
                 description: |-
-                  Venafi configures this issuer to sign certificates using a Venafi TPP
-                  or Venafi Cloud policy zone.
+                  Venafi configures this issuer to sign certificates using a CyberArk Certificate Manager Self-Hosted
+                  or SaaS policy zone.
                 properties:
                   cloud:
                     description: |-
-                      Cloud specifies the Venafi cloud configuration settings.
-                      Only one of TPP or Cloud may be specified.
+                      Cloud specifies the CyberArk Certificate Manager SaaS configuration settings.
+                      Only one of CyberArk Certificate Manager may be specified.
                     properties:
                       apiTokenSecretRef:
                         description: APITokenSecretRef is a secret key selector for
-                          the Venafi Cloud API token.
+                          the CyberArk Certificate Manager SaaS API token.
                         properties:
                           key:
                             description: |-
@@ -8557,7 +8594,7 @@ spec:
                         type: object
                       url:
                         description: |-
-                          URL is the base URL for Venafi Cloud.
+                          URL is the base URL for CyberArk Certificate Manager SaaS.
                           Defaults to "https://api.venafi.cloud/".
                         type: string
                     required:
@@ -8565,13 +8602,13 @@ spec:
                     type: object
                   tpp:
                     description: |-
-                      TPP specifies Trust Protection Platform configuration settings.
-                      Only one of TPP or Cloud may be specified.
+                      TPP specifies CyberArk Certificate Manager Self-Hosted configuration settings.
+                      Only one of CyberArk Certificate Manager may be specified.
                     properties:
                       caBundle:
                         description: |-
                           Base64-encoded bundle of PEM CAs which will be used to validate the certificate
-                          chain presented by the TPP server. Only used if using HTTPS; ignored for HTTP.
+                          chain presented by the CyberArk Certificate Manager Self-Hosted server. Only used if using HTTPS; ignored for HTTP.
                           If undefined, the certificate bundle in the cert-manager controller container
                           is used to validate the chain.
                         format: byte
@@ -8579,7 +8616,7 @@ spec:
                       caBundleSecretRef:
                         description: |-
                           Reference to a Secret containing a base64-encoded bundle of PEM CAs
-                          which will be used to validate the certificate chain presented by the TPP server.
+                          which will be used to validate the certificate chain presented by the CyberArk Certificate Manager Self-Hosted server.
                           Only used if using HTTPS; ignored for HTTP. Mutually exclusive with CABundle.
                           If neither CABundle nor CABundleSecretRef is defined, the certificate bundle in
                           the cert-manager controller container is used to validate the TLS connection.
@@ -8600,7 +8637,7 @@ spec:
                         type: object
                       credentialsRef:
                         description: |-
-                          CredentialsRef is a reference to a Secret containing the Venafi TPP API credentials.
+                          CredentialsRef is a reference to a Secret containing the CyberArk Certificate Manager Self-Hosted API credentials.
                           The secret must contain the key 'access-token' for the Access Token Authentication,
                           or two keys, 'username' and 'password' for the API Keys Authentication.
                         properties:
@@ -8614,7 +8651,7 @@ spec:
                         type: object
                       url:
                         description: |-
-                          URL is the base URL for the vedsdk endpoint of the Venafi TPP instance,
+                          URL is the base URL for the vedsdk endpoint of the CyberArk Certificate Manager Self-Hosted instance,
                           for example: "https://tpp.example.com/vedsdk".
                         type: string
                     required:
@@ -8623,8 +8660,8 @@ spec:
                     type: object
                   zone:
                     description: |-
-                      Zone is the Venafi Policy Zone to use for this issuer.
-                      All requests made to the Venafi platform will be restricted by the named
+                      Zone is the Certificate Manager Policy Zone to use for this issuer.
+                      All requests made to the Certificate Manager platform will be restricted by the named
                       zone policy.
                       This field is required.
                     type: string
@@ -8723,16 +8760,14 @@ spec:
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  annotations:
-    helm.sh/resource-policy: keep
   labels:
     app: cert-manager
     app.kubernetes.io/component: crds
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: issuers.cert-manager.io
 spec:
   group: cert-manager.io
@@ -9131,6 +9166,22 @@ spec:
                                     The TenantID of the Azure Service Principal used to authenticate with Azure DNS.
                                     If set, ClientID and ClientSecret must also be set.
                                   type: string
+                                zoneType:
+                                  description: |-
+                                    ZoneType determines which type of Azure DNS zone to use.
+
+                                    Valid values are:
+                                      - AzurePublicZone  (default): Use a public Azure DNS zone.
+                                      - AzurePrivateZone: Use an Azure Private DNS zone.
+
+                                    If not specified, AzurePublicZone is used.
+
+                                    Support for Azure Private DNS zones is currently
+                                    experimental and may change in future releases.
+                                  enum:
+                                  - AzurePublicZone
+                                  - AzurePrivateZone
+                                  type: string
                               required:
                               - resourceGroupName
                               - subscriptionID
@@ -9259,7 +9310,7 @@ spec:
                                   description: |-
                                     The IP address or hostname of an authoritative DNS server supporting
                                     RFC2136 in the form host:port. If the host is an IPv6 address it must be
-                                    enclosed in square brackets (e.g [2001:db8::1]) ; port is optional.
+                                    enclosed in square brackets (e.g [2001:db8::1]); port is optional.
                                     This field is required.
                                   type: string
                                 protocol:
@@ -9312,8 +9363,8 @@ spec:
                                   description: |-
                                     The AccessKeyID is used for authentication.
                                     Cannot be set when SecretAccessKeyID is set.
-                                    If neither the Access Key nor Key ID are set, we fall-back to using env
-                                    vars, shared credentials file or AWS Instance metadata,
+                                    If neither the Access Key nor Key ID are set, we fall back to using env
+                                    vars, shared credentials file, or AWS Instance metadata,
                                     see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
                                   type: string
                                 accessKeyIDSecretRef:
@@ -9321,8 +9372,8 @@ spec:
                                     The SecretAccessKey is used for authentication. If set, pull the AWS
                                     access key ID from a key within a Kubernetes Secret.
                                     Cannot be set when AccessKeyID is set.
-                                    If neither the Access Key nor Key ID are set, we fall-back to using env
-                                    vars, shared credentials file or AWS Instance metadata,
+                                    If neither the Access Key nor Key ID are set, we fall back to using env
+                                    vars, shared credentials file, or AWS Instance metadata,
                                     see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
                                   properties:
                                     key:
@@ -9414,8 +9465,8 @@ spec:
                                 secretAccessKeySecretRef:
                                   description: |-
                                     The SecretAccessKey is used for authentication.
-                                    If neither the Access Key nor Key ID are set, we fall-back to using env
-                                    vars, shared credentials file or AWS Instance metadata,
+                                    If neither the Access Key nor Key ID are set, we fall back to using env
+                                    vars, shared credentials file, or AWS Instance metadata,
                                     see: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html#specifying-credentials
                                   properties:
                                     key:
@@ -10885,9 +10936,10 @@ spec:
                                               operator:
                                                 description: |-
                                                   Operator represents a key's relationship to the value.
-                                                  Valid operators are Exists and Equal. Defaults to Equal.
+                                                  Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
                                                   Exists is equivalent to wildcard for value, so that a pod can
                                                   tolerate all taints of a particular category.
+                                                  Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
                                                 type: string
                                               tolerationSeconds:
                                                 description: |-
@@ -12212,9 +12264,10 @@ spec:
                                               operator:
                                                 description: |-
                                                   Operator represents a key's relationship to the value.
-                                                  Valid operators are Exists and Equal. Defaults to Equal.
+                                                  Valid operators are Exists, Equal, Lt, and Gt. Defaults to Equal.
                                                   Exists is equivalent to wildcard for value, so that a pod can
                                                   tolerate all taints of a particular category.
+                                                  Lt and Gt perform numeric comparisons (requires feature gate TaintTolerationComparisonOperators).
                                                 type: string
                                               tolerationSeconds:
                                                 description: |-
@@ -12472,8 +12525,8 @@ spec:
                             properties:
                               audiences:
                                 description: |-
-                                  TokenAudiences is an optional list of extra audiences to include in the token passed to Vault. The default token
-                                  consisting of the issuer's namespace and name is always included.
+                                  TokenAudiences is an optional list of extra audiences to include in the token passed to Vault.
+                                  The default audiences are always included in the token.
                                 items:
                                   type: string
                                 type: array
@@ -12604,17 +12657,17 @@ spec:
                 type: object
               venafi:
                 description: |-
-                  Venafi configures this issuer to sign certificates using a Venafi TPP
-                  or Venafi Cloud policy zone.
+                  Venafi configures this issuer to sign certificates using a CyberArk Certificate Manager Self-Hosted
+                  or SaaS policy zone.
                 properties:
                   cloud:
                     description: |-
-                      Cloud specifies the Venafi cloud configuration settings.
-                      Only one of TPP or Cloud may be specified.
+                      Cloud specifies the CyberArk Certificate Manager SaaS configuration settings.
+                      Only one of CyberArk Certificate Manager may be specified.
                     properties:
                       apiTokenSecretRef:
                         description: APITokenSecretRef is a secret key selector for
-                          the Venafi Cloud API token.
+                          the CyberArk Certificate Manager SaaS API token.
                         properties:
                           key:
                             description: |-
@@ -12632,7 +12685,7 @@ spec:
                         type: object
                       url:
                         description: |-
-                          URL is the base URL for Venafi Cloud.
+                          URL is the base URL for CyberArk Certificate Manager SaaS.
                           Defaults to "https://api.venafi.cloud/".
                         type: string
                     required:
@@ -12640,13 +12693,13 @@ spec:
                     type: object
                   tpp:
                     description: |-
-                      TPP specifies Trust Protection Platform configuration settings.
-                      Only one of TPP or Cloud may be specified.
+                      TPP specifies CyberArk Certificate Manager Self-Hosted configuration settings.
+                      Only one of CyberArk Certificate Manager may be specified.
                     properties:
                       caBundle:
                         description: |-
                           Base64-encoded bundle of PEM CAs which will be used to validate the certificate
-                          chain presented by the TPP server. Only used if using HTTPS; ignored for HTTP.
+                          chain presented by the CyberArk Certificate Manager Self-Hosted server. Only used if using HTTPS; ignored for HTTP.
                           If undefined, the certificate bundle in the cert-manager controller container
                           is used to validate the chain.
                         format: byte
@@ -12654,7 +12707,7 @@ spec:
                       caBundleSecretRef:
                         description: |-
                           Reference to a Secret containing a base64-encoded bundle of PEM CAs
-                          which will be used to validate the certificate chain presented by the TPP server.
+                          which will be used to validate the certificate chain presented by the CyberArk Certificate Manager Self-Hosted server.
                           Only used if using HTTPS; ignored for HTTP. Mutually exclusive with CABundle.
                           If neither CABundle nor CABundleSecretRef is defined, the certificate bundle in
                           the cert-manager controller container is used to validate the TLS connection.
@@ -12675,7 +12728,7 @@ spec:
                         type: object
                       credentialsRef:
                         description: |-
-                          CredentialsRef is a reference to a Secret containing the Venafi TPP API credentials.
+                          CredentialsRef is a reference to a Secret containing the CyberArk Certificate Manager Self-Hosted API credentials.
                           The secret must contain the key 'access-token' for the Access Token Authentication,
                           or two keys, 'username' and 'password' for the API Keys Authentication.
                         properties:
@@ -12689,7 +12742,7 @@ spec:
                         type: object
                       url:
                         description: |-
-                          URL is the base URL for the vedsdk endpoint of the Venafi TPP instance,
+                          URL is the base URL for the vedsdk endpoint of the CyberArk Certificate Manager Self-Hosted instance,
                           for example: "https://tpp.example.com/vedsdk".
                         type: string
                     required:
@@ -12698,8 +12751,8 @@ spec:
                     type: object
                   zone:
                     description: |-
-                      Zone is the Venafi Policy Zone to use for this issuer.
-                      All requests made to the Venafi platform will be restricted by the named
+                      Zone is the Certificate Manager Policy Zone to use for this issuer.
+                      All requests made to the Certificate Manager platform will be restricted by the named
                       zone policy.
                       This field is required.
                     type: string
@@ -12798,16 +12851,14 @@ spec:
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  annotations:
-    helm.sh/resource-policy: keep
   labels:
     app: cert-manager
     app.kubernetes.io/component: crds
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: orders.acme.cert-manager.io
 spec:
   group: acme.cert-manager.io
@@ -13072,6 +13123,10 @@ spec:
         - metadata
         - spec
         type: object
+    selectableFields:
+    - jsonPath: .spec.issuerRef.group
+    - jsonPath: .spec.issuerRef.kind
+    - jsonPath: .spec.issuerRef.name
     served: true
     storage: true
     subresources:
@@ -13087,9 +13142,9 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
-  name: helm-chart-cert-manager
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
+  name: cert-manager
   namespace: cert-manager
 ---
 apiVersion: v1
@@ -13102,8 +13157,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cainjector
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-cainjector
   namespace: cert-manager
 ---
@@ -13121,8 +13176,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: startupapicheck
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-startupapicheck
   namespace: cert-manager
 ---
@@ -13136,8 +13191,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: webhook
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-webhook
   namespace: cert-manager
 ---
@@ -13154,8 +13209,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: startupapicheck
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-startupapicheck:create-cert
   namespace: cert-manager
 rules:
@@ -13175,15 +13230,15 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-tokenrequest
   namespace: cert-manager
 rules:
 - apiGroups:
   - ""
   resourceNames:
-  - helm-chart-cert-manager
+  - cert-manager
   resources:
   - serviceaccounts/token
   verbs:
@@ -13198,8 +13253,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: webhook
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-webhook:dynamic-serving
   namespace: cert-manager
 rules:
@@ -13230,8 +13285,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cainjector
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-cainjector:leaderelection
   namespace: kube-system
 rules:
@@ -13262,8 +13317,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager:leaderelection
   namespace: kube-system
 rules:
@@ -13293,8 +13348,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cainjector
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-cainjector
 rules:
 - apiGroups:
@@ -13363,8 +13418,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
     rbac.authorization.k8s.io/aggregate-to-cluster-reader: "true"
   name: helm-chart-cert-manager-cluster-view
 rules:
@@ -13386,8 +13441,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-controller-approve:cert-manager-io
 rules:
 - apiGroups:
@@ -13409,8 +13464,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-controller-certificates
 rules:
 - apiGroups:
@@ -13480,8 +13535,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-controller-certificatesigningrequests
 rules:
 - apiGroups:
@@ -13525,8 +13580,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-controller-challenges
 rules:
 - apiGroups:
@@ -13632,8 +13687,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-controller-clusterissuers
 rules:
 - apiGroups:
@@ -13680,8 +13735,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-controller-ingress-shim
 rules:
 - apiGroups:
@@ -13723,6 +13778,7 @@ rules:
   resources:
   - gateways
   - httproutes
+  - listenersets
   verbs:
   - get
   - list
@@ -13732,6 +13788,7 @@ rules:
   resources:
   - gateways/finalizers
   - httproutes/finalizers
+  - listenersets/finalizers
   verbs:
   - update
 - apiGroups:
@@ -13751,8 +13808,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-controller-issuers
 rules:
 - apiGroups:
@@ -13799,8 +13856,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-controller-orders
 rules:
 - apiGroups:
@@ -13843,6 +13900,13 @@ rules:
   verbs:
   - update
 - apiGroups:
+  - cert-manager.io
+  resources:
+  - clusterissuers/finalizers
+  - issuers/finalizers
+  verbs:
+  - update
+- apiGroups:
   - ""
   resources:
   - secrets
@@ -13867,8 +13931,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
     rbac.authorization.k8s.io/aggregate-to-admin: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
   name: helm-chart-cert-manager-edit
@@ -13912,8 +13976,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
     rbac.authorization.k8s.io/aggregate-to-admin: "true"
     rbac.authorization.k8s.io/aggregate-to-cluster-reader: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
@@ -13949,8 +14013,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: webhook
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-webhook:subjectaccessreviews
 rules:
 - apiGroups:
@@ -13973,8 +14037,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: startupapicheck
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-startupapicheck:create-cert
   namespace: cert-manager
 roleRef:
@@ -13995,8 +14059,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-tokenrequest
   namespace: cert-manager
 roleRef:
@@ -14005,7 +14069,7 @@ roleRef:
   name: helm-chart-cert-manager-tokenrequest
 subjects:
 - kind: ServiceAccount
-  name: helm-chart-cert-manager
+  name: cert-manager
   namespace: cert-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -14017,8 +14081,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: webhook
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-webhook:dynamic-serving
   namespace: cert-manager
 roleRef:
@@ -14039,8 +14103,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cainjector
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-cainjector:leaderelection
   namespace: kube-system
 roleRef:
@@ -14061,8 +14125,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager:leaderelection
   namespace: kube-system
 roleRef:
@@ -14071,7 +14135,7 @@ roleRef:
   name: helm-chart-cert-manager:leaderelection
 subjects:
 - kind: ServiceAccount
-  name: helm-chart-cert-manager
+  name: cert-manager
   namespace: cert-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -14083,8 +14147,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cainjector
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-cainjector
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -14104,8 +14168,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-controller-approve:cert-manager-io
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -14113,7 +14177,7 @@ roleRef:
   name: helm-chart-cert-manager-controller-approve:cert-manager-io
 subjects:
 - kind: ServiceAccount
-  name: helm-chart-cert-manager
+  name: cert-manager
   namespace: cert-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -14125,8 +14189,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-controller-certificates
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -14134,7 +14198,7 @@ roleRef:
   name: helm-chart-cert-manager-controller-certificates
 subjects:
 - kind: ServiceAccount
-  name: helm-chart-cert-manager
+  name: cert-manager
   namespace: cert-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -14146,8 +14210,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-controller-certificatesigningrequests
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -14155,7 +14219,7 @@ roleRef:
   name: helm-chart-cert-manager-controller-certificatesigningrequests
 subjects:
 - kind: ServiceAccount
-  name: helm-chart-cert-manager
+  name: cert-manager
   namespace: cert-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -14167,8 +14231,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-controller-challenges
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -14176,7 +14240,7 @@ roleRef:
   name: helm-chart-cert-manager-controller-challenges
 subjects:
 - kind: ServiceAccount
-  name: helm-chart-cert-manager
+  name: cert-manager
   namespace: cert-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -14188,8 +14252,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-controller-clusterissuers
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -14197,7 +14261,7 @@ roleRef:
   name: helm-chart-cert-manager-controller-clusterissuers
 subjects:
 - kind: ServiceAccount
-  name: helm-chart-cert-manager
+  name: cert-manager
   namespace: cert-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -14209,8 +14273,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-controller-ingress-shim
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -14218,7 +14282,7 @@ roleRef:
   name: helm-chart-cert-manager-controller-ingress-shim
 subjects:
 - kind: ServiceAccount
-  name: helm-chart-cert-manager
+  name: cert-manager
   namespace: cert-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -14230,8 +14294,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-controller-issuers
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -14239,7 +14303,7 @@ roleRef:
   name: helm-chart-cert-manager-controller-issuers
 subjects:
 - kind: ServiceAccount
-  name: helm-chart-cert-manager
+  name: cert-manager
   namespace: cert-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -14251,8 +14315,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-controller-orders
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -14260,7 +14324,7 @@ roleRef:
   name: helm-chart-cert-manager-controller-orders
 subjects:
 - kind: ServiceAccount
-  name: helm-chart-cert-manager
+  name: cert-manager
   namespace: cert-manager
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -14272,8 +14336,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: webhook
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-webhook:subjectaccessreviews
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -14293,8 +14357,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager
   namespace: cert-manager
 spec:
@@ -14318,8 +14382,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cainjector
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-cainjector
   namespace: cert-manager
 spec:
@@ -14342,8 +14406,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: webhook
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-webhook
   namespace: cert-manager
 spec:
@@ -14371,8 +14435,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager
   namespace: cert-manager
 spec:
@@ -14394,22 +14458,22 @@ spec:
         app.kubernetes.io/instance: helm-chart
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: cert-manager
-        app.kubernetes.io/version: v1.19.2
-        helm.sh/chart: cert-manager-v1.19.2
+        app.kubernetes.io/version: v1.20.2
+        helm.sh/chart: cert-manager-v1.20.2
     spec:
       containers:
       - args:
         - --v=2
-        - --cluster-resource-namespace=$(POD_NAMESPACE)
+        - --cluster-resource-namespace=kube-system
         - --leader-election-namespace=kube-system
-        - --acme-http01-solver-image=quay.io/jetstack/cert-manager-acmesolver:v1.19.2
+        - --acme-http01-solver-image=quay.io/jetstack/cert-manager-acmesolver:v1.20.2
         - --max-concurrent-challenges=60
         env:
         - name: POD_NAMESPACE
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: quay.io/jetstack/cert-manager-controller:v1.19.2
+        image: quay.io/jetstack/cert-manager-controller:v1.20.2
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 8
@@ -14442,7 +14506,7 @@ spec:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
-      serviceAccountName: helm-chart-cert-manager
+      serviceAccountName: cert-manager
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -14453,8 +14517,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: cainjector
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-cainjector
   namespace: cert-manager
 spec:
@@ -14476,8 +14540,8 @@ spec:
         app.kubernetes.io/instance: helm-chart
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: cainjector
-        app.kubernetes.io/version: v1.19.2
-        helm.sh/chart: cert-manager-v1.19.2
+        app.kubernetes.io/version: v1.20.2
+        helm.sh/chart: cert-manager-v1.20.2
     spec:
       containers:
       - args:
@@ -14488,7 +14552,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: quay.io/jetstack/cert-manager-cainjector:v1.19.2
+        image: quay.io/jetstack/cert-manager-cainjector:v1.20.2
         imagePullPolicy: IfNotPresent
         name: cert-manager-cainjector
         ports:
@@ -14519,8 +14583,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: webhook
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-webhook
   namespace: cert-manager
 spec:
@@ -14542,8 +14606,8 @@ spec:
         app.kubernetes.io/instance: helm-chart
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: webhook
-        app.kubernetes.io/version: v1.19.2
-        helm.sh/chart: cert-manager-v1.19.2
+        app.kubernetes.io/version: v1.20.2
+        helm.sh/chart: cert-manager-v1.20.2
     spec:
       containers:
       - args:
@@ -14559,7 +14623,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: quay.io/jetstack/cert-manager-webhook:v1.19.2
+        image: quay.io/jetstack/cert-manager-webhook:v1.20.2
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
@@ -14620,8 +14684,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: startupapicheck
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-startupapicheck
   namespace: cert-manager
 spec:
@@ -14634,8 +14698,8 @@ spec:
         app.kubernetes.io/instance: helm-chart
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: startupapicheck
-        app.kubernetes.io/version: v1.19.2
-        helm.sh/chart: cert-manager-v1.19.2
+        app.kubernetes.io/version: v1.20.2
+        helm.sh/chart: cert-manager-v1.20.2
     spec:
       containers:
       - args:
@@ -14648,7 +14712,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: quay.io/jetstack/cert-manager-startupapicheck:v1.19.2
+        image: quay.io/jetstack/cert-manager-startupapicheck:v1.20.2
         imagePullPolicy: IfNotPresent
         name: cert-manager-startupapicheck
         securityContext:
@@ -14678,8 +14742,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: webhook
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-webhook
 webhooks:
 - admissionReviewVersions:
@@ -14715,8 +14779,8 @@ metadata:
     app.kubernetes.io/instance: helm-chart
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: webhook
-    app.kubernetes.io/version: v1.19.2
-    helm.sh/chart: cert-manager-v1.19.2
+    app.kubernetes.io/version: v1.20.2
+    helm.sh/chart: cert-manager-v1.20.2
   name: helm-chart-cert-manager-webhook
 webhooks:
 - admissionReviewVersions:

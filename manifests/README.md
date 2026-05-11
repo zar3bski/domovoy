@@ -15,13 +15,7 @@ A working **traefik** Ingress controler with its associated CRDs and a default *
 
 ### Deploy cert-manager
 
-From the node, **as root**, run
-
-```shell
-kubectl apply -f /etc/ssl/private/ca-cluster.yml
-```
-
-and install cert-manager
+> This step presuppose that ca-cluster.yml & ca-cluster-internal.yml have been applied by the k3s playbook. If not, apply manually
 
 ```shell
 kubectl apply -k base/cert-manager
@@ -47,88 +41,21 @@ kubectl apply -k ./base/storage
 kubectl apply -k base/network
 ```
 
-### Deploy the vault
+### Deploy Openbao
 
-1. Create the namespace
-
-```shell
-kubectl apply -f ./base/vaultwarden/ns-vaultwarden.yml
-```
-
-2. Create manually the following **secret** 
-We will assume that:
-
-`BW_USERNAME`: **secret-manager@infra.lan**
-`SVC_USER`: **secret-manager**
+Set `manifests/overlays/<env>/openbao/secret.env`. In case of restoration from a previous deployment, `static_seal_key` should be the same as the one used previously.
 
 ```yaml
-cat <<EOF | kubectl apply -f -
-apiVersion: v1
-data:
-  BW_HOST: aHR0cDovLzEyNy4wLjAuMTo4MA==
-  SVC_USER: c2VjcmV0LW1hbmFnZXI=
-  SVC_PASSWORD: <some_password_in_base64>
-  BW_USERNAME: c2VjcmV0LW1hbmFnZXJAaW5mcmEubGFu
-  BW_PASSWORD: <some_password_in_base64> # in case of reused PVC, use the previous password
-kind: Secret
-metadata:
-  name: bitwarden-cli
-  namespace: vaultwarden
-type: Opaque
-EOF
-```
-3. Install the app
-
-```shell
-kubectl apply -k ./overlays/prod/vaultwarden
+kubectl apply -k overlays/<env>/openbao
 ```
 
-#### Case 1: Reuse PVC from previous install
-
-Simply `cp -r` from archive to vaultwarden PVC (**vaultwarden-data**)
-
-#### Case 2: Set vault from scratch
-
-All infra secrets are pulled by a vaultwarden service account identified by **secret-manager@infra.lan** from a specific collection named `lan`. The **service account** and **the collection** cannot be provisioned and must be created manually. Use the same password as the one you choose for `BW_PASSWORD` at step one
-
-![](./docs/imgs/vaultwarden-service-account.png)
+> if necessary, restore the volume from a previous deployment
 
 
 ### Set the External Secret Manager up
 
-1. Create the namespace
-
 ```shell
-kubectl apply -f ./base/external-secret-operator/ns-external-secrets.yml
-```
-
-2. Create the secret to access bitwarden-cli
-
-```shell
-# extract creds from the secret previously created
-VAULT_PASS=$(kubectl get secret -n vaultwarden bitwarden-cli -o json | jq -r '.data.SVC_PASSWORD')
-VAULT_USER=$(kubectl get secret -n vaultwarden bitwarden-cli -o json | jq -r '.data.SVC_USER')
-
-# create the secret to be used by the ClusterSecretStore
-cat <<EOF | kubectl apply -f -
-apiVersion: v1
-data:
-  SVC_USER: $VAULT_USER
-  SVC_PASSWORD: $VAULT_PASS
-kind: Secret
-metadata:
-  name: bitwarden-cli-credentials
-  namespace: external-secrets
-  labels:
-    external-secrets.io/type: webhook
-type: Opaque
-EOF
-```
-
-3. Deploy the **external-secret-operator**
-
-```shell
-kubectl apply -k ./base/external-secret-operator
+kubectl apply -k overlays/<env>/external-secret-operator
 ```
 
 ### Create the various .env

@@ -383,10 +383,10 @@ spec:
           timeoutSeconds: 5
       hostNetwork: false
       securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
+        fsGroup: 61008
+        runAsGroup: 61008
         runAsNonRoot: true
-        runAsUser: 100
+        runAsUser: 61008
       serviceAccountName: openbao-agent-injector
 ---
 apiVersion: apps/v1

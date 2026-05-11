@@ -17,7 +17,3 @@ spec:
       remoteRef:
         key: test
         property: field1
-    - secretKey: grafana_admin
-      remoteRef:
-        key: application/grafana
-        property: admin_password

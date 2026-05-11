@@ -1,0 +1,10 @@
+#source https://github.com/cert-manager/cert-manager/blob/master/deploy/charts/cert-manager/values.yaml
+
+crds:
+  enabled: true
+  keep: false # avoid conflicting persisting resources to survive in case of upgrades
+clusterResourceNamespace: "kube-system"
+serviceAccount:
+  create: true
+  name: cert-manager
+  namespace: cert-manager

@@ -1,6 +1,9 @@
 global:
   namespace: "openbao"
   tlsDisable: false
+injector:
+  gid: 61008
+  uid: 61008
 server:
   standalone:
     enabled: true
@@ -144,7 +147,7 @@ server:
   extraInitContainers:
     - name: key-injector
       image: alpine
-      command: [ ash, -c ]
+      command: [ash, -c]
       args:
         - mkdir -p /data/secrets && cat /var/run/key >
           /data/secrets/unseal-20260314-1.key
