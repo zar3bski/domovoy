@@ -16,6 +16,7 @@ source ./.ASI_VENV/bin/activate
 
 ```shell
 pip3 install -r requirements.txt
+ansible-galaxy collection install -r ansible-modules.yml 
 ```
 
 ### Create your **inventory.yml** according to `site.yml` , for example

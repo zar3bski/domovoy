@@ -3,7 +3,7 @@
 
 - name: "Install docker"
   ansible.builtin.include_tasks:
-    file: "../../docker/tasks/main.yml"
+    file: "{{ playbook_dir  }}/docker/tasks/main.yml"
 
 - name: Pull technitium image
   community.docker.docker_image:
